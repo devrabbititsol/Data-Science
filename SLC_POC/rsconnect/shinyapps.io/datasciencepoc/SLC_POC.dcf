@@ -1,0 +1,10 @@
+name: SLC_POC
+title: SLC_POC
+account: datasciencepoc
+server: shinyapps.io
+appId: 156955
+bundleId: 716259
+url: https://datasciencepoc.shinyapps.io/SLC_POC/
+when: 1487446313.31113
+asMultiple: FALSE
+asStatic: FALSE
