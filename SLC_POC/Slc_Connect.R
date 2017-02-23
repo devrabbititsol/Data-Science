@@ -26,7 +26,9 @@ Ysales=dbSendQuery(mydb,'select year(sales_flat_order.updated_at) as Year,
                where sales_flat_order.entity_id=sales_flat_invoice.order_id  and year(sales_flat_order.updated_at)=2016     
                
                group by Month(sales_flat_order.updated_at)')
+
 ysalesval= fetch(Ysales, n=-1) 
+
 #Query to find AverageOrderValue
    #avg order value for a month in a year
 mAvg_Order=dbSendQuery(mydb,'select sum(grand_total)/count(*) as AvgOrderValue from sales_flat_order where status="complete" and 
@@ -256,3 +258,35 @@ sales_flat_order.`status`,sum(sales_flat_shipment.total_qty) as UnitsShipped,sal
                          group by Month(sales_flat_shipment.created_at)
                          ')
 ysupplychainval=fetch(ysupplychain,n=-1)
+#### Visit per Day ########
+dVisits=dbSendQuery(mydb,"select count(*) from log_visitor where day(log_visitor.first_visit_at)=26 and 
+			  month(log_visitor.first_visit_at)=3 and year(log_visitor.first_visit_at)=2016")
+dVisitsperday=fetch(dVisits,n=-1)
+###########Inventory Availability####################
+availStock = dbSendQuery(mydb,'select cataloginventory_stock_status.product_id as productid,cataloginventory_stock_status.qty,catalog_product_entity_varchar.value as productname
+                         
+                         from cataloginventory_stock_status,catalog_product_entity,catalog_product_entity_varchar
+                         where cataloginventory_stock_status.product_id=catalog_product_entity.entity_id 
+                         and catalog_product_entity_varchar.entity_id=catalog_product_entity.entity_id
+                         group by cataloginventory_stock_status.product_id;')
+availInventoryStock= fetch(availStock, n=-1)
+
+
+
+######Top 10 best Product##########
+Products= dbSendQuery(mydb,'select sales_flat_order_item.product_id as productid,sales_flat_order_item.name as name,(sales_flat_invoice.total_qty) as qty,sales_flat_order.`status` ,
+                      year(sales_flat_order.created_at) as year
+                      from sales_flat_order_item,sales_flat_invoice,sales_flat_order
+                      where sales_flat_order.entity_id=sales_flat_order_item.item_id and
+                      sales_flat_order.entity_id=sales_flat_invoice.entity_id and status="complete"
+                      and year(sales_flat_order.created_at)=2016  order by sales_flat_invoice.total_qty desc limit 10;')
+TopBestProducts= fetch(Products, n=-1)
+######top 5 products in location wise of current year######
+locationsale2016 = dbSendQuery(mydb,'select sales_flat_order_item.product_id,sales_flat_order_item.name,sales_flat_order_address.region as location,(sales_flat_invoice.total_qty) as qty,sales_flat_order.`status` ,
+                               year(sales_flat_order.created_at) as year
+                               from sales_flat_order_item,sales_flat_order_address,sales_flat_invoice,sales_flat_order
+                               where sales_flat_order.entity_id=sales_flat_order_item.item_id and
+                               sales_flat_order.entity_id=sales_flat_invoice.entity_id and sales_flat_order.entity_id=sales_flat_order_address.entity_id  and status="complete"
+                               and year(sales_flat_order.created_at)=2016 group by location order by sales_flat_invoice.total_qty desc limit 5;')
+locationwise = fetch(locationsale2016, n=-1) 
+colnames(locationwise)[1]<-"productid"

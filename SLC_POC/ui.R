@@ -26,7 +26,9 @@ ui <- dashboardPage(skin=c("red"),
                                                  valueBoxOutput("mrevenue",width=3),
                                                  valueBoxOutput("mavg_order",width=3),
                                                  valueBoxOutput("mrecustomers",width=3),
-                                                 infoBoxOutput("mEratio",width=3)
+                                                 infoBoxOutput("mEratio",width=3),
+                                                 infoBoxOutput("dVisitsBox",width=3)
+                                                 
                               ),
                               fluidRow( box(
                                                 tabsetPanel(
@@ -80,6 +82,24 @@ ui <- dashboardPage(skin=c("red"),
                                 soliidHeader = TRUE,
                                 width=6
                               ),
+                              box(
+                                tabsetPanel(
+                                  tabPanel("Top 10 best Products in current yer(2016)",htmlOutput("topproducts"))
+                                  
+                                ),
+                                title="Top 10 best Products in current yer(2016)",
+                                solidHeader = TRUE,
+                                width=4
+                              ),
+                              box(
+                                tabsetPanel(
+                                  tabPanel("Top 5 best Products in current yer(2016) in location wise",htmlOutput("topproductsinlocwise"))
+                                  
+                                ),
+                                title="Top 5 best Products in current yer(2016) in location wise",
+                                solidHeader = TRUE,
+                                width=4
+                              ),
                               fluidRow(
                                 valueBoxOutput("yrevenue",width=3),
                                 valueBoxOutput("yavg_order",width=3),
@@ -100,7 +120,7 @@ ui <- dashboardPage(skin=c("red"),
                         box(
                           
                             tabPanel("Quantity Sold",htmlOutput("mQty_Sold_loc")),
-                            title="Quantity Sold in Location",
+                            title="Quantity Sold in Location in a month",
                             soliidHeader = TRUE,
                             width=6
                           ),
@@ -110,6 +130,17 @@ ui <- dashboardPage(skin=c("red"),
                             title="SalesandPricing",
                             soliidHeader = TRUE,
                             width=6
+                        ),
+                        box(
+                          tabsetPanel(
+                            tabPanel("Available Inventory stock",htmlOutput("Avail_Inventory_stock")),
+                            DT::dataTableOutput('tbl')
+                            # p(class = 'text-center', downloadButton('x3', 'Download Filtered Data'))
+                            
+                          ),
+                          title="Available Inventory stock",
+                          solidHeader = TRUE,
+                          width=6
                         )
                         )
                         
@@ -120,7 +151,7 @@ ui <- dashboardPage(skin=c("red"),
                                                                       box(
                                                                         
                                                                         tabPanel("Quantity Sold",htmlOutput("YQty_Sold_loc")),
-                                                                        title="Year Analysis of Revenue",
+                                                                        title="Quantity Sold in Location in a year",
                                                                         soliidHeader = TRUE,
                                                                         width=6
                                                                       ),

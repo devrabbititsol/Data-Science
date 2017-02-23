@@ -28,6 +28,14 @@ server <- function(input, output) {
     return(ysalechart)
     
   })
+  #####Top 10 best products of current year(2016) in location wise"
+  output$topproductsinlocwise<- renderGvis({
+    TopBestinloc<- select(locationwise,productid,location,name,qty)
+    
+    topbestproinlocchart<-gvisTable(TopBestinloc)
+    return(topbestproinlocchart)
+    
+  })
   ##plot for revenue by category
   output$rvcgraph <- renderGvis({
     crvalue<- select(Rbycatval,category_id,Revenue)
@@ -41,7 +49,7 @@ server <- function(input, output) {
     
     mlocsales <- msalelocval 
     msaleloc <- na.omit(mlocsales) 
-    mgeostate <- gvisGeoChart(msaleloc,"Location","Revenue",options=list(region="US",displayMode="regions",resolution="provinces"))
+    mgeostate <- gvisGeoChart(msaleloc,"Location","Revenue",options=list(region="US",displayMode="regions",resolution="provinces",width="400px",height="200px"))
     return(mgeostate)
     
   })
@@ -50,7 +58,7 @@ server <- function(input, output) {
     
     ylocsales <- ysalelocvaly 
     ysaleloc <- na.omit(ylocsales) 
-    ygeostate <- gvisGeoChart(ysaleloc,"Location","Revenue",options=list(region="US",displayMode="regions",resolution="provinces"))
+    ygeostate <- gvisGeoChart(ysaleloc,"Location","Revenue",options=list(region="US",displayMode="regions",resolution="provinces",width="400px",height="200px"))
     return(ygeostate)
     
   })
@@ -74,7 +82,7 @@ server <- function(input, output) {
     # ilsales<- select(InventsalesbyRegion,Revenue,Location)
     mInventorysalesbyRegion <- mIsalesbyRegion
     milsales <- na.omit(mInventorysalesbyRegion)
-    milgeostate <- gvisGeoChart(milsales,"Location","QuantityOrdered",options=list(region="US",displayMode="regions",resolution="provinces"))
+    milgeostate <- gvisGeoChart(milsales,"Location","QuantityOrdered",options=list(region="US",displayMode="regions",resolution="provinces",width="400px",height="200px"))
     return(milgeostate)
     
   })
@@ -83,7 +91,7 @@ server <- function(input, output) {
     # ilsales<- select(InventsalesbyRegion,Revenue,Location)
     yInventorysalesbyRegion <- yIsalesbyRegion
     yilsales <- na.omit(yInventorysalesbyRegion)
-    yilgeostate <- gvisGeoChart(yilsales,"Location","QuantityOrdered",options=list(region="US",displayMode="regions",resolution="provinces"))
+    yilgeostate <- gvisGeoChart(yilsales,"Location","QuantityOrdered",options=list(region="US",displayMode="regions",resolution="provinces",width="400px",height="200px"))
     return(yilgeostate)
     
   })
@@ -91,7 +99,8 @@ server <- function(input, output) {
   output$ysalespricing<- renderGvis({
     yunitssoldandship<- select(ysupplychainval,Month,UnitsOrdered,UnitsShipped)
     
-    Month<-ysupplychainval$Month
+    Month<-Month<-c("JAN","FEB","MAR")
+    # ysupplychainval$Month
     UnitsSold<-ysupplychainval$UnitsOrdered
     UnitsShipped<-ysupplychainval$UnitsShipped
     ydf<-data.frame(Month,UnitsSold,UnitsShipped)
@@ -178,6 +187,46 @@ server <- function(input, output) {
     )
     
   })
+  ###Visits per day
+  ###### Total Visits Per day ########
+  
+  output$dVisitsBox <- renderValueBox({
+    infoBox(
+      paste(dVisitsperday), "Visits/Day",icon = icon("glyphicon glyphicon-eye-open",lib="glyphicon"),
+      color = "green",fill=TRUE
+    )
+  })
+  
+  #####Top 10 best products of current year(2016)"
+  output$topproducts<- renderGvis({
+    TopBest<- select(TopBestProducts,productid,name,qty)
+    topbestprochart<-gvisTable(TopBest)
+    return(topbestprochart)
+    
+  })
+  
+  # #####Available Inventory Stock#######################
+  # output$Avail_Inventory_stock<- renderGvis({
+  #   AIstock<- select(availInventoryStock,productid,productname,qty)
+  #   
+  #   AIstockchart<-gvisTable(AIstock)
+  #   print(AIstockchart$AIstock)
+  #   
+  #   return(AIstockchart)
+  #   
+  # })
+  output$tbl = DT::renderDataTable(
+    availInventoryStock, filter = 'top', options = list(lengthChange = TRUE)
+  )
+  # ##############for download button################ availInventoryStock2.xlsx
+  # output$x3 = downloadHandler(availInventoryStock, content = function(file) {
+  #   s = input$tbl_rows_all
+  #   write.xlsx(availstock[s, , drop = FALSE], file)
+  # })
+  # availstock = availInventoryStock[, c('productid', 'qty','productname')]
+  # 
+  # output$tb1 = DT::renderDataTable(availstock, server = FALSE)
+  # 
   ##AverageInventory for a month
   output$minventory <- renderInfoBox({
     infoBox(
@@ -224,15 +273,16 @@ server <- function(input, output) {
 ###Units per transactions in a month
   output$munits <- renderValueBox({
   infoBox(
-    "U/T",paste(round(munitspertransaction,3)),  icon = icon("thumbs-up", lib = "glyphicon"),
+    "Units/Transaction",paste(round(munitspertransaction,3)),  icon = icon("thumbs-up", lib = "glyphicon"),
     color = "orange",fill=TRUE
   )
 })
   ###Units per transactions in a month
   output$yunits <- renderValueBox({
     infoBox(
-      "U/T",paste(round(yunitspertransaction),3),  icon = icon("thumbs-up", lib = "glyphicon"),
+      "Units/Transaction",paste(round(yunitspertransaction),3),  icon = icon("thumbs-up", lib = "glyphicon"),
       color = "orange",fill=TRUE
     )
   })
+ 
 }
