@@ -26,12 +26,13 @@ ui <- dashboardPage(skin=c("red"),
                                                  valueBoxOutput("mrevenue",width=3),
                                                  valueBoxOutput("mavg_order",width=3),
                                                  valueBoxOutput("mrecustomers",width=3),
-                                                 infoBoxOutput("mEratio",width=3),
-                                                 infoBoxOutput("dVisitsBox",width=3)
+                                                 valueBoxOutput("dVisitsBox",width=3)
                                                  
                               ),
+                              fluidRow(infoBoxOutput("mEratio",width=3)),
                               fluidRow( box(
                                                 tabsetPanel(
+                                                  tabPanel("today",htmlOutput("today_sales_graph"),selectInput("sty","",selected=NULL,choices = list("today","Yesterday"))),
                                                   tabPanel("sales",htmlOutput("monthly_sales_graph")),
                                                   tabPanel("Location",htmlOutput("sales_Location_graph"))
                                                   
@@ -43,8 +44,13 @@ ui <- dashboardPage(skin=c("red"),
                                               
                                              box(
                                                 tabsetPanel(
-                                                  tabPanel("sales of a Month",htmlOutput("Month_sales_graph_everyYear"))
-
+                                                  tabPanel("sales of a Month",htmlOutput("Month_sales_graph_everyYear")),
+                                                  tabPanel("projection",htmlOutput("slider_input"),sliderInput("Percentage",
+                                                                                                               min = 1,
+                                                                                                               max = 100
+                                                                                                               )
+                                                  ))
+                                                
                                                 ),
                                                 title="Sales Analysis March",
                                                 solidHeader = TRUE,
@@ -87,7 +93,7 @@ ui <- dashboardPage(skin=c("red"),
                                   tabPanel("Top 10 best Products in current yer(2016)",htmlOutput("topproducts"))
                                   
                                 ),
-                                title="Top 10 best Products in current yer(2016)",
+                                # title="Top 10 best Products in current yer(2016)",
                                 solidHeader = TRUE,
                                 width=4
                               ),
@@ -96,7 +102,7 @@ ui <- dashboardPage(skin=c("red"),
                                   tabPanel("Top 5 best Products in current yer(2016) in location wise",htmlOutput("topproductsinlocwise"))
                                   
                                 ),
-                                title="Top 5 best Products in current yer(2016) in location wise",
+                                # title="Top 5 best Products in current yer(2016) in location wise",
                                 solidHeader = TRUE,
                                 width=4
                               ),
@@ -133,11 +139,11 @@ ui <- dashboardPage(skin=c("red"),
                         ),
                         box(
                           tabsetPanel(
-                            tabPanel("Available Inventory stock",htmlOutput("Avail_Inventory_stock")),
-                            DT::dataTableOutput('tbl')
-                            # p(class = 'text-center', downloadButton('x3', 'Download Filtered Data'))
+                             tabPanel(
+                            DT::dataTableOutput('tbl'),
+                             p(class = 'text-center', downloadButton('x3', 'Download Filtered Data'))
                             
-                          ),
+                          )),
                           title="Available Inventory stock",
                           solidHeader = TRUE,
                           width=6

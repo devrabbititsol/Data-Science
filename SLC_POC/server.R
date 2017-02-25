@@ -12,7 +12,34 @@ library(ggplot2)
 
 
 server <- function(input, output) {
+  ##today_sales_graph
   
+  ##plot for monthly sales analysis
+  observe({
+  x<-input$sty 
+  # print(x)
+  if(x=="today")
+     {
+       # print("Hi all")
+    output$today_sales_graph <- renderGvis({
+      tdsales<- select(tdaysales,day,sales)
+      tdsalechart<-gvisColumnChart(tdsales,xvar="day",yvar="sales",options=list(width="100%",height="200px"))
+      return(tdsalechart)
+      
+    })
+       
+  }
+  if(x=="Yesterday")
+  {
+    output$today_sales_graph <- renderGvis({
+      ydsales<- select(ydaysales,day,sales)
+      ydsalechart<-gvisColumnChart(ydsales,xvar="day",yvar="sales",options=list(width="100%",height="200px"))
+      return(ydsalechart)
+      
+    })
+  }
+  })
+    
   ##plot for monthly sales analysis
   output$monthly_sales_graph <- renderGvis({
     msales<- select(daywisesales,day,sales)
@@ -30,7 +57,7 @@ server <- function(input, output) {
   })
   #####Top 10 best products of current year(2016) in location wise"
   output$topproductsinlocwise<- renderGvis({
-    TopBestinloc<- select(locationwise,productid,location,name,qty)
+    TopBestinloc<- select(locationwise,Productid,Name,Location,Quantity)
     
     topbestproinlocchart<-gvisTable(TopBestinloc)
     return(topbestproinlocchart)
@@ -49,7 +76,7 @@ server <- function(input, output) {
     
     mlocsales <- msalelocval 
     msaleloc <- na.omit(mlocsales) 
-    mgeostate <- gvisGeoChart(msaleloc,"Location","Revenue",options=list(region="US",displayMode="regions",resolution="provinces",width="400px",height="200px"))
+    mgeostate <- gvisGeoChart(msaleloc,"Location","Revenue",options=list(region="US",displayMode="regions",resolution="provinces",width="100%",height="200px"))
     return(mgeostate)
     
   })
@@ -175,15 +202,17 @@ server <- function(input, output) {
   output$mEratio <- renderInfoBox({
     infoBox(
       "Ecommerce Conversion Ratio",paste(round(mERatio,4),"%"),
-      color = "purple",fill = TRUE,icon = icon("credit-card")
+      color = "purple",icon = icon("credit-card")
+       ,fill = TRUE
     )
     
   })
   ##Ecomerce ratio for a year
-  output$yEratio <- renderInfoBox({
-    infoBox(
-      "Ecommerce Conversion Ratio",paste(round(yERatio,4),"%"),
-      color = "purple",fill = TRUE,icon = icon("credit-card")
+  output$yEratio <- renderValueBox({
+    valueBox(
+      paste(round(yERatio,4),"%"),"Ecommerce Conversion Ratio",
+      color = "purple",icon = icon("credit-card")
+      # fill = TRUE,
     )
     
   })
@@ -191,42 +220,46 @@ server <- function(input, output) {
   ###### Total Visits Per day ########
   
   output$dVisitsBox <- renderValueBox({
-    infoBox(
+    valueBox(
       paste(dVisitsperday), "Visits/Day",icon = icon("glyphicon glyphicon-eye-open",lib="glyphicon"),
-      color = "green",fill=TRUE
+      color = "green"
+      # ,fill=TRUE
     )
   })
   
   #####Top 10 best products of current year(2016)"
   output$topproducts<- renderGvis({
-    TopBest<- select(TopBestProducts,productid,name,qty)
+    TopBest<- select(TopBestProducts,Productid,Name,Quantity)
     topbestprochart<-gvisTable(TopBest)
     return(topbestprochart)
     
   })
-  
-  # #####Available Inventory Stock#######################
-  # output$Avail_Inventory_stock<- renderGvis({
-  #   AIstock<- select(availInventoryStock,productid,productname,qty)
-  #   
-  #   AIstockchart<-gvisTable(AIstock)
-  #   print(AIstockchart$AIstock)
-  #   
-  #   return(AIstockchart)
-  #   
-  # })
+
   output$tbl = DT::renderDataTable(
     availInventoryStock, filter = 'top', options = list(lengthChange = TRUE)
   )
-  # ##############for download button################ availInventoryStock2.xlsx
-  # output$x3 = downloadHandler(availInventoryStock, content = function(file) {
-  #   s = input$tbl_rows_all
-  #   write.xlsx(availstock[s, , drop = FALSE], file)
-  # })
-  # availstock = availInventoryStock[, c('productid', 'qty','productname')]
-  # 
+ 
+  ProcessedFilteredData <- reactive({
+    s =input$tbl_rows_all
+    # This code assumes that there is an entry for every
+    # cell in the table (see note above about replacing
+    # NA values with the empty string).
+    col_names <- names(availInventoryStock)
+    n_cols <- length(col_names)
+    n_row <- length(s)/n_cols
+     m <- matrix(s,ncol = n_cols, byrow = TRUE)
+    dff <- data.frame(m)
+    names(dff) <- col_names
+    return(dff)
+  })
+  output$x3 <- downloadHandler(
+    filename = function() { 'filtered_data.csv' }, content = function(file) {
+      write.csv(ProcessedFilteredData(), file, row.names = FALSE)
+    }
+  )
+  
   # output$tb1 = DT::renderDataTable(availstock, server = FALSE)
-  # 
+
   ##AverageInventory for a month
   output$minventory <- renderInfoBox({
     infoBox(
@@ -256,17 +289,17 @@ server <- function(input, output) {
     )
   })
  
-  ##Inventory tunrnover for a year
+  ##Inventory tunrnover for a month
   output$miturn<- renderInfoBox({
     infoBox(
-      "Inventory Turnover",paste(round(inventurnover/254480.8,2)),icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
+      "Inventory Turnover",paste(round(minventurnover/254480.8,2)),icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
       color = "green",fill = TRUE
     )
   })
   ##Inventory tunrnover for a year
   output$yiturn<- renderInfoBox({
     infoBox(
-      "Inventory Turnover",paste(round(inventurnover/254480.8,2)),icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
+      "Inventory Turnover",paste(round(yinventurnover/254480.8,2)),icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
       color = "green",fill = TRUE
     )
   })
