@@ -26,59 +26,62 @@ ui <- dashboardPage(skin=c("red"),
                                   valueBoxOutput("mrevenue",width=3),
                                   valueBoxOutput("mavg_order",width=3),
                                   valueBoxOutput("mrecustomers",width=3),
-                                  valueBoxOutput("dVisitsBox",width=3)
-                                  
+                                  valueBoxOutput("dVisitsBox",width=3),
+                                  valueBoxOutput("mEratio",width=3),
+                                  valueBoxOutput("salesComparision",width=3),
+                                  valueBoxOutput("bouncerate",width=3),
+                                  valueBoxOutput("mNewCustBox",width = 3)
                                 ),
-                                fluidRow(infoBoxOutput("mEratio",width=3)),
+                              
                                 fluidRow( box(
                                   tabsetPanel(
-                                    tabPanel("today",htmlOutput("today_sales_graph"),selectInput("sty","",selected=NULL,choices = list("today","Yesterday"))),
-                                    tabPanel("sales",htmlOutput("monthly_sales_graph")),
+                                    tabPanel("Day",htmlOutput("today_sales_graph"),selectInput("sty","",selected=NULL,choices = list("Today","Yesterday"))),
+                                    tabPanel("Month",htmlOutput("monthly_sales_graph")),
                                     tabPanel("Location",htmlOutput("sales_Location_graph"))
                                     
                                   ),
-                                  title="current month Analysis",
+                                  title="Sales Analysis of Current Month ",
                                   solidHeader = TRUE,
                                   width=6
                                  ),
 
                                 box(
                                   tabsetPanel(
-                                    tabPanel("sales of a Month",htmlOutput("Month_sales_graph_everyYear"))
+                                    tabPanel("Sales of a Month",htmlOutput("Month_sales_graph_everyYear"))
                                     # tabPanel("projection",htmlOutput("slider_input"),sliderInput("Percentage",
                                     #                                                              min = 1,
-                                    #                                                              max = 100
+                                    #                                                              max = 100,
+                                    #                                                              val=5
                                     # )
-                                    #)
+                                    # )
 
                                   ),
                                   title="Sales Analysis March",
                                   solidHeader = TRUE,
                                   width=6
-                                ),
-                                
-                                box(
-                                  title = "Revenue BY Category",
-                                  width = 6,
-                                  solidHeader = TRUE,
-                                  collapsible = FALSE,
-                                  htmlOutput("rvcgraph")
                                 )
-                                
-                                )
+                               )
                                 
                                 )),
                         ##FirstTabItem Finished
                         tabItem(tabName = "currentyear",
+                                fluidRow(
+                                  valueBoxOutput("yrevenue",width=3),
+                                  valueBoxOutput("yavg_order",width=3),
+                                  valueBoxOutput("yrecustomers",width=3),
+                                  valueBoxOutput("yEratio",width=3)
+                                  
+                                  
+                                ),
                                 fluidPage(fluidRow(
                                   
                                   box(
                                     tabsetPanel(
-                                      tabPanel("sales",htmlOutput("Yearly_sales_graph")),
-                                      tabPanel("Total Sales BY Location of 2015",htmlOutput("sales_Location_graph_Year"))
+                                      tabPanel("Year",htmlOutput("Yearly_sales_graph")),
+                                      tabPanel("Location",htmlOutput("sales_Location_graph_Year"))
                                       # tabPanel("Total Sales BY Location",htmlOutput("sales_Location_Total_Year"))
                                     ),
-                                    title="current year Analysis",
+                                    title="Sales Analysis of Current Year",
                                     solidHeader = TRUE,
                                     width=6
                                   ),
@@ -92,30 +95,25 @@ ui <- dashboardPage(skin=c("red"),
                                   ),
                                   box(
                                     tabsetPanel(
-                                      tabPanel("Top 10 best Products in current yer(2016)",htmlOutput("topproducts"))
+                                      tabPanel("Quantity",htmlOutput("topproducts")),
+                                      tabPanel("Location",htmlOutput("topproductsinlocwise"))
                                       
                                     ),
-                                    # title="Top 10 best Products in current yer(2016)",
+                                    title="Top 10 Best Products ",
                                     solidHeader = TRUE,
                                     width=4
-                                  ),
-                                  box(
-                                    tabsetPanel(
-                                      tabPanel("Top 5 best Products in current yer(2016) in location wise",htmlOutput("topproductsinlocwise"))
-                                      
-                                    ),
-                                    # title="Top 5 best Products in current yer(2016) in location wise",
-                                    solidHeader = TRUE,
-                                    width=4
-                                  )),
-                                  fluidRow(
-                                    valueBoxOutput("yrevenue",width=3),
-                                    valueBoxOutput("yavg_order",width=3),
-                                    valueBoxOutput("yrecustomers",width=3),
-                                    infoBoxOutput("yEratio",width=3)
-                                    
-                                    
                                   )
+                                  # box(
+                                  #   tabsetPanel(
+                                  #     tabPanel("Top 5 best Products in current yer(2016) in location wise",htmlOutput("topproductsinlocwise"))
+                                  #     
+                                  #   ),
+                                  #   # title="Top 5 best Products in current yer(2016) in location wise",
+                                  #   solidHeader = TRUE,
+                                  #   width=4
+                                  # )
+                                  )
+                                  
                                   
                                 )
                         ),
@@ -128,19 +126,19 @@ ui <- dashboardPage(skin=c("red"),
                                                    infoBoxOutput("munits",width=3)),
                                           fluidRow(
                                             box(
-                                              
-                                              tabPanel("Quantity Sold",htmlOutput("mQty_Sold_loc")),
-                                              title="Quantity Sold in Location in a month",
+                                              tabsetPanel(tabPanel("Quantity Sold",htmlOutput("mQty_Sold_loc")),
+                                                          tabPanel("SalesPricing",htmlOutput("msalespricing"))),
+                                              title="Quantity Sold in Location in a Month",
                                               soliidHeader = TRUE,
                                               width=6
                                             ),
-                                            box(
-                                              
-                                              tabPanel("SalesPricing",htmlOutput("msalespricing")),
-                                              title="SalesandPricing",
-                                              soliidHeader = TRUE,
-                                              width=6
-                                            ),
+                                            # box(
+                                            # 
+                                            #   tabPanel("SalesPricing",htmlOutput("msalespricing")),
+                                            #   title="Sales and Pricing",
+                                            #   soliidHeader = TRUE,
+                                            #   width=6
+                                            # ),
                                             box(
                                               tabsetPanel(
                                                 tabPanel(
@@ -157,24 +155,19 @@ ui <- dashboardPage(skin=c("red"),
                                 )),
                         tabItem(tabName = "currentyearim",fluidPage(                                                                 
                           fluidRow(
-                            box(
-                              
-                              tabPanel("Quantity Sold",htmlOutput("YQty_Sold_loc")),
-                              title="Quantity Sold in Location in a year",
-                              soliidHeader = TRUE,
-                              width=6
-                            ),
-                            box(
-                              
-                              tabPanel("SalesPricing",htmlOutput("ysalespricing")),
-                              title="SalesandPricing",
-                              soliidHeader = TRUE,
-                              width=6
-                            ),
                             infoBoxOutput("yinventory",width=3),
                             infoBoxOutput("ytopproduct",width=3),
                             infoBoxOutput("yiturn",width=3),
-                            infoBoxOutput("yunits",width=3)
+                            infoBoxOutput("yunits",width=3),
+                            box(
+                              tabsetPanel(tabPanel("Quantity Sold",htmlOutput("YQty_Sold_loc")),
+                                          tabPanel("SalesPricing",htmlOutput("ysalespricing")))
+                              ,
+                              title="Quantity Sold in Location in a year",
+                              soliidHeader = TRUE,
+                              width=6
+                            )
+                            
                           )
                         )
                         
