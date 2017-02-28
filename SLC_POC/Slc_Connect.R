@@ -8,7 +8,7 @@ tday=dbSendQuery(mydb,'select year(sales_flat_order.updated_at) as year,
                  day(sales_flat_order.updated_at) as day,
                  time( sales_flat_order.updated_at) as Time,
                  
-                 sum(sales_flat_invoice.grand_total) as sales
+                 sum(sales_flat_invoice.grand_total) as Sales
                  
                  from sales_flat_order,sales_flat_invoice
                  
@@ -19,13 +19,14 @@ tdaysales= fetch(tday, n=-1)
 # ##current month analysis for yesterday sales
 yday=dbSendQuery(mydb,'select year(sales_flat_order.updated_at) as year,
                month(sales_flat_order.updated_at) as month,
-               day(sales_flat_order.updated_at) as day,
-               
-               sum(sales_flat_invoice.grand_total) as sales
-               
-               from sales_flat_order,sales_flat_invoice
-               
-               where sales_flat_order.entity_id=sales_flat_invoice.order_id  and year(sales_flat_order.updated_at)=2016 and month(sales_flat_order.updated_at)=3 and day(sales_flat_order.updated_at)=25   
+                 day(sales_flat_order.updated_at) as day,
+                 time( sales_flat_order.updated_at) as Time,
+                 
+                 sum(sales_flat_invoice.grand_total) as Sales
+                 
+                 from sales_flat_order,sales_flat_invoice
+                 
+                 where sales_flat_order.entity_id=sales_flat_invoice.order_id  and year(sales_flat_order.updated_at)=2016 and month(sales_flat_order.updated_at)=3 and day(sales_flat_order.updated_at)=25  group by time( sales_flat_order.updated_at)   
                
                ')
 ydaysales= fetch(yday, n=-1) 
@@ -149,9 +150,28 @@ bouncerate=br/br1*100
 
 RevenueMarch=dbSendQuery(mydb,'select sum(grand_total) as Revenue ,Month(created_at) as Month,Year(created_at) as Year from sales_flat_order where Month(created_at) =3 group by  Year(created_at)')
 RevenueMarchVal=fetch(RevenueMarch,n=-1)
+###########increase IN sales % BETWEEN THE YEARS IN A PARTICULAR MONTH MARCH(2013-2014)#####
+incsales=dbSendQuery(mydb,'select sum(grand_total) as Revenue ,
+                     Month(created_at) as Month,
+                     Year(created_at) as Year 
+                     from sales_flat_order
+                     where Month(created_at) =3 
+                     and  Year(created_at)>=2013 
+                     group by  Year(created_at);')
 
+
+pincrease=fetch(incsales,n=-1)
+
+data2013=pincrease$Revenue[1]
+data2014=pincrease$Revenue[2]
+data2015=pincrease$Revenue[3]
+data2016=pincrease$Revenue[4]
+minc1314=(((data2014-data2013)/((data2013)))*100)
+minc1415=(((data2015-data2014)/((data2014)))*100)
+minc1516=(((data2016-data2015)/((data2015)))*100)
+RMinc.annotation<-c(0,round(minc1314,1),round(minc1415,1),round(minc1516,1))
+RMVal<-cbind(RevenueMarchVal,RMinc.annotation)
 ##Sales of an item by location in a month
-
 msaleLoc=dbSendQuery(mydb,'select sum(sales_flat_order.grand_total) as Revenue ,sales_flat_order_address.region as Location from 
                     sales_flat_order,sales_flat_order_address where sales_flat_order.entity_id=sales_flat_order_address.parent_id  and YEAR(sales_flat_order.created_at)=2016 and Month(sales_flat_order.created_at)=3 group by 
                     sales_flat_order_address.region')
@@ -171,6 +191,25 @@ yrevenue=dbSendQuery(mydb,'select sum(grand_total) as Revenue ,
                             group by  Year
                             ')
 yRevenue=fetch(yrevenue,n=-1)
+#######calculation of increase in percentage of year wise revenue(2012-2013)##############
+ypinc=dbSendQuery(mydb,'select sum(grand_total) as Revenue ,
+                            
+                           Year(created_at) as Year
+                           from sales_flat_order 
+                           where Year(created_at)>=2012 group by  Year')
+ypincval=fetch(ypinc,n=-1)
+
+y2012=ypincval$Revenue[1]
+y2013=ypincval$Revenue[2]
+y2014=ypincval$Revenue[3]
+y2015=ypincval$Revenue[4]
+y2016=ypincval$Revenue[5]
+y1213=(((y2013-y2012)/y2012)*100)
+y1314=(((y2014-y2013)/y2013)*100)
+y1415=(((y2015-y2014)/y2014)*100)
+y1516=(((y2016-y2015)/y2015)*100)
+yminc.annotation<-c(0,round(y1213,1),round(y1314,1),round(y1415,1),round(y1516,1))
+ymval<-cbind(yRevenue,yminc.annotation)
 
 ##### calculating top product in a month  
 
@@ -195,42 +234,21 @@ yTopProduct = dbSendQuery(mydb,'select sum(sales_flat_quote_item.qty) as TotalQt
 
 ytopproduct= fetch(yTopProduct, n=-1)  
 ymaxQty<-max(ytopproduct$TotalQty)
-#######################Average inventory in a month
- davgInvent=dbSendQuery(mydb,'select sum(sales_flat_order.total_qty_ordered)/26 as AvgInventory,
+#######################Average inventory sold in a month per day
+ davgInvent=dbSendQuery(mydb,'select sum(sales_flat_order.total_qty_ordered) as AvgInventory,
 year(sales_flat_order.created_at ) as year,month(sales_flat_order.created_at) as month
 from  sales_flat_order
 where sales_flat_order.status= "complete" and year(sales_flat_order.created_at)=2016 and month(sales_flat_order.created_at)=3;
 ')
  dInvent=fetch(davgInvent,n=-1)
- #######################Average inventory in a year
- yavgInvent=dbSendQuery(mydb,'select sum(sales_flat_order.total_qty_ordered)/3 as AvgInventory,
+ #######################Average inventory sold in a year per month
+ yavgInvent=dbSendQuery(mydb,'select sum(sales_flat_order.total_qty_ordered) as AvgInventory,
 year(sales_flat_order.created_at ) as year
 from  sales_flat_order
 where sales_flat_order.status= "complete" and year(sales_flat_order.created_at)=2016 ;
 ')
  yInvent=fetch(yavgInvent,n=-1)
 
-
-####inventory Turnover=Cost of Goods Sold  /  Average Inventory 
- ##per month
-mturnover = dbSendQuery(mydb,'select sum(sales_flat_order.grand_total) as OrderTotal from
-  sales_flat_order,sales_flat_invoice
-                       where 
-                       sales_flat_order.entity_id=sales_flat_invoice.order_id and
-                      Year(sales_flat_order.created_at)=2016 and Month(sales_flat_order.created_at)=3 and
-                       sales_flat_order.status="complete"')
-mIturnover= fetch(mturnover, n=-1)
-minventurnover<-sum(mIturnover$OrderTotal)
-####Inventory Turnover per  year
-
-yturnover = dbSendQuery(mydb,'select sum(sales_flat_order.grand_total) as OrderTotal from
-                        sales_flat_order,sales_flat_invoice
-                        where 
-                        sales_flat_order.entity_id=sales_flat_invoice.order_id and
-Year(sales_flat_order.created_at)=2016 and 
-                        sales_flat_order.status="complete"')
-yIturnover= fetch(yturnover, n=-1)
-yinventurnover<-sum(yIturnover$OrderTotal)
 ###Revenue By Product Category
 Rbycat=dbSendQuery(mydb,'SELECT sum(`qty`) as qty, sum(`total_price`) as Revenue, category_id FROM (SELECT sum(`qty_ordered`) as qty, sum(`row_total`) as total_price, sales_flat_order_item.product_id, catalog_category_product.category_id  FROM `sales_flat_order_item`
 INNER JOIN catalog_category_product ON catalog_category_product.product_id = sales_flat_order_item.product_id
@@ -345,11 +363,11 @@ availStock = dbSendQuery(mydb,'select cataloginventory_stock_status.product_id a
                          and catalog_product_entity_varchar.entity_id=catalog_product_entity.entity_id
                          group by cataloginventory_stock_status.product_id;')
 availInventoryStock= fetch(availStock, n=-1)
-
+write.csv(availInventoryStock,"mydata.csv")
 
 
 ######Top 10 best Product##########
-Products= dbSendQuery(mydb,'select sales_flat_order_item.product_id as Productid,sales_flat_order_item.name as Name,(sales_flat_invoice.total_qty) as Quantity,sales_flat_order.`status` ,
+Products= dbSendQuery(mydb,'select sales_flat_order_item.product_id as Productid,sales_flat_order_item.name as Name,(sales_flat_invoice.total_qty) as Quantity,sales_flat_invoice.grand_total as Sales,sales_flat_order.`status` ,
                       year(sales_flat_order.created_at) as year
                       from sales_flat_order_item,sales_flat_invoice,sales_flat_order
                       where sales_flat_order.entity_id=sales_flat_order_item.item_id and
@@ -357,11 +375,24 @@ Products= dbSendQuery(mydb,'select sales_flat_order_item.product_id as Productid
                       and year(sales_flat_order.created_at)=2016  order by sales_flat_invoice.total_qty desc limit 10;')
 TopBestProducts= fetch(Products, n=-1)
 ######top 5 products in location wise of current year######
-locationsale2016 = dbSendQuery(mydb,'select sales_flat_order_item.product_id as Productid,sales_flat_order_item.name as Name,sales_flat_order_address.region as Location,(sales_flat_invoice.total_qty) as Quantity,sales_flat_order.`status` ,
-                               year(sales_flat_order.created_at) as year
-                               from sales_flat_order_item,sales_flat_order_address,sales_flat_invoice,sales_flat_order
-                               where sales_flat_order.entity_id=sales_flat_order_item.item_id and
-                               sales_flat_order.entity_id=sales_flat_invoice.entity_id and sales_flat_order.entity_id=sales_flat_order_address.entity_id  and status="complete"
-                               and year(sales_flat_order.created_at)=2016 group by location order by sales_flat_invoice.total_qty desc limit 10;')
+locationsale2016 = dbSendQuery(mydb,' select sales_flat_order_item.product_id as Productid,sales_flat_order_item.name as Name,sales_flat_order_address.region as Location,
+       (sales_flat_invoice.total_qty) as Quantity, sum(sales_flat_invoice.grand_total) as sales, sales_flat_order.`status` ,
+                               year(sales_flat_order.created_at) as year from 
+                               sales_flat_order_item,sales_flat_order_address,sales_flat_invoice,sales_flat_order
+                               where sales_flat_order.entity_id=sales_flat_order_item.item_id 
+                               and  sales_flat_order.entity_id=sales_flat_invoice.order_id and sales_flat_order.entity_id=sales_flat_order_address.parent_id  
+                               and sales_flat_order.status="complete" and year(sales_flat_order.created_at)=2016 group by location order by sales_flat_invoice.total_qty desc limit 10;')
 locationwise = fetch(locationsale2016, n=-1) 
 # colnames(locationwise)[1]<-"productid"
+###TOp Product sales of the year
+yTopProSales = dbSendQuery(mydb, 'select sum(sales_flat_quote_item.qty) as Qty, 
+                          month(sales_flat_quote_item.updated_at) as month
+                          from sales_flat_quote_item,sales_flat_order_item,sales_flat_order
+                          where YEAR(sales_flat_quote_item.updated_at) = 2016 AND
+                          sales_flat_quote_item.product_id = sales_flat_order_item.product_id and 
+                          sales_flat_quote_item.quote_id = sales_flat_order.quote_id and 
+                          sales_flat_quote_item.product_id = 1950 and sales_flat_order.`status`="complete"
+                          group by month(sales_flat_quote_item.updated_at)')
+yTopProSales = fetch(yTopProSales,n=-1)
+months1<-c("Jan", "Feb", "Mar")
+yTopProSales=cbind(yTopProSales,months1)

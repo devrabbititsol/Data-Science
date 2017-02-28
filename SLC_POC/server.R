@@ -22,8 +22,8 @@ server <- function(input, output) {
      {
        # print("Hi all")
     output$today_sales_graph <- renderGvis({
-      tdsales<- select(tdaysales,Time,sales)
-      tdsalechart<-gvisColumnChart(tdsales,xvar="Time",yvar="sales",options=list(width="100%",height="200px"))
+      tdsales<- select(tdaysales,Time,Sales)
+      tdsalechart<-gvisAreaChart(tdsales,xvar="Time",yvar="Sales",options=list(width="100%",height="200px"))
       return(tdsalechart)
       
     })
@@ -32,8 +32,8 @@ server <- function(input, output) {
   if(x=="Yesterday")
   {
     output$today_sales_graph <- renderGvis({
-      ydsales<- select(ydaysales,day,sales)
-      ydsalechart<-gvisColumnChart(ydsales,xvar="day",yvar="sales",options=list(width="100%",height="200px"))
+      ydsales<- select(ydaysales,Time,Sales)
+      ydsalechart<-gvisAreaChart(ydsales,xvar="Time",yvar="Sales",options=list(width="100%",height="200px"))
       return(ydsalechart)
       
     })
@@ -43,7 +43,9 @@ server <- function(input, output) {
   ##plot for monthly sales analysis
   output$monthly_sales_graph <- renderGvis({
     msales<- select(daywisesales,day,sales)
-    msalechart<-gvisLineChart(msales,xvar="day",yvar="sales",options =list(colors="['#A52A2A']"))
+    # Msales<-daywisesales$sales
+    # msaleval<-cbind(msales,Msales)
+    msalechart<-gvisColumnChart(msales,xvar="day",yvar="sales",options =list(seriesType="bars",series='{1: {type:"line"}}',colors="['#A52A2A']"))
     return(msalechart)
     
   })
@@ -53,17 +55,25 @@ server <- function(input, output) {
      Month<-c("Jan","Feb","Mar")
      Sales<-ysalesval$Sales
      ysd<-data.frame(Month,Sales)
-    ysalechart<-gvisColumnChart(ysd,xvar="Month",yvar="Sales",options=list(colors="['#1ABC9C']"))
-    
+    # ysalechart<-gvisColumnChart(ysd,xvar="Month",yvar="Sales",options=list(colors="['#1ABC9C']"))
+     ysalechart<-gvisPieChart(ysd,options=list(colors="['#1ABC9C']"))
     return(ysalechart)
     
   })
   #####Top 10 best products of current year(2016) in location wise"
   output$topproductsinlocwise<- renderGvis({
-    TopBestinloc<- select(locationwise,Location,Name,Quantity)
+    TopBestinloc<- select(locationwise,Location,Name,sales)
     
     topbestproinlocchart<-gvisTable(TopBestinloc)
     return(topbestproinlocchart)
+    
+  })
+  #####Top 10 best products of current year(2016) in location wise"
+  output$top_Qty_products_loc<- renderGvis({
+    topBestinloc<- select(locationwise,Location,Name,Quantity)
+    
+    Topbestlocchart<-gvisTable(topBestinloc)
+    return(Topbestlocchart)
     
   })
   
@@ -87,25 +97,29 @@ server <- function(input, output) {
   })
   ##plot for a month sales in all the years
   output$Month_sales_graph_everyYear <- renderGvis({
-    marchrevenue<- select(RevenueMarchVal,Revenue,Year)
-    marchchart<-gvisColumnChart(marchrevenue,xvar = "Year",yvar = "Revenue",options=list(colors="['#F1C40F']"))
+    # marchrevenue<- select(RevenueMarchVal,RMinc,Revenue,Year)
+    # marchrevenue<- select(RMVal,Revenue,Year)
+    # setNames(, c("Year","Revenue","RMinc.annotation"))
+    # growthinsales.annotation<-(RMVal$RMinc)
+    marchchart<-gvisColumnChart(RMVal,xvar = "Year",yvar = c("Revenue","RMinc.annotation"),options=list(colors="['#F1C40F']"))
     
     return(marchchart)
     
   })
+  set.seed(RevenueMarchVal$Revenue[4])
+  histdata <- rnorm(1)
+  output$P_Month_sales_graph_everyYear <- renderPlot({
+
+    data <- histdata[seq_len(input$slider)]
+    barplot(data)
+  })
+
   
-  # ##plot for a month sales in all the years
-  # output$slider_input <- renderGvis({
-  #   promarchrevenue<- select(RevenueMarchVal,Revenue,Year)
-  #   promarchchart<-gvisColumnChart(marchrevenue,xvar = "Year",yvar = "Revenue",options=list(colors="['#008000']"))
-  #   
-  #   return(marchchart)
-  #   
-  # })
+  
   ##plot for revenue genrted in all the years
   output$year_wise_revenue<- renderGvis({
-    yRsales<- select(yRevenue,Year,Revenue)
-    yRsalechart<-gvisColumnChart(yRsales,xvar = "Year",yvar = "Revenue",options=list(colors="['#008000']"))
+    # yRsales<- select(yRevenue,Year,Revenue,yminc.annotation)
+    yRsalechart<-gvisColumnChart(ymval,xvar = "Year",yvar = c("Revenue","yminc.annotation"),options=list(colors="['#008000']"))
     return(yRsalechart)
     
   })
@@ -138,7 +152,7 @@ server <- function(input, output) {
     Sales<-ysupplychainval$sales
     ydf<-data.frame(Month,UnitsSold,UnitsShipped,Sales)
     # unitssell<-gvisComboChart(unitssoldandship,xvar="UnitsOrderd",yvar="UnitsShipped")
-    yunitssell<-gvisColumnChart(ydf,options=list(seriesType="bars",series='{2: {type:"line"}}',colors="['green','black','#BA4A00']"))
+    yunitssell<-gvisColumnChart(ydf,options=list(seriesType="bars",series='{2: {type:"line"}}',colors="['green','blue','#BA4A00']"))
     
     return(yunitssell)
     
@@ -260,48 +274,53 @@ server <- function(input, output) {
   })
   #####Top 10 best products of current year(2016)"
   output$topproducts<- renderGvis({
-    TopBest<- select(TopBestProducts,Productid,Name,Quantity)
+    TopBest<- select(TopBestProducts,Productid,Name,Sales)
     topbestprochart<-gvisTable(TopBest)
     return(topbestprochart)
     
   })
-
-  output$tbl = DT::renderDataTable(
-    availInventoryStock, filter = 'top', options = list(lengthChange = TRUE)
-  )
- 
-  ProcessedFilteredData <- reactive({
-    s =input$tbl_rows_all
-    # This code assumes that there is an entry for every
-    # cell in the table (see note above about replacing
-    # NA values with the empty string).
-    col_names <- names(availInventoryStock)
-    n_cols <- length(col_names)
-    n_row <- length(s)/n_cols
-     m <- matrix(s,ncol = n_cols, byrow = TRUE)
-    dff <- data.frame(m)
-    names(dff) <- col_names
-    return(dff)
+  
+  #####Top 10 best products of current year(2016) by quantity"
+  output$top_Qty_products<- renderGvis({
+    topBest<- select(TopBestProducts,Productid,Name,Quantity)
+    topprochart<-gvisTable(topBest)
+    return(topprochart)
+    
   })
-  output$x3 <- downloadHandler(
-    filename = function() { 'filtered_data.csv' }, content = function(file) {
-      write.csv(ProcessedFilteredData(), file, row.names = FALSE)
-    }
+
+###Available Inventory and Downlaoding filteredData  
+  output$tbl = DT::renderDataTable(
+    availInventoryStock, filter = 'top', options = list(lengthChange = TRUE, pageLength = 5,scrollX = TRUE)
+    
   )
   
-  # output$tb1 = DT::renderDataTable(availstock, server = FALSE)
+  #####for download button################ 
+  output$x3 = downloadHandler("mydata.csv",
+                              filename = function() {
+                                # input$filetype
+                                paste( "filtereddata",sep = ".","csv")
+                              },
+                              
+                              content = function(file) {
+                                s = input$tbl_rows_all
+                                write.csv(availstock[s, , drop = FALSE], file)
+                              } )
+  availstock = availInventoryStock[, c('Productid', 'Quantity','Productname')]
+  
+  output$tb1 = DT::renderDataTable(availstock, server = FALSE)
+  
 
-  ##AverageInventory for a month
+  ##Average Inventory sold for a month
   output$minventory <- renderInfoBox({
     infoBox(
-      " Averge Inventory", paste(round(dInvent/1000,2) ,"K"),icon=icon("glyphicon glyphicon-scale",lib="glyphicon"),
+      " Averge Inventory SOld per Day", paste(round(dInvent/26,2)),icon=icon("glyphicon glyphicon-scale",lib="glyphicon"),
       color = "blue",fill = TRUE
     )
   })
-  ##AverageInventory for a year
+  ##Average Inventorysold for a year
   output$yinventory <- renderInfoBox({
     infoBox(
-      " Averge Inventory", paste( round(yInvent/1000,2),"K"),icon=icon("glyphicon glyphicon-scale",lib="glyphicon"),
+      " Averge Inventory SOld Per Month", paste( round(yInvent/3,2)),icon=icon("glyphicon glyphicon-scale",lib="glyphicon"),
       color = "blue",fill = TRUE
     )
   })
@@ -323,14 +342,14 @@ server <- function(input, output) {
   ##Inventory tunrnover for a month
   output$miturn<- renderInfoBox({
     infoBox(
-      "Inventory Turnover",paste(round(minventurnover/dInvent)),icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
+      "Units SOld in Month",paste(round(dInvent)),icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
       color = "green",fill = TRUE
     )
   })
   ##Inventory tunrnover for a year
   output$yiturn<- renderInfoBox({
     infoBox(
-      "Inventory Turnover",paste(round(yinventurnover/yInvent)),icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
+      "Units Sold in Year",paste(round(yInvent)),icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
       color = "green",fill = TRUE
     )
   })
@@ -348,5 +367,18 @@ server <- function(input, output) {
       color = "orange",fill=TRUE
     )
   })
- 
+  ### month
+  output$month <- renderValueBox({
+    valueBox(
+      "SalesAnalysis",paste("March 2016"),  icon = icon("glyphicon glyphicon-calendar", lib = "glyphicon"),
+      color = "orange"
+    )
+  })
+ ###Top Product
+  output$TopProduct_sold_Analysis<- renderGvis({
+    yTopProSold<- select(yTopProSales,months1,Qty)
+    yTopProSoldchart<-gvisPieChart(yTopProSold)
+    return(yTopProSoldchart)
+    
+  })
 }

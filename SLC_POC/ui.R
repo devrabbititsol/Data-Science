@@ -14,7 +14,7 @@ ui <- dashboardPage(skin=c("red"),
                     
                     dashboardSidebar(sidebarMenu(
                       menuItem("Dashboard",icon = icon("dashboard",lib="glyphicon"),menuSubItem("Current Month",tabName = "currentmonth"),menuSubItem("Current Year",tabName = "currentyear")),
-                      menuItem("Inventory Management",menuSubItem("Current Month",tabName="currentmonthim"),menuSubItem("Current Year",tabName="currentyearim"),icon = icon("glyphicon glyphicon-home",lib="glyphicon")),
+                      menuItem("Inventory Analysis",menuSubItem("Current Month",tabName="currentmonthim"),menuSubItem("Current Year",tabName="currentyearim"),icon = icon("glyphicon glyphicon-home",lib="glyphicon")),
                       menuItem("Forecasting",tabName = "forecasting",icon = icon("glyphicon glyphicon-fast-forward",lib="glyphicon"),badgeLabel = "Prediction", badgeColor = "green")
                       
                     )),
@@ -48,18 +48,32 @@ ui <- dashboardPage(skin=c("red"),
                                 box(
                                   tabsetPanel(
                                     tabPanel("Sales of a Month",htmlOutput("Month_sales_graph_everyYear"))
-                                    # tabPanel("projection",htmlOutput("slider_input"),sliderInput("Percentage",
-                                    #                                                              min = 1,
-                                    #                                                              max = 100,
-                                    #                                                              val=5
-                                    # )
-                                    # )
+                                    
 
                                   ),
                                   title="Sales Analysis March",
                                   solidHeader = TRUE,
                                   width=6
                                 )
+                                
+                                
+                               ),
+                              # fluidRow(
+                              #          box(
+                              #            tabPanel("PSales of a Month",plotOutput("P_Month_sales_graph_everyYear",height=250)),
+                              # 
+                              #          title="PSales Analysis March",
+                              #          solidHeader = TRUE,
+                              #          width=6)
+                              #          ,
+                              #          box(
+                              #            sliderInput("slider", "Number of observations:",min= 1, max=100, value=1)
+                              #          )),
+
+                              
+                               fluidRow(
+                                 box("26th March 2016",width = 12,height="100px",background="orange",status = "warning",solidHeader = TRUE)
+                                 
                                )
                                 
                                 )),
@@ -95,23 +109,15 @@ ui <- dashboardPage(skin=c("red"),
                                   ),
                                   box(
                                     tabsetPanel(
-                                      tabPanel("Quantity",htmlOutput("topproducts")),
+                                      tabPanel("Product",htmlOutput("topproducts")),
                                       tabPanel("Location",htmlOutput("topproductsinlocwise"))
                                       
                                     ),
                                     title="Top 10 Best Products ",
                                     solidHeader = TRUE,
-                                    width=4
+                                    width=6
                                   )
-                                  # box(
-                                  #   tabsetPanel(
-                                  #     tabPanel("Top 5 best Products in current yer(2016) in location wise",htmlOutput("topproductsinlocwise"))
-                                  #     
-                                  #   ),
-                                  #   # title="Top 5 best Products in current yer(2016) in location wise",
-                                  #   solidHeader = TRUE,
-                                  #   width=4
-                                  # )
+                                  
                                   )
                                   
                                   
@@ -126,19 +132,13 @@ ui <- dashboardPage(skin=c("red"),
                                                    infoBoxOutput("munits",width=3)),
                                           fluidRow(
                                             box(
-                                              tabsetPanel(tabPanel("Quantity Sold",htmlOutput("mQty_Sold_loc")),
-                                                          tabPanel("SalesPricing",htmlOutput("msalespricing"))),
+                                              tabsetPanel(tabPanel("SalesPricing",htmlOutput("msalespricing")),tabPanel("Quantity Sold",htmlOutput("mQty_Sold_loc"))
+                                                          ),
                                               title="Quantity Sold in Location in a Month",
                                               soliidHeader = TRUE,
                                               width=6
                                             ),
-                                            # box(
-                                            # 
-                                            #   tabPanel("SalesPricing",htmlOutput("msalespricing")),
-                                            #   title="Sales and Pricing",
-                                            #   soliidHeader = TRUE,
-                                            #   width=6
-                                            # ),
+                                            
                                             box(
                                               tabsetPanel(
                                                 tabPanel(
@@ -160,11 +160,28 @@ ui <- dashboardPage(skin=c("red"),
                             infoBoxOutput("yiturn",width=3),
                             infoBoxOutput("yunits",width=3),
                             box(
-                              tabsetPanel(tabPanel("Quantity Sold",htmlOutput("YQty_Sold_loc")),
-                                          tabPanel("SalesPricing",htmlOutput("ysalespricing")))
+                              tabsetPanel(tabPanel("SalesPricing",htmlOutput("ysalespricing")),tabPanel("Quantity Sold",htmlOutput("YQty_Sold_loc"))
+                                          )
                               ,
                               title="Quantity Sold in Location in a year",
                               soliidHeader = TRUE,
+                              width=6
+                            ),
+                            box(
+                              tabsetPanel(
+                                tabPanel(" CVC Crew-6210",htmlOutput("TopProduct_sold_Analysis"))),
+                              title="Top Product of the Year",
+                              soliidHeader = TRUE,
+                              width=6
+                            ),
+                            box(
+                              tabsetPanel(
+                                tabPanel("Quantity",htmlOutput("top_Qty_products")),
+                                tabPanel("Location",htmlOutput("top_Qty_products_loc"))
+                                
+                              ),
+                              title="Top 10 Best Products ",
+                              solidHeader = TRUE,
                               width=6
                             )
                             
