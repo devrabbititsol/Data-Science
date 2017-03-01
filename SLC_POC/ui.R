@@ -8,6 +8,7 @@ library(googleVis)
 library(readr)
 library(ggplot2)
 
+
 ui <- dashboardPage(skin=c("red"),
                     
                     dashboardHeader(title ="SLC Activewear "),
@@ -29,8 +30,10 @@ ui <- dashboardPage(skin=c("red"),
                                   valueBoxOutput("dVisitsBox",width=3),
                                   valueBoxOutput("mEratio",width=3),
                                   valueBoxOutput("salesComparision",width=3),
-                                  valueBoxOutput("bouncerate",width=3),
-                                  valueBoxOutput("mNewCustBox",width = 3)
+                                  # valueBoxOutput("bouncerate",width=3),
+                                  valueBoxOutput("mNewCustBox",width = 3),
+                                  # valueBoxOutput("websiteconversionrate",width=3),
+                                  valueBoxOutput("websitetrafficgrowth",width=3)
                                 ),
                               
                                 fluidRow( box(
@@ -58,23 +61,26 @@ ui <- dashboardPage(skin=c("red"),
                                 
                                 
                                ),
-                              # fluidRow(
-                              #          box(
-                              #            tabPanel("PSales of a Month",plotOutput("P_Month_sales_graph_everyYear",height=250)),
-                              # 
-                              #          title="PSales Analysis March",
-                              #          solidHeader = TRUE,
-                              #          width=6)
-                              #          ,
-                              #          box(
-                              #            sliderInput("slider", "Number of observations:",min= 1, max=100, value=1)
-                              #          )),
+                              fluidRow(
+                                       box(
+                                         tabPanel("Projection of a Month",htmlOutput("Projection")),
+
+                                       title="Projection Sales Analysis March",
+                                       solidHeader = TRUE,
+                                       width=6)
+                                       ,
+                                       box(
+                                         sliderInput("bins", "Increase in percentage",min= 1, max=100, value=1)
+                                       ),
+                                       valueBoxOutput("month",width = "6")
+                                       # box(width = 6,height="120px","26th March 2016",background="orange",status = "warning",solidHeader = TRUE))
+                                       )
 
                               
-                               fluidRow(
-                                 box("26th March 2016",width = 12,height="100px",background="orange",status = "warning",solidHeader = TRUE)
-                                 
-                               )
+                               # fluidRow(
+                               #   box("26th March 2016",width = 12,height="100px",background="orange",status = "warning",solidHeader = TRUE)
+                               #   
+                               # )
                                 
                                 )),
                         ##FirstTabItem Finished
@@ -118,6 +124,7 @@ ui <- dashboardPage(skin=c("red"),
                                     width=6
                                   )
                                   
+                                  
                                   )
                                   
                                   
@@ -132,11 +139,13 @@ ui <- dashboardPage(skin=c("red"),
                                                    infoBoxOutput("munits",width=3)),
                                           fluidRow(
                                             box(
-                                              tabsetPanel(tabPanel("SalesPricing",htmlOutput("msalespricing")),tabPanel("Quantity Sold",htmlOutput("mQty_Sold_loc"))
+                                              tabsetPanel(tabPanel("SalesPricing",htmlOutput("msalespricing")),
+                                                          tabPanel("Quantity Sold",htmlOutput("mQty_Sold_loc"))
                                                           ),
                                               title="Quantity Sold in Location in a Month",
                                               soliidHeader = TRUE,
-                                              width=6
+                                              width=6,
+                                              height = "350px"
                                             ),
                                             
                                             box(
@@ -148,6 +157,28 @@ ui <- dashboardPage(skin=c("red"),
                                                 )),
                                               title="Available Inventory stock",
                                               solidHeader = TRUE,
+                                              width=6
+                                             ),
+                                            box(
+                                              tabsetPanel(
+                                                tabPanel("low stock days",DT::dataTableOutput('tb3'))
+                                                
+                                                
+                                                
+                                              ),
+                                              # title="low stock days in all years",
+                                              solidHeader = TRUE,
+                                              width=6
+                                            ),
+                                            box(
+                                              tabsetPanel(
+                                                tabPanel("Trends in the today and yesterday",DT::dataTableOutput('tb2'))
+                                                
+                                                
+                                                
+                                              ),
+                                              # title="Trends in the today and yesterday sales,orders,avg_per_customer",
+                                              soliidHeader = TRUE,
                                               width=6
                                             )
                                           )
@@ -168,9 +199,10 @@ ui <- dashboardPage(skin=c("red"),
                               width=6
                             ),
                             box(
-                              tabsetPanel(
-                                tabPanel(" CVC Crew-6210",htmlOutput("TopProduct_sold_Analysis"))),
-                              title="Top Product of the Year",
+                              tabsetPanel(tabPanel("Top 10 Products in a Month",htmlOutput("TopProduct_sold_Analysis"),selectInput("Month_Sold_Pro","",selected="Mar",choices = list("Jan","Feb","Mar")))
+                                          
+                              ),
+                              title="Year Analysis",
                               soliidHeader = TRUE,
                               width=6
                             ),
@@ -181,6 +213,39 @@ ui <- dashboardPage(skin=c("red"),
                                 
                               ),
                               title="Top 10 Best Products ",
+                              solidHeader = TRUE,
+                              width=6
+                            ),
+                            box(
+                              tabsetPanel(
+                                tabPanel("max quantity sold in all years",DT::dataTableOutput('tb4'))
+                                
+                                
+                                
+                              ),
+                              # title="max quantity sold in all years",
+                              solidHeader = TRUE,
+                              width=6
+                            ),
+                            box(
+                              tabsetPanel(
+                                tabPanel("total number of units  sold in all years",htmlOutput("total_units_sold"))
+                                
+                                
+                                
+                              ),
+                              title="total number of units  sold in all years",
+                              solidHeader = TRUE,
+                              width=6
+                            ),
+                            box(
+                              tabsetPanel(
+                                tabPanel("Quantity sold in each region",htmlOutput("qty_in_each_region")),
+                                DT::dataTableOutput('tb5')
+                                
+                                
+                              ),
+                              title="Quantity sold in each region ",
                               solidHeader = TRUE,
                               width=6
                             )

@@ -2,11 +2,11 @@ library(RMySQL)
 mydb = dbConnect(MySQL(),user='readonly',password='readonly123',dbname='slcawdb',host='183.82.106.91')
 
 ###current day analysis
-# ##current month analysis for sales
+# ##current day analysis for sales
 tday=dbSendQuery(mydb,'select year(sales_flat_order.updated_at) as year,
                month(sales_flat_order.updated_at) as month,
                  day(sales_flat_order.updated_at) as day,
-                 time( sales_flat_order.updated_at) as Time,
+                 timestamp( sales_flat_order.updated_at) as timestamp,
                  
                  sum(sales_flat_invoice.grand_total) as Sales
                  
@@ -16,11 +16,11 @@ tday=dbSendQuery(mydb,'select year(sales_flat_order.updated_at) as year,
                
                ')
 tdaysales= fetch(tday, n=-1) 
-# ##current month analysis for yesterday sales
+# ##analysis for yesterday sales
 yday=dbSendQuery(mydb,'select year(sales_flat_order.updated_at) as year,
                month(sales_flat_order.updated_at) as month,
                  day(sales_flat_order.updated_at) as day,
-                 time( sales_flat_order.updated_at) as Time,
+                 timestamp( sales_flat_order.updated_at) as timestamp,
                  
                  sum(sales_flat_invoice.grand_total) as Sales
                  
@@ -137,13 +137,13 @@ febdata=percentofmonthsdata$sale[1]
 marchdata=percentofmonthsdata$sale[2]
 difference=marchdata-febdata
 mincreaseper=(difference/febdata)*100
-##Bounce rate for a month
-
-brate=dbSendQuery(mydb,'select count(*) from log_visitor where last_visit_at=first_visit_at and Month(last_visit_at)=3 and year(last_visit_at)=2016')
-br=fetch(brate,n=-1)
-brate1=dbSendQuery(mydb,'select count(*) from log_visitor where  Month(last_visit_at)=3 and year(last_visit_at)=2016 ')
-br1=fetch(brate1,n=-1)
-bouncerate=br/br1*100
+# ##Bounce rate for a month
+# 
+# brate=dbSendQuery(mydb,'select count(*) from log_visitor where last_visit_at=first_visit_at and Month(last_visit_at)=3 and year(last_visit_at)=2016')
+# br=fetch(brate,n=-1)
+# brate1=dbSendQuery(mydb,'select count(*) from log_visitor where  Month(last_visit_at)=3 and year(last_visit_at)=2016 ')
+# br1=fetch(brate1,n=-1)
+# bouncerate=br/br1*100
 
 
 ##Revenue of a perticular month in all years
@@ -169,7 +169,7 @@ data2016=pincrease$Revenue[4]
 minc1314=(((data2014-data2013)/((data2013)))*100)
 minc1415=(((data2015-data2014)/((data2014)))*100)
 minc1516=(((data2016-data2015)/((data2015)))*100)
-RMinc.annotation<-c(0,round(minc1314,1),round(minc1415,1),round(minc1516,1))
+RMinc.annotation<-c(paste(round(0),"%"),paste(round(minc1314,1),"%"),paste(round(minc1415,1),"%"),paste(round(minc1516,1),"%"))
 RMVal<-cbind(RevenueMarchVal,RMinc.annotation)
 ##Sales of an item by location in a month
 msaleLoc=dbSendQuery(mydb,'select sum(sales_flat_order.grand_total) as Revenue ,sales_flat_order_address.region as Location from 
@@ -208,7 +208,7 @@ y1213=(((y2013-y2012)/y2012)*100)
 y1314=(((y2014-y2013)/y2013)*100)
 y1415=(((y2015-y2014)/y2014)*100)
 y1516=(((y2016-y2015)/y2015)*100)
-yminc.annotation<-c(0,round(y1213,1),round(y1314,1),round(y1415,1),round(y1516,1))
+yminc.annotation<-c(paste(round(0),"%"),paste(round(y1213,1),"%"),paste(round(y1314,1),"%"),paste(round(y1415,1),"%"),paste(round(y1516,1),"%"))
 ymval<-cbind(yRevenue,yminc.annotation)
 
 ##### calculating top product in a month  
@@ -384,15 +384,130 @@ locationsale2016 = dbSendQuery(mydb,' select sales_flat_order_item.product_id as
                                and sales_flat_order.status="complete" and year(sales_flat_order.created_at)=2016 group by location order by sales_flat_invoice.total_qty desc limit 10;')
 locationwise = fetch(locationsale2016, n=-1) 
 # colnames(locationwise)[1]<-"productid"
-###TOp Product sales of the year
-yTopProSales = dbSendQuery(mydb, 'select sum(sales_flat_quote_item.qty) as Qty, 
-                          month(sales_flat_quote_item.updated_at) as month
-                          from sales_flat_quote_item,sales_flat_order_item,sales_flat_order
-                          where YEAR(sales_flat_quote_item.updated_at) = 2016 AND
-                          sales_flat_quote_item.product_id = sales_flat_order_item.product_id and 
-                          sales_flat_quote_item.quote_id = sales_flat_order.quote_id and 
-                          sales_flat_quote_item.product_id = 1950 and sales_flat_order.`status`="complete"
-                          group by month(sales_flat_quote_item.updated_at)')
-yTopProSales = fetch(yTopProSales,n=-1)
-months1<-c("Jan", "Feb", "Mar")
-yTopProSales=cbind(yTopProSales,months1)
+##Pie Chart Top 10 Product Analysis ######
+yTopProSales1=dbSendQuery(mydb,'select sales_flat_order_item.product_id as Productid,sales_flat_order_item.name as Name,
+                          (sales_flat_invoice.total_qty) as Qty,sales_flat_order.`status` ,
+                          year(sales_flat_order.created_at) as year
+                          from sales_flat_order_item,sales_flat_invoice,sales_flat_order
+                          where sales_flat_order.entity_id=sales_flat_order_item.item_id and
+                          sales_flat_order.entity_id=sales_flat_invoice.order_id and status="complete"
+                          and year(sales_flat_order.created_at)=2016 and month(sales_flat_order.created_at)=1 
+                          order by sales_flat_invoice.total_qty desc limit 10;')
+
+yTopProSales1=fetch(yTopProSales1,n=-1)
+
+yTopProSales2=dbSendQuery(mydb,'select sales_flat_order_item.product_id as Productid,sales_flat_order_item.name as Name,
+                          (sales_flat_invoice.total_qty) as Qty,sales_flat_order.`status` ,
+                          year(sales_flat_order.created_at) as year
+                          from sales_flat_order_item,sales_flat_invoice,sales_flat_order
+                          where sales_flat_order.entity_id=sales_flat_order_item.item_id and
+                          sales_flat_order.entity_id=sales_flat_invoice.order_id and status="complete"
+                          and year(sales_flat_order.created_at)=2016 and month(sales_flat_order.created_at)=2
+                          order by sales_flat_invoice.total_qty desc limit 10;')
+
+yTopProSales2=fetch(yTopProSales2,n=-1)
+
+yTopProSales3=dbSendQuery(mydb,'select sales_flat_order_item.product_id as Productid,sales_flat_order_item.name as Name,
+                          (sales_flat_invoice.total_qty) as Qty,sales_flat_order.`status` ,
+                          year(sales_flat_order.created_at) as year
+                          from sales_flat_order_item,sales_flat_invoice,sales_flat_order
+                          where sales_flat_order.entity_id=sales_flat_order_item.item_id and
+                          sales_flat_order.entity_id=sales_flat_invoice.order_id and status="complete"
+                          and year(sales_flat_order.created_at)=2016 and month(sales_flat_order.created_at)=3 
+                          order by sales_flat_invoice.total_qty desc limit 10;')
+
+yTopProSales3=fetch(yTopProSales3,n=-1)
+#########maxunits sold for all years######
+maxunitssold=dbSendQuery(mydb,'select (sales_flat_invoice.total_qty) as maxunitsorder,
+                         year(sales_flat_invoice.created_at) as year,
+                         month(sales_flat_invoice.created_at) as month,
+                         day(sales_flat_invoice.created_at) as day
+                         from sales_flat_invoice
+                         where (sales_flat_invoice.total_qty)>=1000
+                         group by year,month,day(sales_flat_invoice.created_at),maxunitsorder ')   
+maxunitssold=fetch(maxunitssold,n=-1)
+#########################number of units sold in all yearss############################
+nunits=dbSendQuery(mydb,'select sum(sales_flat_invoice.total_qty) as qty,
+       year(sales_flat_invoice.created_at) as year
+                   
+                   from sales_flat_invoice
+                   
+                   group by year(sales_flat_invoice.created_at)   ')
+numberofunitssold=fetch(nunits,n=-1)
+##################low stock availability dates################################
+
+lowstock=dbSendQuery(mydb,'select  year(cataloginventory_stock_item.low_stock_date) as year,
+                     month(cataloginventory_stock_item.low_stock_date) as month,
+                     day(cataloginventory_stock_item.low_stock_date) as day, 
+                     cataloginventory_stock_item.qty from cataloginventory_stock_item group by date(cataloginventory_stock_item.low_stock_date) desc;')
+
+lowstockdays=fetch(lowstock,n=-1)
+lowstockdays1 <- lowstockdays 
+lowstockdays2 <- na.omit(lowstockdays1)
+
+years=dbSendQuery(mydb,'select #sales_flat_order_item.product_id as Productid,
+         #sales_flat_order_item.name as Name,
+                  sales_flat_order_address.region as Location,
+                  sum(sales_flat_invoice.total_qty) as Quantity,sales_flat_order.`status` ,
+                  
+                  year(sales_flat_order.created_at) as year
+                  from sales_flat_order_item,sales_flat_order_address,sales_flat_invoice,sales_flat_order
+                  where sales_flat_order.entity_id=sales_flat_order_item.item_id and
+                  sales_flat_order.entity_id=sales_flat_invoice.entity_id and sales_flat_order.entity_id=sales_flat_order_address.entity_id  
+                  and status="complete"
+                  group by year(sales_flat_order.created_at),location')
+wholeyears=fetch(years,n=-1)
+###########################Trend in  current month(today and yeasterday) ##################
+trend2016=dbSendQuery(mydb,'select year(sales_flat_order.updated_at) as year,count(*) as totalcustomers,sum(sales_flat_invoice.total_qty) as qtyordered,
+                      
+                      (sum((sales_flat_invoice.grand_total))/count(*)) as avgpercustomer,
+                      month(sales_flat_order.updated_at) as month,
+                      day(sales_flat_order.updated_at) as day,
+                      
+                      sum(sales_flat_invoice.grand_total) as sales
+                      
+                      from sales_flat_order,sales_flat_invoice
+                      
+                      where sales_flat_order.entity_id=sales_flat_invoice.order_id 
+                      and year(sales_flat_order.updated_at)=2016 
+                      and month(sales_flat_order.updated_at)=3 and day(sales_flat_order.updated_at)>=25
+                      group by day( sales_flat_order.updated_at)
+                      ')
+trends2016=fetch(trend2016,n=-1)
+########for qty ordered########
+yesterdayorder=trends2016$qtyordered[1]
+todayorder=trends2016$qtyordered[2]
+trendsinorder2016=round(((todayorder-yesterdayorder)/yesterdayorder)*100,digits = 2)
+########for sales##############
+yesterdaysales=trends2016$sales[1]
+todaysales=trends2016$sales[2]
+trendsinsales2016=round(((todaysales-yesterdaysales)/yesterdaysales)*100,digits = 2)
+#########avg per customer##########
+yesterdayAvg=trends2016$avgpercustomer[1]
+todayAvg=trends2016$avgpercustomer[2]
+trendsinAvg2016=round(((todayAvg-yesterdayAvg)/yesterdayAvg)*100,digits = 2)
+
+percentages<-c(0,0,-26.93,2.7,0,0,-19.62)
+row2016<-rbind(trends2016,percentages)
+
+row2016$totalcustomers <- NULL
+row2016$month <- NULL
+row2016$day <- NULL
+row2016$year <- NULL
+
+
+rownames(row2016)[1]<-"yesterday"
+rownames(row2016)[2]<-"today"
+rownames(row2016)[3]<-"growth/Fall in percentage"
+# ######################websiteconversion rate############
+# webcon=dbSendQuery(mydb,'select count(*) from customer_entity;')
+# wrate1=fetch(webcon,n=-1)
+# webconrate=dbSendQuery(mydb,'select count(*) from sales_flat_order where status="complete";')
+# wrate2=fetch(webconrate,n=-1)
+# wrate=round(wrate1/wrate2,2)*100
+###############website traffic growth##################
+mwebgro=dbSendQuery(mydb,'select count(*) from log_visitor where month(log_visitor.last_visit_at)=2;')
+mwgrowth1=fetch(mwebgro,n=-1)
+mwebgrowth=dbSendQuery(mydb,'select count(*) from log_visitor where month(log_visitor.last_visit_at)=3;')
+mwgrowth2=fetch(mwebgrowth,n=-1)
+mwgrowth=round(((mwgrowth1-mwgrowth2)/mwgrowth1),2)*100

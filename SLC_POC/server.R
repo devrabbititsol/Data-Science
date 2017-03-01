@@ -8,6 +8,8 @@ library(DT)
 library(readr)
 library(ggplot2)
 
+# library(plotly)
+
 
 
 
@@ -22,8 +24,12 @@ server <- function(input, output) {
      {
        # print("Hi all")
     output$today_sales_graph <- renderGvis({
-      tdsales<- select(tdaysales,Time,Sales)
-      tdsalechart<-gvisAreaChart(tdsales,xvar="Time",yvar="Sales",options=list(width="100%",height="200px"))
+      tdsales<- select(tdaysales,timestamp,Sales)
+      x<-as.POSIXct(tdaysales$timestamp)
+      z<-round_date(x,unit="minute")
+      Time<-strftime(z, format="%I.%M %p")
+      todaysales<-cbind(Time,tdsales)
+      tdsalechart<-gvisAreaChart(todaysales,xvar="Time",yvar="Sales",options=list(width="100%",height="200px"))
       return(tdsalechart)
       
     })
@@ -32,8 +38,12 @@ server <- function(input, output) {
   if(x=="Yesterday")
   {
     output$today_sales_graph <- renderGvis({
-      ydsales<- select(ydaysales,Time,Sales)
-      ydsalechart<-gvisAreaChart(ydsales,xvar="Time",yvar="Sales",options=list(width="100%",height="200px"))
+      ydsales<- select(ydaysales,timestamp,Sales)
+      x<-as.POSIXct(ydaysales$timestamp)
+      z<-round_date(x,unit="minute")
+      Time<-strftime(z, format="%I.%M %p")
+      yedaysales<-cbind(Time,ydsales)
+      ydsalechart<-gvisAreaChart(yedaysales,xvar="Time",yvar="Sales",options=list(width="100%",height="200px"))
       return(ydsalechart)
       
     })
@@ -98,7 +108,7 @@ server <- function(input, output) {
   ##plot for a month sales in all the years
   output$Month_sales_graph_everyYear <- renderGvis({
     # marchrevenue<- select(RevenueMarchVal,RMinc,Revenue,Year)
-    # marchrevenue<- select(RMVal,Revenue,Year)
+     marchrevenue<- select(RMVal,Revenue,Year)
     # setNames(, c("Year","Revenue","RMinc.annotation"))
     # growthinsales.annotation<-(RMVal$RMinc)
     marchchart<-gvisColumnChart(RMVal,xvar = "Year",yvar = c("Revenue","RMinc.annotation"),options=list(colors="['#F1C40F']"))
@@ -106,14 +116,28 @@ server <- function(input, output) {
     return(marchchart)
     
   })
-  set.seed(RevenueMarchVal$Revenue[4])
-  histdata <- rnorm(1)
-  output$P_Month_sales_graph_everyYear <- renderPlot({
-
-    data <- histdata[seq_len(input$slider)]
-    barplot(data)
+ 
+  ##plot for projection revenue genrted 
+  output$Projection<- renderGvis({
+    pRsales<- select(RevenueMarchVal,Year,Revenue)
+    
+    Erevenue<-RevenueMarchVal$Revenue[4]
+    year<-RevenueMarchVal$Year[4]
+    if(input$bins!=1)
+    {
+      Prevenue<-(Erevenue+(Erevenue*input$bins/100))
+      inc.annotation<-paste(((Prevenue-Erevenue)/Erevenue)*100,"%")
+      rbind<-data.frame(Prevenue,year,inc.annotation)
+      pRsalechart<-gvisColumnChart(rbind,xvar = "year",yvar = c("Prevenue","inc.annotation"),options=list(colors="['#008000']"))
+      return(pRsalechart)
+    }else{
+      rbind<-data.frame(Erevenue,year)
+      pRsalechart<-gvisColumnChart(rbind,xvar = "year",yvar = "Erevenue",options=list(colors="['#008000']"))
+      return(pRsalechart)
+    }
+    
+    
   })
-
   
   
   ##plot for revenue genrted in all the years
@@ -256,14 +280,14 @@ server <- function(input, output) {
       
     )
   })
-  ###############Bounce Rate
-  output$bouncerate <- renderValueBox({
-    valueBox(
-      paste(round(bouncerate,2),"%"), "Bounce Rate", icon = icon("glyphicon glyphicon-minus",lib="glyphicon"),
-      color = "navy"
-    )
-    
-  })
+  # ###############Bounce Rate
+  # output$bouncerate <- renderValueBox({
+  #   valueBox(
+  #     paste(round(bouncerate,2),"%"), "Bounce Rate", icon = icon("glyphicon glyphicon-minus",lib="glyphicon"),
+  #     color = "navy"
+  #   )
+  #   
+  # })
   #################Increase in Sales Percentage
   output$salesComparision <- renderValueBox({
     valueBox(
@@ -307,7 +331,9 @@ server <- function(input, output) {
                               } )
   availstock = availInventoryStock[, c('Productid', 'Quantity','Productname')]
   
-  output$tb1 = DT::renderDataTable(availstock, server = FALSE)
+  output$tb1 = DT::renderDataTable(availstock, server = FALSE,options=list("scrollY":"350px",
+                                   "scrollCollapse": TRUE,
+                                   "paging":         FALSE))
   
 
   ##Average Inventory sold for a month
@@ -370,15 +396,99 @@ server <- function(input, output) {
   ### month
   output$month <- renderValueBox({
     valueBox(
-      "SalesAnalysis",paste("March 2016"),  icon = icon("glyphicon glyphicon-calendar", lib = "glyphicon"),
+      "26 March 2016",paste("Analysis"),
       color = "orange"
     )
   })
- ###Top Product
-  output$TopProduct_sold_Analysis<- renderGvis({
-    yTopProSold<- select(yTopProSales,months1,Qty)
-    yTopProSoldchart<-gvisPieChart(yTopProSold)
-    return(yTopProSoldchart)
+ # ###Top 10  Products in corresponding months
+ #  output$TopProduct_sold_Analysis<- renderGvis({
+ #    yTopProSold<- select(yTopProSales,months1,Qty)
+ #    yTopProSoldchart<-gvisPieChart(yTopProSold)
+ #    return(yTopProSoldchart)
+ #    
+ #  })
+ #  
+  observe({
+    y<-input$Month_Sold_Pro 
+    
+    if(y=="Mar")
+    {
+      
+      output$TopProduct_sold_Analysis<- renderGvis({
+        ymarTopProSold<- select(yTopProSales3,Name,Qty)
+        ymarTopProSoldchart<-gvisPieChart(ymarTopProSold)
+        return(ymarTopProSoldchart) 
+      })
+    }
+    if(y=="Feb")
+    {
+      output$TopProduct_sold_Analysis<- renderGvis({
+        yfebTopProSold<- select(yTopProSales2,Name,Qty)
+        yfebTopProSoldchart<-gvisPieChart(yfebTopProSold)
+        return(yfebTopProSoldchart) 
+      })
+    }
+    if(y=="Jan")
+    {
+      output$TopProduct_sold_Analysis<- renderGvis({
+        yjanTopProSold<- select(yTopProSales1,Name,Qty)
+        yjanTopProSoldchart<-gvisPieChart(yjanTopProSold)
+        return(yjanTopProSoldchart) 
+        
+      })
+    }
+  
+  })
+  
+  ##################max_units ordered for all years##############
+  output$tb4 = DT::renderDataTable(
+    maxunitssold, filter = 'top', options = list(lengthChange = TRUE, pageLength = 5,scrollY = TRUE,scrollX = TRUE,autoWidth = T)
+    
+  )
+  
+  #################total number of units  sold in all years############################"
+  output$total_units_sold<- renderGvis({
+    numberofunits<- select(numberofunitssold,year,qty)
+    
+    numberofunitschart<-gvisColumnChart(numberofunits)
+    return(numberofunitschart)
     
   })
+  ###################Low stock analysis in all years######
+  output$tb3 = DT::renderDataTable(
+    lowstockdays2,  options = list(lengthChange = TRUE, pageLength = 5,scrollY = TRUE,scrollX = TRUE)
+    
+  )
+  ###############################################
+  output$tb5 = DT::renderDataTable(
+    wholeyears, filter = 'top', options = list(lengthChange = TRUE, pageLength = 5,scrollY = TRUE,scrollX = TRUE,autoWidth = T)
+    
+  )
+  #############plot for Trends in the today and yesterday#############
+  
+  output$tb2 = DT::renderDataTable(
+    row2016 ,options = list(lengthChange=FALSE,class = 'cell-border stripe')
+    
+  )
+  
+  # output$websiteconversionrate <- renderValueBox({
+  #   valueBox(
+  #     paste(wrate,"%"), "WebSiteConversion Rate", icon = icon("glyphicon glyphicon-open",lib="glyphicon"),
+  #     color = "purple"
+  #   )
+  #   
+  # })
+  ###########websitetraffic growth percentage####################### 
+  output$websitetrafficgrowth <- renderValueBox({
+    valueBox(
+      paste(mwgrowth,"%"), "WebSiteTraffic Growth", icon = icon("glyphicon glyphicon-open",lib="glyphicon"),
+      color = "aqua"
+    )
+    
+  })
+  
+  
+  
+  
+  
 }
