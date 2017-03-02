@@ -55,7 +55,7 @@ server <- function(input, output) {
     msales<- select(daywisesales,day,sales)
     # Msales<-daywisesales$sales
     # msaleval<-cbind(msales,Msales)
-    msalechart<-gvisColumnChart(msales,xvar="day",yvar="sales",options =list(seriesType="bars",series='{1: {type:"line"}}',colors="['#A52A2A']"))
+    msalechart<-gvisColumnChart(msales,xvar="day",yvar="sales",options =list(seriesType="bars",colors="['66CCFF']"))
     return(msalechart)
     
   })
@@ -66,7 +66,7 @@ server <- function(input, output) {
      Sales<-ysalesval$Sales
      ysd<-data.frame(Month,Sales)
     # ysalechart<-gvisColumnChart(ysd,xvar="Month",yvar="Sales",options=list(colors="['#1ABC9C']"))
-     ysalechart<-gvisPieChart(ysd,options=list(colors="['#1ABC9C']"))
+     ysalechart<-gvisPieChart(ysd,options = list(colors="['51A39D','B7695C','CDBB79']"))
     return(ysalechart)
     
   })
@@ -176,7 +176,7 @@ server <- function(input, output) {
     Sales<-ysupplychainval$sales
     ydf<-data.frame(Month,UnitsSold,UnitsShipped,Sales)
     # unitssell<-gvisComboChart(unitssoldandship,xvar="UnitsOrderd",yvar="UnitsShipped")
-    yunitssell<-gvisColumnChart(ydf,options=list(seriesType="bars",series='{2: {type:"line"}}',colors="['green','blue','#BA4A00']"))
+    yunitssell<-gvisColumnChart(ydf,options=list(seriesType="bars",series='{2: {type:"line"}}',colors="['0099CC','CCFFCC','#BA4A00']"))
     
     return(yunitssell)
     
@@ -440,9 +440,9 @@ server <- function(input, output) {
   
   })
   
-  ##################max_units ordered for all years##############
+  ##################max_units ordered for all years##############lengthChange = TRUE, pageLength = 5,scrollY = TRUE,scrollX = FALSE,autoWidth = T
   output$tb4 = DT::renderDataTable(
-    maxunitssold, filter = 'top', options = list(lengthChange = TRUE, pageLength = 5,scrollY = TRUE,scrollX = TRUE,autoWidth = T)
+    maxunitssold, filter = 'top', options = list(lengthChange = TRUE, pageLength = 5,scrollY = TRUE,scrollX = FALSE,autoWidth = T)
     
   )
   
@@ -462,9 +462,13 @@ server <- function(input, output) {
   )
   #############plot for Trends in the today and yesterday#############
   
+  # output$tb2<-renderTable(row2016 ,options = list(lengthChange=FALSE,class = 'cell-border stripe'))
+  
   output$tb2 = DT::renderDataTable(
-    row2016 ,options = list(lengthChange=FALSE,class = 'cell-border stripe')
     
+     row2016 ,options = list(lengthChange=FALSE,class = 'cell-border stripe')
+   
+
   )
   
   # output$websiteconversionrate <- renderValueBox({
@@ -483,8 +487,66 @@ server <- function(input, output) {
     
   })
   
+  ######################sales analysis for all years in feb and march######################
   
+  output$Trends_FM<- renderGvis({
+    febmarch<- select(febmarchanalysis,Year,Month,Revenue)
+    
+    Year<-c("2013","2014","2015","2016")
+    F<-c(febmarchanalysis$Revenue[1],febmarchanalysis$Revenue[3],febmarchanalysis$Revenue[5],febmarchanalysis$Revenue[7])
+    M<- c(febmarchanalysis$Revenue[2],febmarchanalysis$Revenue[4],febmarchanalysis$Revenue[6],febmarchanalysis$Revenue[8])
+    trend<-data.frame(Year,F,M)
+    Trends<-gvisColumnChart(trend,options=list(seriesType="bars",colors="['814374','51A39D']"))
+    return(Trends)
+    
+  })
+  ########################Brand wise Revenue in a month####################
   
+  output$Revenue_of_the_brand<- renderGvis({
+    BrandRevenue<- select(BrandRevenue,Brand,Revenue)
+    
+    BrandRevenuechart<-gvisPieChart(BrandRevenue)
+    return(BrandRevenuechart)
+    
+  })
+  ########################Brand wise Revenue in the current year(2016)####################
+  
+  output$year_wise_Brand_Revenue<- renderGvis({
+    YBrandRevenue1<- select(YBrandRevenue,Brand,Revenue)
+    
+    YBrandRevenuechart<-gvisPieChart(YBrandRevenue1)
+    return(YBrandRevenuechart)
+    
+  })
+  ##############################################################33
+  output$newreturningcust<- renderGvis({
+    # newrepeatedcustomers<- select(newrepcustomer1)
+    grndcntfornew<-c(20,64,67,102)
+    grndcntforrep<-c(27,51,83,116)
+    year2<-c("2013","2014","2015","2016")
+    
+    newcust<-grndcntfornew
+    repcust<-grndcntforrep
+    
+    nrc<-data.frame(year2,newcust,repcust)
+    
+    nrepcustformarch<-gvisColumnChart(nrc,options=list(colors="['92CD00','FFCF79']"))
+    
+    return(nrepcustformarch)
+    
+  })
+  #####Brand wise quantity month
+  output$mBrand_wise_qty<- renderGvis({
+    mbrndwiseqty<- select(BrandRevenue,Brand,Qty)
+    mbrandwiseqtychart<-gvisPieChart(mbrndwiseqty)
+    return(mbrandwiseqtychart) 
+  })
+  #####Brand wise quantity year
+  output$yBrand_wise_qty<- renderGvis({
+    ybrndwiseqty<- select(YBrandRevenue,Brand,Qty)
+    ybrandwiseqtychart<-gvisPieChart(ybrndwiseqty)
+    return(ybrandwiseqtychart) 
+  })
   
   
 }

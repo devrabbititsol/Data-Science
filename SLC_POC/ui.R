@@ -41,22 +41,26 @@ ui <- dashboardPage(skin=c("red"),
                                   tabsetPanel(
                                     tabPanel("Day",htmlOutput("today_sales_graph"),selectInput("sty","",selected=NULL,choices = list("Today","Yesterday"))),
                                     tabPanel("Month",htmlOutput("monthly_sales_graph")),
-                                    tabPanel("Location",htmlOutput("sales_Location_graph"))
+                                    tabPanel("Location",htmlOutput("sales_Location_graph")),
+                                    tabPanel("Brand ",htmlOutput("Revenue_of_the_brand"))
                                     
                                   ),
                                   title="Sales Analysis of Current Month ",
                                   solidHeader = TRUE,
+                                  height = "350px",
                                   width=6
                                  ),
 
                                 box(
                                   tabsetPanel(
-                                    tabPanel("Sales of a Month",htmlOutput("Month_sales_graph_everyYear"))
-                                    
+                                    tabPanel("Sales of a Month",htmlOutput("Month_sales_graph_everyYear")),
+                                    tabPanel("Trends in FebMar",htmlOutput("Trends_FM")),
+                                    tabPanel("Customers",htmlOutput("newreturningcust"))
 
                                   ),
                                   title="Sales Analysis March",
                                   solidHeader = TRUE,
+                                  height = "350px",
                                   width=6
                                 )
                                 
@@ -94,7 +98,8 @@ ui <- dashboardPage(skin=c("red"),
                                   box(
                                     tabsetPanel(
                                       tabPanel("Year",htmlOutput("Yearly_sales_graph")),
-                                      tabPanel("Location",htmlOutput("sales_Location_graph_Year"))
+                                      tabPanel("Location",htmlOutput("sales_Location_graph_Year")),
+                                      tabPanel("Brand ",htmlOutput("year_wise_Brand_Revenue"))
                                       # tabPanel("Total Sales BY Location",htmlOutput("sales_Location_Total_Year"))
                                     ),
                                     title="Sales Analysis of Current Year",
@@ -104,6 +109,8 @@ ui <- dashboardPage(skin=c("red"),
                                   box(
                                     tabsetPanel(
                                       tabPanel("Sales of a Year",htmlOutput("year_wise_revenue"))
+                                      # tabPanel("Customers",htmlOutput("cust_graph"))
+                                      
                                     ),
                                     title="Year Analysis of Revenue",
                                     soliidHeader = TRUE,
@@ -117,9 +124,9 @@ ui <- dashboardPage(skin=c("red"),
                                     ),
                                     title="Top 10 Best Products ",
                                     solidHeader = TRUE,
+                                    height = "350px",
                                     width=6
                                   )
-                                  
                                   
                                   )
                                   
@@ -136,7 +143,8 @@ ui <- dashboardPage(skin=c("red"),
                                           fluidRow(
                                             box(
                                               tabsetPanel(tabPanel("SalesPricing",htmlOutput("msalespricing")),
-                                                          tabPanel("Quantity Sold",htmlOutput("mQty_Sold_loc"))
+                                                          tabPanel("Quantity Sold",htmlOutput("mQty_Sold_loc")),
+                                                          tabPanel("Brand ",htmlOutput("mBrand_wise_qty"))
                                                           ),
                                               title="Quantity Sold in Location in a Month",
                                               soliidHeader = TRUE,
@@ -146,7 +154,7 @@ ui <- dashboardPage(skin=c("red"),
                                             box(
                                               tabsetPanel(
                                                 tabPanel("Today&Yesterday",DT::dataTableOutput('tb2'))
-                                                
+                                                # tabPanel("Today&Yesterday",htmlOutput('tb2'))
                                               ),
                                               title="Trends",
                                               soliidHeader = TRUE,
@@ -176,7 +184,8 @@ ui <- dashboardPage(skin=c("red"),
                             infoBoxOutput("yunits",width=3),
                             box(
                               tabsetPanel(tabPanel("SalesPricing",htmlOutput("ysalespricing")),
-                                          tabPanel("Quantity Sold",htmlOutput("YQty_Sold_loc"))
+                                          tabPanel("Quantity Sold",htmlOutput("YQty_Sold_loc")),
+                                          tabPanel("Brand ",htmlOutput("yBrand_wise_qty"))
                                           )
                               ,
                               title="Quantity Sold in Location in a year",
@@ -186,13 +195,14 @@ ui <- dashboardPage(skin=c("red"),
                             ),
                             box(
                               tabsetPanel(
-                                tabPanel("max quantity sold in all years",DT::dataTableOutput('tb4')),
+                                tabPanel("max quantity sold in all years",DT::dataTableOutput('tb4'),style="overflow-y: scroll" ),
                                 tabPanel("Quantity sold in each region",htmlOutput("qty_in_each_region"),DT::dataTableOutput('tb5')),
                                 tabPanel("Quantity",htmlOutput("total_units_sold"))
                                 
                               ),
                               title="Total number of units  sold in all years",
                               solidHeader = TRUE,
+                               # height="",
                               width=6
                             ),
                             box(
@@ -211,6 +221,7 @@ ui <- dashboardPage(skin=c("red"),
                               ),
                               title="Year Analysis",
                               soliidHeader = TRUE,
+                              height="360px",
                               width=6
                             )
                            
