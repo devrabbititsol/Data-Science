@@ -454,11 +454,7 @@ server <- function(input, output) {
     return(numberofunitschart)
     
   })
-  ###################Low stock analysis in all years######
-  output$tb3 = DT::renderDataTable(
-    lowstockdays2,  options = list(lengthChange = TRUE, pageLength = 5,scrollY = TRUE,scrollX = TRUE)
-    
-  )
+  
   ###############################################
   output$tb5 = DT::renderDataTable(
     wholeyears, filter = 'top', options = list(lengthChange = TRUE, pageLength = 5,scrollY = TRUE,scrollX = TRUE,autoWidth = T)

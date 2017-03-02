@@ -434,29 +434,7 @@ nunits=dbSendQuery(mydb,'select sum(sales_flat_invoice.total_qty) as qty,
                    
                    group by year(sales_flat_invoice.created_at)   ')
 numberofunitssold=fetch(nunits,n=-1)
-##################low stock availability dates################################
 
-lowstock=dbSendQuery(mydb,'select  year(cataloginventory_stock_item.low_stock_date) as year,
-                     month(cataloginventory_stock_item.low_stock_date) as month,
-                     day(cataloginventory_stock_item.low_stock_date) as day, 
-                     cataloginventory_stock_item.qty from cataloginventory_stock_item group by date(cataloginventory_stock_item.low_stock_date) desc;')
-
-lowstockdays=fetch(lowstock,n=-1)
-lowstockdays1 <- lowstockdays 
-lowstockdays2 <- na.omit(lowstockdays1)
-
-years=dbSendQuery(mydb,'select #sales_flat_order_item.product_id as Productid,
-         #sales_flat_order_item.name as Name,
-                  sales_flat_order_address.region as Location,
-                  sum(sales_flat_invoice.total_qty) as Quantity,sales_flat_order.`status` ,
-                  
-                  year(sales_flat_order.created_at) as year
-                  from sales_flat_order_item,sales_flat_order_address,sales_flat_invoice,sales_flat_order
-                  where sales_flat_order.entity_id=sales_flat_order_item.item_id and
-                  sales_flat_order.entity_id=sales_flat_invoice.entity_id and sales_flat_order.entity_id=sales_flat_order_address.entity_id  
-                  and status="complete"
-                  group by year(sales_flat_order.created_at),location')
-wholeyears=fetch(years,n=-1)
 ###########################Trend in  current month(today and yeasterday) ##################
 trend2016=dbSendQuery(mydb,'select year(sales_flat_order.updated_at) as year,count(*) as totalcustomers,sum(sales_flat_invoice.total_qty) as qtyordered,
                       

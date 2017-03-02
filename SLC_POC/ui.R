@@ -26,14 +26,15 @@ ui <- dashboardPage(skin=c("red"),
                                 fluidPage(fluidRow(
                                   valueBoxOutput("mrevenue",width=3),
                                   valueBoxOutput("mavg_order",width=3),
-                                  valueBoxOutput("mrecustomers",width=3),
-                                  valueBoxOutput("dVisitsBox",width=3),
                                   valueBoxOutput("mEratio",width=3),
+                                  valueBoxOutput("dVisitsBox",width=3),
                                   valueBoxOutput("salesComparision",width=3),
-                                  # valueBoxOutput("bouncerate",width=3),
                                   valueBoxOutput("mNewCustBox",width = 3),
-                                  # valueBoxOutput("websiteconversionrate",width=3),
+                                  valueBoxOutput("mrecustomers",width=3),
                                   valueBoxOutput("websitetrafficgrowth",width=3)
+                                  # valueBoxOutput("bouncerate",width=3),
+                                  # valueBoxOutput("websiteconversionrate",width=3),
+                                  
                                 ),
                               
                                 fluidRow( box(
@@ -73,14 +74,9 @@ ui <- dashboardPage(skin=c("red"),
                                          sliderInput("bins", "Increase in percentage",min= 1, max=100, value=1)
                                        ),
                                        valueBoxOutput("month",width = "6")
-                                       # box(width = 6,height="120px","26th March 2016",background="orange",status = "warning",solidHeader = TRUE))
                                        )
 
                               
-                               # fluidRow(
-                               #   box("26th March 2016",width = 12,height="100px",background="orange",status = "warning",solidHeader = TRUE)
-                               #   
-                               # )
                                 
                                 )),
                         ##FirstTabItem Finished
@@ -88,8 +84,8 @@ ui <- dashboardPage(skin=c("red"),
                                 fluidRow(
                                   valueBoxOutput("yrevenue",width=3),
                                   valueBoxOutput("yavg_order",width=3),
-                                  valueBoxOutput("yrecustomers",width=3),
-                                  valueBoxOutput("yEratio",width=3)
+                                  valueBoxOutput("yEratio",width=3),
+                                  valueBoxOutput("yrecustomers",width=3)
                                   
                                   
                                 ),
@@ -145,42 +141,30 @@ ui <- dashboardPage(skin=c("red"),
                                               title="Quantity Sold in Location in a Month",
                                               soliidHeader = TRUE,
                                               width=6,
-                                              height = "350px"
+                                              height = "330px"
+                                            ),
+                                            box(
+                                              tabsetPanel(
+                                                tabPanel("Today&Yesterday",DT::dataTableOutput('tb2'))
+                                                
+                                              ),
+                                              title="Trends",
+                                              soliidHeader = TRUE,
+                                              width=6
                                             ),
                                             
                                             box(
                                               tabsetPanel(
-                                                tabPanel(
+                                                tabPanel("Inventory",
                                                   DT::dataTableOutput('tbl'),
                                                   p(class = 'text-center', downloadButton('x3', 'Download Filtered Data'))
                                                   
                                                 )),
                                               title="Available Inventory stock",
                                               solidHeader = TRUE,
-                                              width=6
-                                             ),
-                                            box(
-                                              tabsetPanel(
-                                                tabPanel("low stock days",DT::dataTableOutput('tb3'))
-                                                
-                                                
-                                                
-                                              ),
-                                              # title="low stock days in all years",
-                                              solidHeader = TRUE,
-                                              width=6
-                                            ),
-                                            box(
-                                              tabsetPanel(
-                                                tabPanel("Trends in the today and yesterday",DT::dataTableOutput('tb2'))
-                                                
-                                                
-                                                
-                                              ),
-                                              # title="Trends in the today and yesterday sales,orders,avg_per_customer",
-                                              soliidHeader = TRUE,
-                                              width=6
-                                            )
+                                              width=12
+                                             )
+                                            
                                           )
                                           
                                 )),
@@ -191,19 +175,24 @@ ui <- dashboardPage(skin=c("red"),
                             infoBoxOutput("yiturn",width=3),
                             infoBoxOutput("yunits",width=3),
                             box(
-                              tabsetPanel(tabPanel("SalesPricing",htmlOutput("ysalespricing")),tabPanel("Quantity Sold",htmlOutput("YQty_Sold_loc"))
+                              tabsetPanel(tabPanel("SalesPricing",htmlOutput("ysalespricing")),
+                                          tabPanel("Quantity Sold",htmlOutput("YQty_Sold_loc"))
                                           )
                               ,
                               title="Quantity Sold in Location in a year",
                               soliidHeader = TRUE,
-                              width=6
+                              width=6,
+                              height="350px"
                             ),
                             box(
-                              tabsetPanel(tabPanel("Top 10 Products in a Month",htmlOutput("TopProduct_sold_Analysis"),selectInput("Month_Sold_Pro","",selected="Mar",choices = list("Jan","Feb","Mar")))
-                                          
+                              tabsetPanel(
+                                tabPanel("max quantity sold in all years",DT::dataTableOutput('tb4')),
+                                tabPanel("Quantity sold in each region",htmlOutput("qty_in_each_region"),DT::dataTableOutput('tb5')),
+                                tabPanel("Quantity",htmlOutput("total_units_sold"))
+                                
                               ),
-                              title="Year Analysis",
-                              soliidHeader = TRUE,
+                              title="Total number of units  sold in all years",
+                              solidHeader = TRUE,
                               width=6
                             ),
                             box(
@@ -217,39 +206,14 @@ ui <- dashboardPage(skin=c("red"),
                               width=6
                             ),
                             box(
-                              tabsetPanel(
-                                tabPanel("max quantity sold in all years",DT::dataTableOutput('tb4'))
-                                
-                                
-                                
+                              tabsetPanel(tabPanel("Top 10 Products in a Month",htmlOutput("TopProduct_sold_Analysis"),selectInput("Month_Sold_Pro","",selected="Mar",choices = list("Jan","Feb","Mar")))
+                                          
                               ),
-                              # title="max quantity sold in all years",
-                              solidHeader = TRUE,
-                              width=6
-                            ),
-                            box(
-                              tabsetPanel(
-                                tabPanel("total number of units  sold in all years",htmlOutput("total_units_sold"))
-                                
-                                
-                                
-                              ),
-                              title="total number of units  sold in all years",
-                              solidHeader = TRUE,
-                              width=6
-                            ),
-                            box(
-                              tabsetPanel(
-                                tabPanel("Quantity sold in each region",htmlOutput("qty_in_each_region")),
-                                DT::dataTableOutput('tb5')
-                                
-                                
-                              ),
-                              title="Quantity sold in each region ",
-                              solidHeader = TRUE,
+                              title="Year Analysis",
+                              soliidHeader = TRUE,
                               width=6
                             )
-                            
+                           
                           )
                         )
                         
