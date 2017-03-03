@@ -105,7 +105,7 @@ mVisits=dbSendQuery(mydb,"select count(*) from log_visitor where month(log_visit
 mVisitsval=fetch(mVisits,n=-1)
 mTransactions=dbSendQuery(mydb,"select count(*) from sales_flat_order where status='complete' and month(sales_flat_order.created_at)=3 and year(sales_flat_order.created_at)=2016")
 mTrValue=fetch(mTransactions,n=-1)
-mERatio=mTrValue/mVisitsval
+mERatio=(mTrValue/mVisitsval)*100
 
     ##for a year
 yVisits=dbSendQuery(mydb,"select count(*) from log_visitor where year(log_visitor.first_visit_at)=2016")
@@ -213,15 +213,16 @@ ymval<-cbind(yRevenue,yminc.annotation)
 
 ##### calculating top product in a month  
 
-mTopProduct = dbSendQuery(mydb,'select sum(sales_flat_quote_item.qty) as TotalQty, 
-                 sales_flat_quote_item.product_id, sales_flat_quote_item.name 
-                 from sales_flat_quote_item,sales_flat_order_item 
-                 where YEAR(sales_flat_quote_item.updated_at) = 2016 AND MONTH(sales_flat_quote_item.updated_at)=3 AND
-		sales_flat_quote_item.product_id = sales_flat_order_item.product_id 
-                 group by sales_flat_quote_item.product_id')
+mTopProduct = dbSendQuery(mydb,'select sum(sales_flat_invoice_item.qty) as Qty, sales_flat_invoice_item.product_id,sales_flat_quote_item.name
+from sales_flat_invoice_item,sales_flat_quote_item,sales_flat_order 
+                          where year(sales_flat_quote_item.updated_at)=2016 and
+                          month(sales_flat_quote_item.updated_at)=3 and
+                          sales_flat_invoice_item.product_id=sales_flat_quote_item.product_id and
+                          sales_flat_order.entity_id=sales_flat_quote_item.quote_id and 
+                          sales_flat_order.`status`="complete" group by sales_flat_invoice_item.product_id order by Qty desc limit 1')
 
 mtopproduct= fetch(mTopProduct, n=-1)  
-maxQty<-max(mtopproduct$TotalQty)
+maxQty<-max(mtopproduct$Qty)
 ############calculating top product in a year
 ##### 
 
@@ -477,6 +478,19 @@ row2016$year <- NULL
 rownames(row2016)[1]<-"Yesterday"
 rownames(row2016)[2]<-"Today"
 rownames(row2016)[3]<-"+/- in Percentage"
+#############location wise quantity sold in the all years######################
+years=dbSendQuery(mydb,'select #sales_flat_order_item.product_id as Productid,
+         #sales_flat_order_item.name as Name,
+                  sales_flat_order_address.region as Location,
+                  sum(sales_flat_invoice.total_qty) as Quantity,sales_flat_order.`status` ,
+                  
+                  year(sales_flat_order.created_at) as year
+                  from sales_flat_order_item,sales_flat_order_address,sales_flat_invoice,sales_flat_order
+                  where sales_flat_order.entity_id=sales_flat_order_item.item_id and
+                  sales_flat_order.entity_id=sales_flat_invoice.entity_id and sales_flat_order.entity_id=sales_flat_order_address.entity_id  
+                  and status="complete"
+                  group by year(sales_flat_order.created_at),location')
+wholeyears=fetch(years,n=-1)
 # ######################websiteconversion rate############
 # webcon=dbSendQuery(mydb,'select count(*) from customer_entity;')
 # wrate1=fetch(webcon,n=-1)
@@ -484,11 +498,14 @@ rownames(row2016)[3]<-"+/- in Percentage"
 # wrate2=fetch(webconrate,n=-1)
 # wrate=round(wrate1/wrate2,2)*100
 ###############website traffic growth##################
-mwebgro=dbSendQuery(mydb,'select count(*) from log_visitor where month(log_visitor.last_visit_at)=2;')
-mwgrowth1=fetch(mwebgro,n=-1)
-mwebgrowth=dbSendQuery(mydb,'select count(*) from log_visitor where month(log_visitor.last_visit_at)=3;')
-mwgrowth2=fetch(mwebgrowth,n=-1)
-mwgrowth=round(((mwgrowth1-mwgrowth2)/mwgrowth1),2)*100
+webgrowthin2016=dbSendQuery(mydb,'select count(*) as visitors,
+       month(log_visitor.first_visit_at) as month,year(log_visitor.first_visit_at) as year
+                            from log_visitor where month(log_visitor.first_visit_at)>=2 and year(log_visitor.first_visit_at)=2016
+                            group by month(log_visitor.first_visit_at),year(log_visitor.first_visit_at);')
+webtrafficgrowth2016=fetch(webgrowthin2016,n=-1)
+trafficinfeb=webtrafficgrowth2016$visitors[1]
+trafficinmarch=webtrafficgrowth2016$visitors[2]
+webtrafficgrowthin2016=round(((trafficinmarch-trafficinfeb)/trafficinfeb),2)*100
 
 ######################sales analysis for all years in feb and march######################
 fbmanalysis=dbSendQuery(mydb,'select sum(grand_total) as Revenue ,Month(created_at) as Month,Year(created_at) as Year 
@@ -496,7 +513,23 @@ fbmanalysis=dbSendQuery(mydb,'select sum(grand_total) as Revenue ,Month(created_
                         where (Month(created_at) >=2 and Month(created_at)<=3) 
                         and (Year(created_at)>=2013 and year(created_at)<=2016) group by  Year(created_at),month(created_at)')
 febmarchanalysis=fetch(fbmanalysis,n=-1)
+##############################2013 difference between february and march##################
+feb2013=febmarchanalysis$Revenue[1]
+march2013=febmarchanalysis$Revenue[2]
+fm3=round(((march2013-feb2013)/feb2013)*100,digits = 2)
+##############################2014 difference between february and march##################
+feb2014=febmarchanalysis$Revenue[3]
+march2014=febmarchanalysis$Revenue[4]
+fm4=round(((march2014-feb2014)/feb2014)*100,digits = 2)
 
+##############################2015 difference between february and march##################
+feb2015=febmarchanalysis$Revenue[5]
+march2015=febmarchanalysis$Revenue[6]
+fm5=round(((march2015-feb2015)/feb2015)*100,digits = 2)
+##############################2016 difference between february and march##################
+feb2016=febmarchanalysis$Revenue[7]
+march2016=febmarchanalysis$Revenue[8]
+fm6=round(((march2016-feb2016)/feb2016)*100,digits = 2)
 
 #################brand wise revenue in the current month(2016)################################
 BRevenue=dbSendQuery(mydb,"select sales_flat_order.`status`,
@@ -520,7 +553,7 @@ BRevenue=dbSendQuery(mydb,"select sales_flat_order.`status`,
                      sales_flat_order.entity_id=sales_flat_order_item.order_id and
                      
                      sales_flat_order.`status`='complete'
-                     group by Brand order by Brand;")
+                     group by Brand ")
 BrandRevenue=fetch(BRevenue,n=-1)
 BrandRevenue[1,2]<-"others"
 #################brand wise revenue in the current year(2016)################################
@@ -545,116 +578,286 @@ YBRevenue=dbSendQuery(mydb,"select sales_flat_order.`status`,
                      sales_flat_order.entity_id=sales_flat_order_item.order_id and
                      
                      sales_flat_order.`status`='complete'
-                     group by Brand order by Brand;")
+                     group by Brand ")
 YBrandRevenue=fetch(YBRevenue,n=-1)
 YBrandRevenue[1,2]<-"others"
-# #######################################################
-# mRepeatCust2016=dbSendQuery(mydb,'SELECT COUNT(*) AS grand_count FROM(
-# SELECT customer_email FROM sales_flat_order
-#                             WHERE sales_flat_order.status NOT LIKE "canceled"
-#                             AND sales_flat_order.status NOT LIKE "closed"
-#                             AND sales_flat_order.status NOT LIKE "fraud"
-#                             AND sales_flat_order.status NOT LIKE "holded"
-#                             AND sales_flat_order.status NOT LIKE "paypal_canceled_reversal"
-#                             AND year(sales_flat_order.updated_at)=2016 
-#                             AND month(sales_flat_order.updated_at)=3
-#                             GROUP BY customer_email HAVING COUNT(*) > 1
-# ) s')
-# 
-# mRepeatCustomer2016=fetch(mRepeatCust2016,n=-1)
-# 
-# mRepeatCust2015=dbSendQuery(mydb,'SELECT COUNT(*) AS grand_count FROM(
-#                             SELECT customer_email FROM sales_flat_order
-#                             WHERE sales_flat_order.status NOT LIKE "canceled"
-#                             AND sales_flat_order.status NOT LIKE "closed"
-#                             AND sales_flat_order.status NOT LIKE "fraud"
-#                             AND sales_flat_order.status NOT LIKE "holded"
-#                             AND sales_flat_order.status NOT LIKE "paypal_canceled_reversal"
-#                             AND year(sales_flat_order.updated_at)=2015 
-#                             AND month(sales_flat_order.updated_at)=3
-#                             GROUP BY customer_email HAVING COUNT(*) > 1
-# ) s')
-# mRepeatCustomer2015=fetch(mRepeatCust2015,n=-1)
-# 
-# mRepeatCust2014=dbSendQuery(mydb,'SELECT COUNT(*) AS grand_count FROM(
-#                             SELECT customer_email FROM sales_flat_order
-#                             WHERE sales_flat_order.status NOT LIKE "canceled"
-#                             AND sales_flat_order.status NOT LIKE "closed"
-#                             AND sales_flat_order.status NOT LIKE "fraud"
-#                             AND sales_flat_order.status NOT LIKE "holded"
-#                             AND sales_flat_order.status NOT LIKE "paypal_canceled_reversal"
-#                             AND year(sales_flat_order.updated_at)=2014 
-#                             AND month(sales_flat_order.updated_at)=3
-#                             GROUP BY customer_email HAVING COUNT(*) > 1
-# ) s')
-# mRepeatCustomer2014=fetch(mRepeatCust2014,n=-1)
-# 
-# mRepeatCust2013=dbSendQuery(mydb,'SELECT COUNT(*) AS grand_count FROM(
-#                             SELECT customer_email FROM sales_flat_order
-#                             WHERE sales_flat_order.status NOT LIKE "canceled"
-#                             AND sales_flat_order.status NOT LIKE "closed"
-#                             AND sales_flat_order.status NOT LIKE "fraud"
-#                             AND sales_flat_order.status NOT LIKE "holded"
-#                             AND sales_flat_order.status NOT LIKE "paypal_canceled_reversal"
-#                             AND year(sales_flat_order.updated_at)=2013 
-#                             AND month(sales_flat_order.updated_at)=3
-#                             GROUP BY customer_email HAVING COUNT(*) > 1
-# ) s')
-# mRepeatCustomer2013=fetch(mRepeatCust2013,n=-1)
-# year<-c(2013,2014,2015,2016)
-# 
-# grndcntforrep<-c(27,51,83,116)
-# mRepeatCustomer<-cbind(year,grndcntforrep)
-# grndcntforrep<-mRepeatCustomer$grndcntforrep
-# 
-# mNewCust2016=dbSendQuery(mydb,'SELECT COUNT(*) AS grand_count FROM(
-#                          SELECT customer_email FROM sales_flat_order
-#                          WHERE sales_flat_order.status NOT LIKE "canceled"
-#                          AND sales_flat_order.status NOT LIKE "closed"
-#                          AND sales_flat_order.status NOT LIKE "fraud"
-#                          AND sales_flat_order.status NOT LIKE "holded"
-#                          AND sales_flat_order.status NOT LIKE "paypal_canceled_reversal"
-#                          AND year(sales_flat_order.updated_at)=2016 
-#                          AND month(sales_flat_order.updated_at)=3
-#                          GROUP BY customer_email HAVING COUNT(*) = 1) s')
-# 
-# mnewcustomer2016=fetch(mNewCust2016, n=-1)
-# mNewCust2015=dbSendQuery(mydb,'SELECT COUNT(*) AS grand_count FROM(
-#                          SELECT customer_email FROM sales_flat_order
-#                          WHERE sales_flat_order.status NOT LIKE "canceled"
-#                          AND sales_flat_order.status NOT LIKE "closed"
-#                          AND sales_flat_order.status NOT LIKE "fraud"
-#                          AND sales_flat_order.status NOT LIKE "holded"
-#                          AND sales_flat_order.status NOT LIKE "paypal_canceled_reversal"
-#                          AND year(sales_flat_order.updated_at)=2015 
-#                          AND month(sales_flat_order.updated_at)=3
-#                          GROUP BY customer_email HAVING COUNT(*) = 1) s')
-# mnewcustomer2015=fetch(mNewCust2015, n=-1)
-# mNewCust2014=dbSendQuery(mydb,'SELECT COUNT(*) AS grand_count FROM(
-#                          SELECT customer_email FROM sales_flat_order
-#                          WHERE sales_flat_order.status NOT LIKE "canceled"
-#                          AND sales_flat_order.status NOT LIKE "closed"
-#                          AND sales_flat_order.status NOT LIKE "fraud"
-#                          AND sales_flat_order.status NOT LIKE "holded"
-#                          AND sales_flat_order.status NOT LIKE "paypal_canceled_reversal"
-#                          AND year(sales_flat_order.updated_at)=2014 
-#                          AND month(sales_flat_order.updated_at)=3
-#                          GROUP BY customer_email HAVING COUNT(*) = 1) s')
-# mnewcustomer2014=fetch(mNewCust2014, n=-1)
-# mNewCust2013=dbSendQuery(mydb,'SELECT COUNT(*) AS grand_count FROM(
-#                          SELECT customer_email FROM sales_flat_order
-#                          WHERE sales_flat_order.status NOT LIKE "canceled"
-#                          AND sales_flat_order.status NOT LIKE "closed"
-#                          AND sales_flat_order.status NOT LIKE "fraud"
-#                          AND sales_flat_order.status NOT LIKE "holded"
-#                          AND sales_flat_order.status NOT LIKE "paypal_canceled_reversal"
-#                          AND year(sales_flat_order.updated_at)=2013
-#                          AND month(sales_flat_order.updated_at)=3
-#                          GROUP BY customer_email HAVING COUNT(*) = 1) s')
-# mnewcustomer2013=fetch(mNewCust2013, n=-1)
-# year1<-c(2013,2014,2015,2016)
-# grndcntfornew<-c(20,64,67,102)
-# grndcntforrep<-c(27,51,83,116)
-# # mnewcustomer<-cbind(year,grndcntfornew)
-# # year<-round(year1)
-# newrepcustomer1<-c(grndcntfornew,grndcntforrep)
+#####Brand 15
+######################## Difference in % Revenue and Quantity Year 2015 and 2016 ####################
+
+ysalebrand16=dbSendQuery(mydb,"select (case when sales_flat_order_item.name like 'Yupoong%' then 'Yupoong'
+                         when sales_flat_order_item.name like 'Original Chuck%' then 'Original Chuck'
+                         when sales_flat_order_item.name like 'Valucap%' then 'Valucap'
+                         when sales_flat_order_item.name like '%Next Level Apparel%' then 'Next Level Apparel'
+                         when sales_flat_order_item.name like 'Anvil%' then 'Anvil'
+                         when sales_flat_order_item.name like 'Cirque Mountain Apparel%' then 'Cirque Mountain Apparel'
+                         when sales_flat_order_item.name like 'Independent Trading%' then 'Independent Trading Company'
+                         when sales_flat_order_item.name like 'Gildan%' then 'Gildan'
+                         when sales_flat_order_item.name like 'Flexfit%' then 'Flexfit'
+                         when sales_flat_order_item.name like 'B%+C%' then 'Bella + Canvas'
+                         end) as Brand,
+                         sum(sales_flat_order_item.row_total) as Revenue16,
+                         sum(sales_flat_order_item.qty_ordered) as Qty16 from sales_flat_order_item,sales_flat_order
+                         where year(sales_flat_order_item.updated_at)=2016 and 
+                         sales_flat_order.entity_id=sales_flat_order_item.order_id and
+                         sales_flat_order.`status`='complete'
+                         group by Brand ")
+ysalebrand16=fetch(ysalebrand16,n=-1)
+ysalebrand16=na.omit(ysalebrand16)
+ysalebrand16<-ysalebrand16[-1,] 
+
+
+ysalebrand15=dbSendQuery(mydb,"select(case when sales_flat_order_item.name like 'Yupoong%' then 'Yupoong'
+                         when sales_flat_order_item.name like 'Original Chuck%' then 'Original Chuck'
+                         when sales_flat_order_item.name like 'Valucap%' then 'Valucap'
+                         when sales_flat_order_item.name like '%Next Level Apparel%' then 'Next Level Apparel'
+                         when sales_flat_order_item.name like 'Anvil%' then 'Anvil'
+                         when sales_flat_order_item.name like 'Cirque Mountain Apparel%' then 'Cirque Mountain Apparel'
+                         when sales_flat_order_item.name like 'Independent Trading%' then 'Independent Trading Company'
+                         when sales_flat_order_item.name like 'Gildan%' then 'Gildan'
+                         when sales_flat_order_item.name like 'Flexfit%' then 'Flexfit'
+                         when sales_flat_order_item.name like 'B%+C%' then 'Bella + Canvas'
+                         end) as Brand15,
+                         sum(sales_flat_order_item.row_total) as Revenue15,
+                         sum(sales_flat_order_item.qty_ordered) as Qty15 from sales_flat_order_item,sales_flat_order
+                         where year(sales_flat_order_item.updated_at)=2015 and 
+                         sales_flat_order.entity_id=sales_flat_order_item.order_id and
+                         sales_flat_order.`status`='complete'
+                         group by Brand15 ")
+
+
+
+
+ysalebrand15=fetch(ysalebrand15,n=-1)
+ysalebrand15=na.omit(ysalebrand15)
+ysalebrand15<-ysalebrand15[-c(5,6),] #####
+
+
+yFlexfitrev<-round(((ysalebrand16$Revenue16[1]-ysalebrand15$Revenue15[1])/ysalebrand15$Revenue15[1])*100,2)
+
+yFlexfitqty<-round(((ysalebrand16$Qty16[1]-ysalebrand15$Qty[1])/ysalebrand15$Qty15[1])*100,2)
+
+
+ygildanRev=round(((ysalebrand16$Revenue16[2]-ysalebrand15$Revenue[2])/ysalebrand15$Revenue15[2])*100,2)
+
+ygildanQty=round(((ysalebrand16$Qty16[2]-ysalebrand15$Qty[2])/ysalebrand15$Qty15[2])*100,2)
+
+
+yindiRev=round(((ysalebrand16$Revenue16[3]-ysalebrand15$Revenue[3])/ysalebrand15$Revenue15[3])*100,2)
+
+yindiQty=round(((ysalebrand16$Qty16[3]-ysalebrand15$Qty[3])/ysalebrand15$Qty15[3])*100,2)
+
+
+
+ynextlevelRev=round(((ysalebrand16$Revenue16[4]-ysalebrand15$Revenue[4])/ysalebrand15$Revenue15[4])*100,2)
+
+ynextlevelQty=round(((ysalebrand16$Qty16[4]-ysalebrand15$Qty[4])/ysalebrand15$Qty15[4])*100,2)
+
+
+
+yyupRev=round(((ysalebrand16$Revenue16[5]-ysalebrand15$Revenue[5])/ysalebrand15$Revenue15[5])*100,2)
+
+yyupQty=round(((ysalebrand16$Qty16[5]-ysalebrand15$Qty[5])/ysalebrand15$Qty15[5])*100,2)
+
+SalesDifference<-c(yFlexfitrev,ygildanRev,yindiRev,ynextlevelRev,yyupRev)
+QuantityDifference<-c(yFlexfitqty,ygildanQty,yindiQty,ynextlevelQty,yyupQty)
+
+ybrandsale=cbind(ysalebrand15,ysalebrand16,SalesDifference,QuantityDifference)
+
+##############month analysis of +/- in Sales and Quantity
+msalebrand16mar=dbSendQuery(mydb,"select (case when sales_flat_order_item.name like 'Yupoong%' then 'Yupoong'
+                         when sales_flat_order_item.name like 'Original Chuck%' then 'Original Chuck'
+                            when sales_flat_order_item.name like 'Valucap%' then 'Valucap'
+                            when sales_flat_order_item.name like '%Next Level Apparel%' then 'Next Level Apparel'
+                            when sales_flat_order_item.name like 'Anvil%' then 'Anvil'
+                            when sales_flat_order_item.name like 'Cirque Mountain Apparel%' then 'Cirque Mountain Apparel'
+                            when sales_flat_order_item.name like 'Independent Trading%' then 'Independent Trading Company'
+                            when sales_flat_order_item.name like 'Gildan%' then 'Gildan'
+                            when sales_flat_order_item.name like 'Flexfit%' then 'Flexfit'
+                            when sales_flat_order_item.name like 'B%+C%' then 'Bella + Canvas'
+                            end) as Brand,
+                            sum(sales_flat_order_item.row_total) as Revenue,
+                            sum(sales_flat_order_item.qty_ordered) as Qty from sales_flat_order_item,sales_flat_order
+                            where year(sales_flat_order_item.updated_at)=2016 and month(sales_flat_order_item.updated_at)=3 and
+                            sales_flat_order.entity_id=sales_flat_order_item.order_id and
+                            sales_flat_order.`status`='complete'
+                            group by Brand ")
+msalebrand16mar=fetch(msalebrand16mar,n=-1)
+msalebrand16mar=na.omit(msalebrand16mar)
+
+msalebrand16mar=msalebrand16mar[-1,] ###### To remove 1st row of  ####
+
+
+
+msalebrand16feb=dbSendQuery(mydb,"select(case when sales_flat_order_item.name like 'Yupoong%' then 'Yupoong'
+                            when sales_flat_order_item.name like 'Original Chuck%' then 'Original Chuck'
+                            when sales_flat_order_item.name like 'Valucap%' then 'Valucap'
+                            when sales_flat_order_item.name like '%Next Level Apparel%' then 'Next Level Apparel'
+                            when sales_flat_order_item.name like 'Anvil%' then 'Anvil'
+                            when sales_flat_order_item.name like 'Cirque Mountain Apparel%' then 'Cirque Mountain Apparel'
+                            when sales_flat_order_item.name like 'Independent Trading%' then 'Independent Trading Company'
+                            when sales_flat_order_item.name like 'Gildan%' then 'Gildan'
+                            when sales_flat_order_item.name like 'Flexfit%' then 'Flexfit'
+                            when sales_flat_order_item.name like 'B%+C%' then 'Bella + Canvas'
+                            end) as Brand,
+                            sum(sales_flat_order_item.row_total) as Revenue,
+                            sum(sales_flat_order_item.qty_ordered) as Qty from sales_flat_order_item,sales_flat_order
+                            where year(sales_flat_order_item.updated_at)=2016 and month(sales_flat_order_item.updated_at)=2 and
+                            sales_flat_order.entity_id=sales_flat_order_item.order_id and
+                            sales_flat_order.`status`='complete'
+                            group by Brand ")
+
+msalebrand16feb=fetch(msalebrand16feb,n=-1)
+msalebrand16feb=na.omit(msalebrand16feb)
+
+
+flexfitRevInper16mar=round(((msalebrand16mar$Revenue[1]-msalebrand16feb$Revenue[1])/msalebrand16feb$Revenue[1])*100,2)    ### Revenue difference in percentage
+
+flexfitQtyDeper16mar=round(((msalebrand16mar$Qty[1]-msalebrand16feb$Qty[1])/msalebrand16feb$Qty[1])*100,2)               ###### Qty difference in percentage
+
+
+gildanRevDeper16mar=round(((msalebrand16mar$Revenue[2]-msalebrand16feb$Revenue[2])/msalebrand16feb$Revenue[2])*100,2)
+
+gildanQtyDeper16mar=round(((msalebrand16mar$Qty[2]-msalebrand16feb$Qty[2])/msalebrand16feb$Qty[2])*100,2)
+
+
+indiRevDeper16mar=round(((msalebrand16mar$Revenue[3]-msalebrand16feb$Revenue[3])/msalebrand16feb$Revenue[3])*100,2)
+
+indiQtyDeper16mar=round(((msalebrand16mar$Qty[3]-msalebrand16feb$Qty[3])/msalebrand16feb$Qty[3])*100,2)
+
+
+
+nextRevInper16mar=round(((msalebrand16mar$Revenue[4]-msalebrand16feb$Revenue[4])/msalebrand16feb$Revenue[4])*100,2)
+
+nextQtyInper16mar=round(((msalebrand16mar$Qty[4]-msalebrand16feb$Qty[4])/msalebrand16feb$Qty[4])*100,2)
+
+
+
+yupRevDeper16mar=round(((msalebrand16mar$Revenue[5]-msalebrand16feb$Revenue[5])/msalebrand16feb$Revenue[5])*100,2)
+
+yupQtyDeper16mar=round(((msalebrand16mar$Qty[5]-msalebrand16feb$Qty[5])/msalebrand16feb$Qty[5])*100,2)
+
+
+MSalesDifference<-c(1.45,-23.27,-14.47,3.9,-25.63) 
+MQtyDifference<-c(-1.44,-30.22,-13.28,3.39,-27.16) 
+
+FebRevenue<-msalebrand16feb$Revenue
+FebQty<-msalebrand16feb$Qty
+msalebrand16mar<-cbind(msalebrand16mar,MSalesDifference,MQtyDifference,FebQty,FebRevenue)
+
+##########calculation of kpi to find the growth/Fall in percentages in the year(2016-2015)###################################
+y20156=dbSendQuery(mydb,'select sum(grand_total) as Revenue ,
+                   
+                   Year(created_at) as Year
+                   from sales_flat_order 
+                   where Year(created_at)>=2015 group by  Year')
+yper201516=fetch(y20156,n=-1)
+ydata2015=yper201516$Revenue[1]
+ydata2016=yper201516$Revenue[2]
+difference=ydata2016-ydata2015
+mincreaseorfallperyear2016=(difference/ydata2015)*100
+
+##########calculation of kpi to find the growth/Fall in percentages in the year(2015-2014)###################################
+y201415=dbSendQuery(mydb,'select sum(grand_total) as Revenue ,
+                    
+                    Year(created_at) as Year
+                    from sales_flat_order 
+                    where (Year(created_at)>=2014 and Year(created_at)<=2015) group by  Year')
+yper201415=fetch(y201415,n=-1)
+ydata2014=yper201415$Revenue[1]
+ydata2015=yper201415$Revenue[2]
+difference=ydata2015-ydata2014
+mincreaseorfallperyear2016=(difference/ydata2014)*100
+
+
+  ############################finding the number of visitors in all years ##################
+ywebtraffic=dbSendQuery(mydb,'select count(*) as visitors,
+                       year(log_visitor.first_visit_at) as year
+                       from log_visitor 
+                       group by year(log_visitor.first_visit_at)
+                      ')
+yearwebtraffic=fetch(ywebtraffic,n=-1)
+#print(yearwebtraffic)
+
+#################calculating the growth/fall in percentages b/w (2012-2013)################
+trafficin2012=yearwebtraffic$visitors[1]
+trafficin2013=yearwebtraffic$visitors[2]
+webtrafficgrowthin201213=round(((trafficin2013-trafficin2012)/trafficin2012),2)*100
+
+#################calculating the growth/fall in percentages b/w (2013-2014)################
+trafficin2013=yearwebtraffic$visitors[2]
+trafficin2014=yearwebtraffic$visitors[3]
+webtrafficgrowthin201314=round(((trafficin2014-trafficin2013)/trafficin2013),2)*100
+
+#################calculating the growth/fall in percentages b/w (2014-2015)################
+trafficin2014=yearwebtraffic$visitors[3]
+trafficin2015=yearwebtraffic$visitors[4]
+webtrafficgrowthin201415=round(((trafficin2015-trafficin2014)/trafficin2014),2)*100
+
+#################calculating the growth/fall in percentages b/w (2015-2016)################
+trafficin2015=yearwebtraffic$visitors[4]
+trafficin2016=yearwebtraffic$visitors[5]
+webtrafficgrowthin201516=round(((trafficin2016-trafficin2015)/trafficin2015),2)*100
+########################top customer for current month#############
+mtopcustomer=dbSendQuery(mydb,"select sales_flat_order_address.firstname as Name,sales_flat_order_address.lastname ,sum(sales_flat_order.grand_total) as Revenue 
+                         from sales_flat_order_address,sales_flat_order
+                         where sales_flat_order_address.parent_id=sales_flat_order.entity_id and sales_flat_order.`status`='complete' 
+                         and year(sales_flat_order.updated_at)=2016 and month(sales_flat_order.updated_at)=3
+                         group by Name order by Revenue desc limit 1
+                         ;")
+mtopcust=fetch(mtopcustomer,n=-1)
+topcustomercurrentmonth<-mtopcust$Name
+########################top customer for current year#############
+ytopcustomer=dbSendQuery(mydb,"select sales_flat_order_address.firstname as Name,sales_flat_order_address.lastname ,sum(sales_flat_order.grand_total) as Revenue 
+                         from sales_flat_order_address,sales_flat_order
+                         where sales_flat_order_address.parent_id=sales_flat_order.entity_id and sales_flat_order.`status`='complete' 
+                         and year(sales_flat_order.updated_at)=2016 
+                         group by Name order by Revenue desc limit 1
+                         ;")
+ytopcust=fetch(ytopcustomer,n=-1)
+topcustomercurrentyear<-ytopcust$Name
+
+###############top customer for current month by items order########################
+mtopcustomerbyitem=dbSendQuery(mydb,"select sales_flat_order_address.firstname as Name,sales_flat_order_address.lastname ,sales_flat_order.total_qty_ordered as Itemcount 
+from sales_flat_order_address,sales_flat_order
+                               where sales_flat_order_address.parent_id=sales_flat_order.entity_id and sales_flat_order.`status`='complete' 
+                               and year(sales_flat_order.updated_at)=2016 and month(sales_flat_order.updated_at)=3
+                               group by Name order by Itemcount desc limit 1
+                               ;")
+mtopcustbyitem=fetch(mtopcustomerbyitem,n=-1)
+topcustomercurrentmonthbyitem<-mtopcustbyitem$Name
+#################top customer for current year by items order########################
+ytopcustomerbyitem=dbSendQuery(mydb,"select sales_flat_order_address.firstname as Name,sales_flat_order_address.lastname ,sales_flat_order.total_qty_ordered as Itemcount 
+from sales_flat_order_address,sales_flat_order
+                               where sales_flat_order_address.parent_id=sales_flat_order.entity_id and sales_flat_order.`status`='complete' 
+                               and year(sales_flat_order.updated_at)=2016 
+                               group by Name order by Itemcount desc limit 1
+                         ;")
+ytopcustbyitem=fetch(ytopcustomerbyitem,n=-1)
+topcustomerforcurrentyearbyitem<-ytopcustbyitem$Name
+################ New Customer Revenue % ####################################
+mnewCustmerval=dbSendQuery(mydb,"SELECT COUNT(*) AS grand_count,sum(Grand_Total) FROM( SELECT customer_email,
+                           SUM(sales_flat_order.grand_total) as Grand_Total 
+                           FROM sales_flat_order WHERE sales_flat_order.status='complete' 
+                           AND year(sales_flat_order.updated_at)=2016 and 
+                           month(sales_flat_order.updated_at)=3 GROUP BY 
+                           customer_email HAVING COUNT(*) = 1)s")
+
+mnewCustmerRev=fetch(mnewCustmerval,n=-1)
+mtotalrev<-dbSendQuery(mydb,"select sum(grand_total) as Total from sales_flat_order 
+                       where `status`='complete' and 
+                       year(updated_at)=2016 and month(updated_at)=3;")
+mtotalrev<-fetch(mtotalrev,n=-1)
+
+mNewCustmerper=round(((mnewCustmerRev$`sum(Grand_Total)`/mtotalrev$Total)*100),2)
+
+mRepeatCustmerval=dbSendQuery(mydb,"SELECT COUNT(*) AS grand_count,sum(Grand_Total) FROM( SELECT customer_email,
+                              SUM(sales_flat_order.grand_total) as Grand_Total 
+                              FROM sales_flat_order WHERE sales_flat_order.status='complete' 
+                              AND year(sales_flat_order.updated_at)=2016 and 
+                              month(sales_flat_order.updated_at)=3 GROUP BY 
+                              customer_email HAVING COUNT(*) > 1)s")
+mRepeatCustmerRev<-fetch(mRepeatCustmerval,n=-1)
+
+mRepeatCustmerper<-round(((mRepeatCustmerRev$`sum(Grand_Total)`/mtotalrev$Total)*100),2)
+
+print(mRepeatCustmerper)

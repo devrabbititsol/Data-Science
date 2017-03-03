@@ -7,6 +7,7 @@ library(lubridate)
 library(DT)
 library(readr)
 library(ggplot2)
+library(highcharter)
 
 # library(plotly)
 
@@ -26,7 +27,7 @@ server <- function(input, output) {
     output$today_sales_graph <- renderGvis({
       tdsales<- select(tdaysales,timestamp,Sales)
       x<-as.POSIXct(tdaysales$timestamp)
-      z<-round_date(x,unit="minute")
+      z<-round_date(x,unit="hour")
       Time<-strftime(z, format="%I.%M %p")
       todaysales<-cbind(Time,tdsales)
       tdsalechart<-gvisAreaChart(todaysales,xvar="Time",yvar="Sales",options=list(width="100%",height="200px"))
@@ -40,7 +41,7 @@ server <- function(input, output) {
     output$today_sales_graph <- renderGvis({
       ydsales<- select(ydaysales,timestamp,Sales)
       x<-as.POSIXct(ydaysales$timestamp)
-      z<-round_date(x,unit="minute")
+      z<-round_date(x,unit="hour")
       Time<-strftime(z, format="%I.%M %p")
       yedaysales<-cbind(Time,ydsales)
       ydsalechart<-gvisAreaChart(yedaysales,xvar="Time",yvar="Sales",options=list(width="100%",height="200px"))
@@ -400,45 +401,45 @@ server <- function(input, output) {
       color = "orange"
     )
   })
- # ###Top 10  Products in corresponding months
- #  output$TopProduct_sold_Analysis<- renderGvis({
- #    yTopProSold<- select(yTopProSales,months1,Qty)
- #    yTopProSoldchart<-gvisPieChart(yTopProSold)
- #    return(yTopProSoldchart)
+ # # ###Top 10  Products in corresponding months
+ # #  output$TopProduct_sold_Analysis<- renderGvis({
+ # #    yTopProSold<- select(yTopProSales,months1,Qty)
+ # #    yTopProSoldchart<-gvisPieChart(yTopProSold)
+ # #    return(yTopProSoldchart)
+ # #    
+ # #  })
+ # #  
+ #  observe({
+ #    y<-input$Month_Sold_Pro 
  #    
- #  })
+ #    if(y=="Mar")
+ #    {
+ #      
+ #      output$TopProduct_sold_Analysis<- renderGvis({
+ #        ymarTopProSold<- select(yTopProSales3,Name,Qty)
+ #        ymarTopProSoldchart<-gvisPieChart(ymarTopProSold)
+ #        return(ymarTopProSoldchart) 
+ #      })
+ #    }
+ #    if(y=="Feb")
+ #    {
+ #      output$TopProduct_sold_Analysis<- renderGvis({
+ #        yfebTopProSold<- select(yTopProSales2,Name,Qty)
+ #        yfebTopProSoldchart<-gvisPieChart(yfebTopProSold)
+ #        return(yfebTopProSoldchart) 
+ #      })
+ #    }
+ #    if(y=="Jan")
+ #    {
+ #      output$TopProduct_sold_Analysis<- renderGvis({
+ #        yjanTopProSold<- select(yTopProSales1,Name,Qty)
+ #        yjanTopProSoldchart<-gvisPieChart(yjanTopProSold)
+ #        return(yjanTopProSoldchart) 
+ #        
+ #      })
+ #    }
  #  
-  observe({
-    y<-input$Month_Sold_Pro 
-    
-    if(y=="Mar")
-    {
-      
-      output$TopProduct_sold_Analysis<- renderGvis({
-        ymarTopProSold<- select(yTopProSales3,Name,Qty)
-        ymarTopProSoldchart<-gvisPieChart(ymarTopProSold)
-        return(ymarTopProSoldchart) 
-      })
-    }
-    if(y=="Feb")
-    {
-      output$TopProduct_sold_Analysis<- renderGvis({
-        yfebTopProSold<- select(yTopProSales2,Name,Qty)
-        yfebTopProSoldchart<-gvisPieChart(yfebTopProSold)
-        return(yfebTopProSoldchart) 
-      })
-    }
-    if(y=="Jan")
-    {
-      output$TopProduct_sold_Analysis<- renderGvis({
-        yjanTopProSold<- select(yTopProSales1,Name,Qty)
-        yjanTopProSoldchart<-gvisPieChart(yjanTopProSold)
-        return(yjanTopProSoldchart) 
-        
-      })
-    }
-  
-  })
+ #  })
   
   ##################max_units ordered for all years##############lengthChange = TRUE, pageLength = 5,scrollY = TRUE,scrollX = FALSE,autoWidth = T
   output$tb4 = DT::renderDataTable(
@@ -470,7 +471,42 @@ server <- function(input, output) {
    
 
   )
-  
+  #######yesterday graph
+  output$ygraphs<- renderGvis({
+    #ord<- select(row2016)
+    values<-c("qtyordered","AvgperCustomer","Sales")
+    yesterday<-c(1129.00,194.8583,4481.74)
+    today<-c(825.00,200.1278,3602.30)
+    
+    # rownames(tdf)[1]<-"qtyordered"
+    # rownames(tdf)[2]<-"AvgperCustomer"
+    # rownames(tdf)[3]<-"Sales"
+    # 
+    yes<-yesterday
+    tod<-today
+    
+    tdf<-data.frame(values,yes,tod)
+    ordchart <-gvisPieChart(tdf,yes)
+    return(ordchart) 
+  })
+  ###########################today graph########
+  output$tgraphs<- renderGvis({
+    #ord<- select(row2016)
+    values1<-c("qtyordered","AvgperCustomer","Sales")
+    yesterday<-c(1129.00,194.8583,4481.74)
+    today<-c(825.00,200.1278,3602.30)
+    
+    # rownames(tdf)[1]<-"qtyordered"
+    # rownames(tdf)[2]<-"AvgperCustomer"
+    # rownames(tdf)[3]<-"Sales"
+    # 
+    yes1<-yesterday
+    today1<-today
+    
+    todf<-data.frame(values1,today1,yes1)
+    ordchart <-gvisPieChart(todf,today1)
+    return(ordchart) 
+  })
   # output$websiteconversionrate <- renderValueBox({
   #   valueBox(
   #     paste(wrate,"%"), "WebSiteConversion Rate", icon = icon("glyphicon glyphicon-open",lib="glyphicon"),
@@ -478,25 +514,28 @@ server <- function(input, output) {
   #   )
   #   
   # })
-  ###########websitetraffic growth percentage####################### 
+  ###########websitetraffic growth percentage#######################
   output$websitetrafficgrowth <- renderValueBox({
     valueBox(
-      paste(mwgrowth,"%"), "WebSiteTraffic Growth", icon = icon("glyphicon glyphicon-open",lib="glyphicon"),
+      paste(webtrafficgrowthin2016,"%"), "WebSiteTraffic Growth", icon = icon("glyphicon glyphicon-arrow-down",lib="glyphicon"),
       color = "aqua"
     )
-    
+
   })
   
   ######################sales analysis for all years in feb and march######################
   
   output$Trends_FM<- renderGvis({
     febmarch<- select(febmarchanalysis,Year,Month,Revenue)
-    
+    Tdiff.annotation<-c(0,0,0,0)
+    Trdiff.annotation<-c("111.67%","17.1%","7.27%","6.95%")
+     # print(Trdiff.annotation)
     Year<-c("2013","2014","2015","2016")
     F<-c(febmarchanalysis$Revenue[1],febmarchanalysis$Revenue[3],febmarchanalysis$Revenue[5],febmarchanalysis$Revenue[7])
     M<- c(febmarchanalysis$Revenue[2],febmarchanalysis$Revenue[4],febmarchanalysis$Revenue[6],febmarchanalysis$Revenue[8])
-    trend<-data.frame(Year,F,M)
-    Trends<-gvisColumnChart(trend,options=list(seriesType="bars",colors="['814374','51A39D']"))
+    # Mbind<-data.frame(M,Trdiff.annotation)
+    trend<-data.frame(Year,F,M,Trdiff.annotation)
+    Trends<-gvisColumnChart(trend,xvar=c("Year"),yvar=c("F","M","Trdiff.annotation"),options=list(seriesType="bars",colors="['814374','51A39D']"))
     return(Trends)
     
   })
@@ -518,23 +557,72 @@ server <- function(input, output) {
     return(YBrandRevenuechart)
     
   })
-  ##############################################################33
-  output$newreturningcust<- renderGvis({
-    # newrepeatedcustomers<- select(newrepcustomer1)
-    grndcntfornew<-c(20,64,67,102)
-    grndcntforrep<-c(27,51,83,116)
-    year2<-c("2013","2014","2015","2016")
+  #######################Customer Repeat vs New for month#######################################33
+  output$month_cust<- renderHighchart({
+    # grndcntfornew<-c(20,64,67,102)
+    # grndcntforrep<-c(27,51,83,116)
+    # year2<-c("2013","2014","2015","2016")
+    # 
+    # newcust<-grndcntfornew
+    # repcust<-grndcntforrep
+    # 
+    # nrc<-data.frame(year2,newcust,repcust)
+    # 
+    # nrepcustformarch<-gvisColumnChart(nrc,options=list(colors="['92CD00','FFCF79']"))
+    # 
+    # return(nrepcustformarch)
+    year<-c(2013,2014,2015,2016)
+    mcustnew<-c(20,64,67,102)
+    mcustrep<-c(27,51,83,116)
+    mydata <- data.frame(NewCustomer=mcustnew,
+                         RepeatCustomer=mcustrep
+    )
     
-    newcust<-grndcntfornew
-    repcust<-grndcntforrep
-    
-    nrc<-data.frame(year2,newcust,repcust)
-    
-    nrepcustformarch<-gvisColumnChart(nrc,options=list(colors="['92CD00','FFCF79']"))
-    
-    return(nrepcustformarch)
+    highchart() %>% 
+      hc_chart(type = "column") %>% 
+      hc_title(text = "Customer") %>% 
+      hc_xAxis(categories =c('2013', '2014', '2015', '2016'))%>%
+      hc_yAxis(title = list(text = "no of Customers")) %>% 
+      hc_plotOptions(column = list(
+        dataLabels = list(enabled = TRUE),
+        stacking = "normal",
+        enableMouseTracking = TRUE
+      )
+      ) %>% 
+      hc_series(list(name="NewCustomer",data=mydata$NewCustomer),
+                list(name="RepeatCustomer",data=mydata$RepeatCustomer)
+      )
     
   })
+  #####FOr year########################
+  output$year_cust<- renderHighchart({
+       year<-c(2012,2013,2014,2015,2016)
+        ycustnew<-c(25,86,115,152,108)
+       ycustrep<-c(68,191,314,402,220)
+    mydata <- data.frame(NewCustomer=ycustnew,
+                         RepeatCustomer=ycustrep
+                         )
+    
+   highchart() %>% 
+      hc_chart(type = "column") %>% 
+      hc_title(text = "Customer") %>% 
+      hc_xAxis(categories =c('2012', '2013', '2014', '2015', '2016'))%>%
+      hc_yAxis(title = list(text = "no of Customers")) %>% 
+      hc_plotOptions(column = list(
+        dataLabels = list(enabled = TRUE),
+        stacking = "normal",
+        enableMouseTracking = TRUE
+        )
+      ) %>% 
+     hc_series(list(name="NewCustomer",data=mydata$NewCustomer),
+                list(name="RepeatCustomer",data=mydata$RepeatCustomer)
+                )
+    
+    
+    
+   
+  })
+  
   #####Brand wise quantity month
   output$mBrand_wise_qty<- renderGvis({
     mbrndwiseqty<- select(BrandRevenue,Brand,Qty)
@@ -547,6 +635,103 @@ server <- function(input, output) {
     ybrandwiseqtychart<-gvisPieChart(ybrndwiseqty)
     return(ybrandwiseqtychart) 
   })
+  ###difference in Qty
+  output$Qty_15_16<- renderGvis({
+    yrevqty<- select(ybrandsale,Brand,Qty16,Qty15,QuantityDifference)
+    yrevqtychart<-gvisTable(yrevqty)
+    return(yrevqtychart)
+    
+  })
+  ###Difference in sales
+  output$ySalesdiff<- renderGvis({
+    yrevqty<- select(ybrandsale,Brand,Revenue16,Revenue15,SalesDifference)
+    yrevqtychart<-gvisTable(yrevqty)
+    return(yrevqtychart)
+    
+  })
+  ###Difference in sales per month
+  output$Rev_curr<- renderGvis({
+    revqty<- select(msalebrand16mar,Brand,Revenue,FebRevenue,MSalesDifference)
+    revqtychart<-gvisTable(revqty)
+    return(revqtychart)
+    
+  })
+  
+  ##Difference in Qty Per month
+  output$Qty_curr<- renderGvis({
+    revqty<- select(msalebrand16mar,Brand,Qty,FebQty,MQtyDifference)
+    revqtychart<-gvisTable(revqty)
+    return(revqtychart)
+    
+  })
+  ###########topbrand for current month#########
+  output$mtopbrand <- renderValueBox({
+    valueBox(
+      "Top Brand ",paste("NextLevelApparel"),
+      color = "maroon"
+    )
+    
+  })
+  ###########topbrand for current year#########
+  output$ytopbrand <- renderValueBox({
+    valueBox(
+      paste("NextLevelApparel"), "Top Brand ", 
+      color = "teal"
+    )
+    
+  })
+  ###############finding the number of visitors in all years ##################
+  output$web_traffic<- renderGvis({
+    #visitors1<- select(yearwebtraffic,year,visitors,visitors1.annotation)
+    # gf<-select(yearwebtraffic)
+    visitors1.annotation<-c("0%","252%","18%","41%","-71%")
+    visitorsgrowthorfall<-data.frame(yearwebtraffic,visitors1.annotation)
+    visitorschart<-gvisColumnChart(visitorsgrowthorfall,xvar = "year",yvar = c("visitors","visitors1.annotation"))
+    return(visitorschart)
+    
+  })
+  ##################top customer by revenue for current month##############
+  output$topcustomerforcurrentmonth <- renderValueBox({
+    valueBox(
+      "Top customer ",paste(topcustomercurrentmonth,mtopcust$Revenue), icon = icon("glyphicon glyphicon-star",lib="glyphicon"),
+      color = "olive"
+    )
+    
+  })
+  
+  ##################top customer by revenue for current year##############
+  output$topcustomerforcurrentyear <- renderValueBox({
+    valueBox(
+      paste(topcustomercurrentyear,ytopcust$Revenue), "Top customer ", icon = icon("glyphicon glyphicon-star",lib="glyphicon"),
+      color = "green"
+    )
+    
+  })
+  ##################top customer by items ordered for current month##############
+  outputTopcustomer<- renderValueBox({
+    valueBox(
+      paste(topcustomercurrentmonthbyitem), "Top customer ",icon = icon("glyphicon glyphicon-heart",lib="glyphicon"), 
+      color = "orange"
+    )
+    
+  })
+  ##################top customer by items ordered for current year##############
+  output$ytopcustomer <- renderValueBox({
+    valueBox(
+      paste(topcustomerforcurrentyearbyitem), "Top customer ",icon = icon("glyphicon glyphicon-heart",lib="glyphicon"), 
+      color = "purple"
+    )
+    
+  })
+  output$New_Rep_Cust_per<- renderGvis({
+    # mNewRepCust<- select(mNewCustmerper,mRepeatCustmerper)
+    mname<-c("New","Return")
+    mnn<-c(mNewCustmerper,mRepeatCustmerper)
+    mNewRetcustPie<-data.frame(mname,mnn)
+    mNewRepCustchart<-gvisPieChart(mNewRetcustPie,options=list(colors="['B84B9E','32B92D']"))
+    return(mNewRepCustchart) 
+  })
+  
   
   
 }
