@@ -55,9 +55,10 @@ ui <- dashboardPage(skin=c("red"),
 
                                 box(
                                   tabsetPanel(
-                                    tabPanel("Sales of a Month",htmlOutput("Month_sales_graph_everyYear")),
+                                    tabPanel("Sales of a Month",htmlOutput("Month_sales_graph_everyYear"),sliderInput("probins", "Increase in percentage",min= 1, max=100, value=1)),
                                     tabPanel("Trends in FebMar",htmlOutput("Trends_FM")),
                                     tabPanel("Customers",highchartOutput("month_cust",height = "300px"))
+                                    
 
                                   ),
                                   title="Sales Analysis March",
@@ -69,19 +70,11 @@ ui <- dashboardPage(skin=c("red"),
                                 
                                ),
                               fluidRow(
-                                       box(
-                                         tabPanel("Projection of a Month",htmlOutput("Projection")),
-
-                                       title="Projection Sales Analysis March",
-                                       solidHeader = TRUE,
-                                       width=6)
-                                       ,
-                                       box(
-                                         sliderInput("bins", "Increase in percentage",min= 1, max=100, value=1)
-                                       ),
+                                       
                                        valueBoxOutput("mtopbrand",width = 3),
-                                       valueBoxOutput("topcustomerforcurrentmonth",width = 3)
-                                       # valueBoxOutput("month",width = "6"),
+                                       valueBoxOutput("topcustomerforcurrentmonth",width = 3),
+                                       valueBoxOutput("comparisionofvisitors",width = 3),
+                                       valueBoxOutput("month",width = 3)
                                        
                                        )
 
@@ -91,12 +84,14 @@ ui <- dashboardPage(skin=c("red"),
                         ##FirstTabItem Finished
                         tabItem(tabName = "currentyear",
                                 fluidRow(
-                                  valueBoxOutput("yrevenue",width=3),
-                                  valueBoxOutput("yavg_order",width=3),
+                                  valueBoxOutput("ysalesComparision",width = 3),
+                                  valueBoxOutput("incavg_order",width = 3),
                                   valueBoxOutput("yEratio",width=3),
                                   valueBoxOutput("yrecustomers",width=3),
-                                  valueBoxOutput("ytopbrand",width = 3),
-                                  valueBoxOutput("topcustomerforcurrentyear",width = 3)
+                                  valueBoxOutput("orderpick",width = 3),
+                                  valueBoxOutput("yrevenue",width=3),
+                                  valueBoxOutput("yearwisevisitors",width=3),
+                                  valueBoxOutput("yavg_order",width=3)
                                   
                                 ),
                                 fluidPage(fluidRow(
@@ -147,8 +142,20 @@ ui <- dashboardPage(skin=c("red"),
                                     width=6
                                   )
                                   
+                                  ),
+                                fluidRow(
                                   
+                                  box(
+                                    ###per quarter
+                                    valueBoxOutput("Q1Sales",width = 3),
+                                    valueBoxOutput("Q1Visitors",width=3),
+                                    # valueBoxOutput("Q1return",width=3),
+                                    valueBoxOutput("Q1orderpick",width=3),
+                                    valueBoxOutput("Q1Avgorder",width=3),
+                                    title="Quarter Analysis",
+                                    width=12
                                   )
+                                )
                                   
                                   
                                 )
@@ -175,13 +182,14 @@ ui <- dashboardPage(skin=c("red"),
                                             ),
                                             box(
                                               tabsetPanel(
-                                                tabPanel("Today&Yesterday",DT::dataTableOutput('tb2')),
-                                                tabPanel("Yesterday",htmlOutput("ygraphs")),
-                                                tabPanel("Today",htmlOutput("tgraphs"))
-                                                # tabPanel("Today&Yesterday",htmlOutput('tb2'))
+                                                tabPanel("Today&Yesterday", tableOutput("tb2")),
+                                                # DT::dataTableOutput('tb2')
+                                                ##DT::dataTableOutput('tb2')
+                                                tabPanel("T&Y Trends",htmlOutput("ygraphs"))
                                               ),
                                               title="Trends",
                                               soliidHeader = TRUE,
+                                              height = "330px",
                                               width=6
                                             ),
                                             
@@ -189,7 +197,7 @@ ui <- dashboardPage(skin=c("red"),
                                               tabsetPanel(
                                                 tabPanel("Inventory",
                                                   DT::dataTableOutput('tbl'),
-                                                  p(class = 'text-center', downloadButton('x3', 'Download Filtered Data'))
+                                                  p(class = 'text-center', downloadButton('x3', 'Download'))
                                                   
                                                 )),
                                               title="Available Inventory stock",
@@ -216,18 +224,18 @@ ui <- dashboardPage(skin=c("red"),
                               title="Year Analysis of Quantity ",
                               soliidHeader = TRUE,
                               width=6,
-                              height="350px"
+                              height="500px"
                             ),
                             box(
                               tabsetPanel(
-                                tabPanel("Years",DT::dataTableOutput('tb4'),style="overflow-y: scroll" ),
+                                tabPanel("Years",DT::dataTableOutput('tb4') ),
                                 tabPanel("Region",htmlOutput("qty_in_each_region"),DT::dataTableOutput('tb5')),
                                 tabPanel("Quantity",htmlOutput("total_units_sold"))
                                 
                               ),
                               title="Units Sold Year",
                               solidHeader = TRUE,
-                               # height="",
+                              height="500px",
                               width=6
                             ),
                             box(
