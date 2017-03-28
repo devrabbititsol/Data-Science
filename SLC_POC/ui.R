@@ -8,6 +8,9 @@ library(googleVis)
 library(readr)
 library(ggplot2)
 library(highcharter)
+library(plotly)
+library(C3)
+library(ECharts2Shiny)
 
 ui <- dashboardPage(skin=c("red"),
                     
@@ -74,8 +77,35 @@ ui <- dashboardPage(skin=c("red"),
                                        valueBoxOutput("mtopbrand",width = 3),
                                        valueBoxOutput("topcustomerforcurrentmonth",width = 3),
                                        valueBoxOutput("comparisionofvisitors",width = 3),
-                                       valueBoxOutput("month",width = 3)
+                                       valueBoxOutput("month",width = 3),
+                                       box(
+                                         
+                                       tabsetPanel(tabPanel("PreviousYear",
+                                         # actionButton("update","update gauge"),
                                        
+                                       # example use of the automatically generated output function
+                                       C3GaugeOutput("gauge1",height="200px" )
+                                                    
+                                       )
+                                      
+                                       ),
+                                       
+                                       width = 6,
+                                       height="300px"
+                                       ),
+                                       box(
+                                         
+                                         tabsetPanel( tabPanel("CurrentYear",
+                                                               loadEChartsLibrary(),
+                                                               
+                                                               tags$div(id="test", style="height:300px;"),
+                                                               deliverChart(div_id = "test")
+                                                               # tabPanel("gauge_1",plotOutput("G"))
+                                         )
+                                         ),
+                                         width = 6,
+                                         height="300px"
+                                       )
                                        )
 
                               
@@ -110,9 +140,14 @@ ui <- dashboardPage(skin=c("red"),
                                   ),
                                   box(
                                     tabsetPanel(
-                                      tabPanel("Sales of a Year",htmlOutput("year_wise_revenue")),
+                                      tabPanel("Sales of a Year",htmlOutput("year_wise_revenue"),sliderInput("yprobins", "Increase in percentage",min= 1, max=100, value=1)),
                                       tabPanel("Customer",highchartOutput("year_cust",height="300px")),
-                                      tabPanel("Traffic",htmlOutput("web_traffic"))
+                                      # tabPanel("Traffic",htmlOutput("web_traffic")
+                                               
+                                      tabPanel("Traffic",plotlyOutput("web_traffic",height="300px") ),
+                                      tabPanel("Brand Sales",htmlOutput("ySalesdiff"))         
+                                      
+                                     
                                       # tabPanel("Customers",htmlOutput("cust_graph"))
                                       
                                     ),
@@ -126,6 +161,7 @@ ui <- dashboardPage(skin=c("red"),
                                     tabsetPanel(
                                       tabPanel("Product",htmlOutput("topproducts")),
                                       tabPanel("Location",htmlOutput("topproductsinlocwise"))
+                                      # tabPanel("Brand Sales",htmlOutput("ySalesdiff"))
                                     ),
                                     title="Top 10 Best Products ",
                                     solidHeader = TRUE,
@@ -133,10 +169,15 @@ ui <- dashboardPage(skin=c("red"),
                                     width=6
                                   ),
                                   box(
-                                    tabsetPanel(tabPanel("Brand Sales",htmlOutput("ySalesdiff"))
+                                    
+                                    tabsetPanel(
+                                      tabPanel("CurrentYear",plotlyOutput("Avg_day",height = "250px")),
+                                      tabPanel("PreviousYear",plotlyOutput("month_avg",height = "250px")),
+                                      tabPanel("Eratio",plotlyOutput("er_year",height = "250px")),
+                                      tabPanel("SalesGrowth",plotlyOutput("sp_year",height = "250px"))
                                                 
                                     ),
-                                    title="Year Analysis",
+                                    title="BenchMarking Analysis",
                                     soliidHeader = TRUE,
                                     height="360px",
                                     width=6
@@ -261,6 +302,80 @@ ui <- dashboardPage(skin=c("red"),
                           )
                         )
                         
+                        )
+                        ,
+                        tabItem(tabName = "forecasting",
+                                fluidPage(fluidRow(
+                                  
+                                  
+                                  box(
+                                   
+                                      tabPanel("Revenue",plotlyOutput("revenue",height = "300px")),
+                                      
+                                    
+                                    title="Revenue",
+                                    status = "warning",
+                                    # collapsible = TRUE,
+                                    solidHeader = TRUE,
+                                    height="400px",
+                                    width=6
+                                    
+                                  ),
+                                  box(
+                                   
+                                      tabPanel("visitors",plotlyOutput("visitors",height="300px")),
+                                      
+                                      
+                                  
+                                    title="Visitors",
+                                    status = "primary",
+                                    solidHeader = TRUE,
+                                    height="400px",
+                                    width=6
+                                    
+                                  ),
+                                  
+                                  valueBoxOutput("Revenue_in_q1",width=3),
+                                  valueBoxOutput("Revenue_in_q2",width=3),
+                                  valueBoxOutput("Revenue_in_q3",width=3),
+                                  valueBoxOutput("Revenue_in_q4",width=3),
+                                  valueBoxOutput("Number_of_visitors_in_q1",width=3),
+                                  valueBoxOutput("Number_of_visitors_in_q2",width=3),
+                                  valueBoxOutput("Number_of_visitors_in_q3",width=3),
+                                  valueBoxOutput("Number_of_visitors_in_q4",width=3)
+                                  
+                                  
+                                  
+                                )
+                                # ,
+                                # 
+                                # fluidRow(
+                                #   box(
+                                #     tabsetPanel(
+                                #       
+                                #       
+                                #       tabPanel("visitors",plotlyOutput("visitors",height="300px"))
+                                #       
+                                #       
+                                #     ),
+                                #     # title="Visitors 2016",
+                                #     soliidHeader = TRUE,
+                                #     height="400px",
+                                #     width=6
+                                #     
+                                #   ),
+                                #  
+                                #   valueBoxOutput("Number_of_visitors_in_q1",width=3),
+                                #   valueBoxOutput("Number_of_visitors_in_q2",width=3),
+                                #   valueBoxOutput("Number_of_visitors_in_q3",width=3),
+                                #   valueBoxOutput("Number_of_visitors_in_q4",width=3)
+                                #   
+                                #   
+                                #   
+                                #   
+                                # )
+                                )
+
                         )
                         
                       )

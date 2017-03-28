@@ -10,9 +10,10 @@ library(ggplot2)
 library(highcharter)
 library(httr)
 library(purrr)
-
-# library(plotly)
-
+library(C3)
+library(plotly)
+library(broom)
+library(ECharts2Shiny)
 
 
 
@@ -104,7 +105,10 @@ server <- function(input, output) {
         z<-round_date(x,unit="hour")
         Time<-strftime(z, format="%I.%M %p")
         todaysales<-cbind(Time,tdsales)
-        tdsalechart<-gvisAreaChart(todaysales,xvar="Time",yvar="Sales",options=list(height="200px"))
+         tdsalechart<-gvisAreaChart(todaysales,xvar="Time",yvar="Sales",options=list(height="200px"))
+        # tdsalechart<-plot_ly(x=c(Time),y=c(tdaysales$Sales),type = "scatter" ,
+        #                      mode = "lines",xvar="Time",yvar="Sales",options=list(height="200px"))
+        # x=c(Time),y=c(tdsales)
         return(tdsalechart)
         
       })
@@ -128,9 +132,12 @@ server <- function(input, output) {
   ##plot for monthly sales analysis
   output$monthly_sales_graph <- renderGvis({
     msales<- select(daywisesales,day,sales)
-    # Msales<-daywisesales$sales
-    # msaleval<-cbind(msales,Msales)
+     Msales<-daywisesales$sales
+     msaleval<-cbind(msales,Msales)
     msalechart<-gvisColumnChart(msales,xvar="day",yvar="sales",options =list(seriesType="bars",colors="['66CCFF']",height="300px"))
+    # msalechart<-plot_ly(x=c(daywisesales$sales),y=c(daywisesales$day),type='bar',color="['66CCFF']")
+    # options =list(seriesType="bars",colors="['66CCFF']",height="300px")xvar="day",yvar="sales"
+   
     return(msalechart)
     
   })
@@ -182,18 +189,34 @@ server <- function(input, output) {
     if(input$probins!=1)
     {
       
-      Prevenue<-(RMVal$Revenue[4]+(RMVal$Revenue[4]*input$probins/100))
-      minc1=(((Prevenue-RMVal$Revenue[4])/((RMVal$Revenue[4])))*100)
-      mic.annotation<-c(RMinc.annotation[1],RMinc.annotation[2],RMinc.annotation[3],paste(round(minc1516+minc1,1),"%"))
+      # Prevenue<-(RMVal$Revenue[4]+(RMVal$Revenue[4]*input$probins/100))
+      # minc1=(((Prevenue-RMVal$Revenue[4])/((RMVal$Revenue[4])))*100)
+      # mic.annotation<-c(RMinc.annotation[1],RMinc.annotation[2],RMinc.annotation[3],paste(round(minc1516+minc1,1),"%"))
+      # # print(Prevenue)
+      # rrevenue<-c(RMVal$Revenue[1],RMVal$Revenue[2],RMVal$Revenue[3],Prevenue)
+      # year<-c(RMVal$Year[1],RMVal$Year[2],RMVal$Year[3],RMVal$Year[4])
+      # # inc.annotation<-paste(((Prevenue-Revenue[4])/Revenue[4])*100,"%")
+      # rbind<-data.frame(rrevenue,year,mic.annotation)
+      # pRsalechart<-gvisColumnChart(rbind,xvar = "year",yvar = c("rrevenue","mic.annotation"),options=list(colors="['#F1C40F']"))
+      
+      Prevenue<-((RMVal$Revenue[4]*input$probins/100))
+      minc1=((((RMVal$Revenue[4]+Prevenue)-RMVal$Revenue[4])/((RMVal$Revenue[4])))*100)
+      # mic.annotation<-c(RMinc.annotation[1],RMinc.annotation[2],RMinc.annotation[3],RMinc.annotation[4])
       # print(Prevenue)
-      rrevenue<-c(RMVal$Revenue[1],RMVal$Revenue[2],RMVal$Revenue[3],Prevenue)
+      ProRevenue<-c(0,0,0,Prevenue)
+      mic.annotation<-c(paste(0,"%"),paste(0,"%"),paste(0,"%"),paste(round(minc1,1),"%"))
+      ActRevenue<-c(RMVal$Revenue[1],RMVal$Revenue[2],RMVal$Revenue[3],RMVal$Revenue[4])
       year<-c(RMVal$Year[1],RMVal$Year[2],RMVal$Year[3],RMVal$Year[4])
       # inc.annotation<-paste(((Prevenue-Revenue[4])/Revenue[4])*100,"%")
-      rbind<-data.frame(rrevenue,year,mic.annotation)
-      pRsalechart<-gvisColumnChart(rbind,xvar = "year",yvar = c("rrevenue","mic.annotation"),options=list(colors="['#008000']"))
+      # benchmark<-c(69821,69821,69821,69821)
+      rbind<-data.frame(ActRevenue,ProRevenue,year,RMinc.annotation,mic.annotation)
+      pRsalechart<-gvisColumnChart(rbind,xvar = "year",yvar = c("ActRevenue","RMinc.annotation","ProRevenue","mic.annotation"),options=list(isStacked=TRUE,colors="['0072BB','FF4C3B']"))
       return(pRsalechart)
     }else{
-      marchchart<-gvisColumnChart(RMVal,xvar = "Year",yvar = c("Revenue","RMinc.annotation"),options=list(colors="['#F1C40F']"))
+      # benchmark<-c(69821,69821,69821,69821)
+      # Rmval<-data.frame(RMVal,benchmark)
+      marchchart<-gvisColumnChart(RMVal,xvar = "Year",yvar = c("Revenue","RMinc.annotation"),options=list(seriesType="bars",colors="['0072BB']"))
+      # ,series='{2: {type:"line"}}'
       return(marchchart)
     }
     
@@ -211,8 +234,10 @@ server <- function(input, output) {
     M<- c(febmarchanalysis$Revenue[2],febmarchanalysis$Revenue[4],febmarchanalysis$Revenue[6],febmarchanalysis$Revenue[8])
     # Mbind<-data.frame(M,Trdiff.annotation)
     trend<-data.frame(Year,F,M,Trdiff.annotation)
-    Trends<-gvisColumnChart(trend,xvar=c("Year"),yvar=c("F","M","Trdiff.annotation"),options=list(seriesType="bars",colors="['814374','51A39D']",height="300px"))
-    return(Trends)
+      Trends<-gvisColumnChart(trend,xvar=c("Year"),yvar=c("F","M","Trdiff.annotation"),options=list(seriesType="bars",colors="['814374','51A39D']",height="300px"))
+     # Trends<-plot_ly(trend,x=~(Year),y=c("F","M","Trdiff.annotation"),type='bar',orientation = 'c')
+  
+     return(Trends)
     
   })
   
@@ -257,7 +282,7 @@ server <- function(input, output) {
   ###########topbrand for current month#########
   output$mtopbrand <- renderValueBox({
     valueBox(
-      paste("NextLevelApparel"),"Top Brand ",
+      value=tags$p("NextLevelApparel",style = "font-size: 75%;"),"Top Brand ",
       color = "maroon"
     )
     
@@ -265,7 +290,7 @@ server <- function(input, output) {
   ##################top customer by revenue for current month##############
   output$topcustomerforcurrentmonth <- renderValueBox({
     valueBox(
-      paste(topcustomercurrentmonth),paste(round(mtopcust$Revenue/1000,2),"K TopCustomer"), icon = icon("glyphicon glyphicon-star",lib="glyphicon"),
+      paste(topcustomercurrentmonth,topcustomerlname,sep=""),paste("TopCustomer",round(mtopcust$Revenue/1000,2),"K"), icon = icon("glyphicon glyphicon-star",lib="glyphicon"),
       color = "olive"
     )
     
@@ -303,7 +328,7 @@ server <- function(input, output) {
   ##average order value for a year
   output$yavg_order <- renderValueBox({
     valueBox(
-      paste(round(YAvg_Value,2),"%"), "Average Order Value", icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
+      paste(round(YAvg_Value,2),"$"), "Average Order Value", icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
       color = "fuchsia"
     )
     
@@ -408,12 +433,13 @@ server <- function(input, output) {
   ##plot for yearly sales analysis
   output$Yearly_sales_graph <- renderGvis({
     # ysales<- select(ysalesval,Month,Sales)
-    Month<-c("Jan","Feb","Mar")
+        Month<-c("Jan","Feb","Mar")
     Sales<-ysalesval$Sales
     ysd<-data.frame(Month,Sales)
     # ysalechart<-gvisColumnChart(ysd,xvar="Month",yvar="Sales",options=list(colors="['#1ABC9C']"))
     ysalechart<-gvisPieChart(ysd,options = list(colors="['51A39D','B7695C','CDBB79']",height="300px"))
     return(ysalechart)
+    
     
   })
   ##plot for yearly wise sales by lcoation
@@ -437,8 +463,24 @@ server <- function(input, output) {
   ##plot for revenue genrted in all the years
   output$year_wise_revenue<- renderGvis({
     # yRsales<- select(yRevenue,Year,Revenue,yminc.annotation)
-    yRsalechart<-gvisColumnChart(ymval,xvar = "Year",yvar = c("Revenue","yminc.annotation"),options=list(colors="['#008000']",height="300px"))
-    return(yRsalechart)
+    if(input$yprobins!=1){
+      Psales<-((ypincval$Revenue[5]*input$yprobins/100))
+      minc1=((((ypincval$Revenue[5]+Psales)-ypincval$Revenue[5])/((ypincval$Revenue[5])))*100)
+      ProRevenue<-c(0,0,0,0,Psales)
+      mic.annotation<-c(paste(0,"%"),paste(0,"%"),paste(0,"%"),paste(0,"%"),paste(round(minc1,1),"%"))
+      ActRevenue<-c(ypincval$Revenue[1],ypincval$Revenue[2],ypincval$Revenue[3],ypincval$Revenue[4],ypincval$Revenue[5])
+      year<-c(ypincval$Year[1],ypincval$Year[2],ypincval$Year[3],ypincval$Year[4],ypincval$Year[5])
+      rbind<-data.frame(ActRevenue,ProRevenue,year,yminc.annotation,mic.annotation)
+      yRsalechart<-gvisColumnChart(rbind,xvar = "year",yvar = c("ActRevenue","yminc.annotation","ProRevenue","mic.annotation"),options=list(isStacked=TRUE,colors="['#008000','3A5F0B']"))
+      return(yRsalechart) 
+      
+     
+      
+    }else{
+      yRsalechart<-gvisColumnChart(ymval,xvar = "Year",yvar = c("Revenue","yminc.annotation"),options=list(colors="['#008000']"))
+      return(yRsalechart)
+      }
+    
     
   })
   
@@ -471,14 +513,34 @@ server <- function(input, output) {
     
   })
   ###############finding the number of visitors in all years ##################
-  output$web_traffic<- renderGvis({
-    #visitors1<- select(yearwebtraffic,year,visitors,visitors1.annotation)
+  # output$web_traffic<- renderGvis({
+  #   #visitors1<- select(yearwebtraffic,year,visitors,visitors1.annotation)
+  #   # gf<-select(yearwebtraffic)
+  #   visitors1.annotation<-c("0%","252%","18%","41%","-71%")
+  #   visitorsgrowthorfall<-data.frame(yearwebtraffic,visitors1.annotation)
+  #   visitorschart<-gvisColumnChart(visitorsgrowthorfall,xvar = "year",yvar = c("visitors","visitors1.annotation"),option=list(height="300px",colors="['3399CC']"))
+  #   return(visitorschart)
+  # 
+  # })
+  output$web_traffic<- renderPlotly({
+    # visitors1<- select(yearwebtraffic,year,visitors,visitors1.annotation)
     # gf<-select(yearwebtraffic)
     visitors1.annotation<-c("0%","252%","18%","41%","-71%")
     visitorsgrowthorfall<-data.frame(yearwebtraffic,visitors1.annotation)
-    visitorschart<-gvisColumnChart(visitorsgrowthorfall,xvar = "year",yvar = c("visitors","visitors1.annotation"),option=list(height="300px",colors="['3399CC']"))
+    f <- list(
+      family = "Courier New, monospace",
+      size = 18,
+      color = "#7f7f7f"
+    )
+    x <- list(title = "Year",titlefont = f)
+    y <- list(
+      title = "Visitors",
+      titlefont = f
+    )
+    visitorschart<-plot_ly(x=c(yearwebtraffic$year),y=c(yearwebtraffic$visitors),type="bar",mode="markers")%>%
+      layout(xaxis = x, yaxis = y)
     return(visitorschart)
-    
+
   })
   
   #####Top 10 best products of current year(2016)"
@@ -502,6 +564,116 @@ server <- function(input, output) {
     yrevqtychart<-gvisTable(yrevqty)
     return(yrevqtychart)
     
+  })
+  
+  #####Average day order value##########
+  output$Avg_day<-renderPlotly({
+    df<-select(YmAvg_Value,Month,AvgOrderValue)
+    YmAvg_Value$Month<-NULL
+    Month<-c('JAN','FEB','MAR')
+    AvgValue<-c(YmAvg_Value$AvgOrderValue[1],YmAvg_Value$AvgOrderValue[2],YmAvg_Value$AvgOrderValue[3])
+    b2b<-c(491,491,491)
+    b2c<-c(147,147,147)
+    df<-data.frame(Month,AvgValue,b2b,b2c)
+    df$Month <- factor(df$Month, levels = df[["Month"]])
+    f <- list(
+      family = "Courier New, monospace",
+      size = 18,
+      color = "#7f7f7f"
+    )
+    x <- list(title = "Month",titlefont = f)
+    y <- list(
+      title = "AverageOrderValue",
+      titlefont = f
+    )
+    daygv<-plot_ly(df,x=~Month,y=~AvgValue,type = "bar" ,name = 'AverageOrderValue',mode = "markers" )%>%
+      add_trace(y = ~b2b, name = 'B2B',type="scatter",mode="line") %>%
+      add_trace(y = ~b2c, name = 'B2c Values',type="scatter",mode="line") %>%
+      layout(xaxis = x, yaxis = y)
+    return(daygv)
+  })
+  #####BenchMarking for year2015
+  #####Average day order value##########
+  output$month_avg<-renderPlotly({
+    df<-select(ypAvg_value,Month,AvgOrderValue)
+    YmAvg_Value$Month<-NULL
+    Month<-c("JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC")
+    AvgValue<-c(ypAvg_value$AvgOrderValue[1],ypAvg_value$AvgOrderValue[2],ypAvg_value$AvgOrderValue[3],ypAvg_value$AvgOrderValue[4],ypAvg_value$AvgOrderValue[5],ypAvg_value$AvgOrderValue[6],
+                ypAvg_value$AvgOrderValue[7],ypAvg_value$AvgOrderValue[8],ypAvg_value$AvgOrderValue[9],ypAvg_value$AvgOrderValue[10],ypAvg_value$AvgOrderValue[11],ypAvg_value$AvgOrderValue[12])
+    b2b<-c(491,491,491,491,491,491,491,491,491,491,491,491)
+    b2c<-c(147,147,147,147,147,147,147,147,147,147,147,147)
+    df<-data.frame(Month,AvgValue,b2b,b2c)
+    df$Month <- factor(df$Month, levels = df[["Month"]])
+    f <- list(
+      family = "Courier New, monospace",
+      size = 18,
+      color = "#7f7f7f"
+    )
+    x <- list(title = "Month",titlefont = f)
+    y <- list(
+      title = "AverageOrderValue",
+      titlefont = f
+    )
+    daygv<-plot_ly(df,x=~Month,y=~AvgValue,type = "bar" ,name = 'AverageOrderValue',mode = "markers",marker = list(color = 'rgb(153, 0, 51)') )%>%
+      add_trace(y = ~b2b, name = 'B2B',type="scatter",mode="line") %>%
+      add_trace(y = ~b2c, name = 'B2c Values',type="scatter",mode="line") %>%
+      layout(xaxis = x, yaxis = y)
+    return(daygv)
+  })
+  #####Benchmarking for EcommerceRatio
+  output$er_year<-renderPlotly({
+    # df<-select(ypVisitsval,ypTrValue)
+    ypVisitsval$Month<-NULL
+    ypTrValue$Month<-NULL
+    Month<-c('JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC')
+    for(i in 1:12){
+      EpRation<-c((ypTrValue$Count/ypVisitsval$Visitor)*100)
+    }
+    
+    b2b<-c(3,3,3,3,3,3,3,3,3,3,3,3)
+    b2c<-c(3.24,3.24,3.24,3.24,3.24,3.24,3.24,3.24,3.24,3.24,3.24,3.24)
+    df<-data.frame(Month,EpRation,b2b,b2c)
+    df$Month <- factor(df$Month, levels = df[["Month"]])
+    f <- list(
+      family = "Courier New, monospace",
+      size = 18,
+      color = "#7f7f7f"
+    )
+    x <- list(title = "Month",titlefont = f)
+    y <- list(
+      title = "ECommerceRatio",
+      titlefont = f
+    )
+    daygv<-plot_ly(df,x=~Month,y=~EpRation,type = "bar" ,name = 'ECommerceRatio',mode = "markers",marker = list(color = 'rgb(102, 153, 0)') )%>%
+      add_trace(y = ~b2b, name = 'B2B',type="scatter",mode="line") %>%
+      add_trace(y = ~b2c, name = 'B2c Values',type="scatter",mode="line") %>%
+      layout(xaxis = x, yaxis = y)
+    return(daygv)
+  })
+  #####Benchmarking for Growth in sales
+  output$sp_year<-renderPlotly({
+    dff<-select(ymval,Year,ysales)
+    growth<-dff$ysales
+    Year<-dff$Year
+    b2b<-c(22,22,22,22,22)
+    # b2c<-c(3.24,3.24,3.24,3.24,3.24,3.24,3.24,3.24,3.24,3.24,3.24,3.24)
+    df<-data.frame(growth,Year,b2b)
+    # df$Month <- factor(df$Month, levels = data[["Month"]])
+    f <- list(
+      family = "Courier New, monospace",
+      size = 18,
+      color = "#7f7f7f"
+    )
+    x <- list(title = "Year",titlefont = f)
+    y <- list(
+      title = "Growth in sales",
+      titlefont = f
+    )
+    daygv<-plot_ly(df,x=~Year,y=~growth,type = "bar" ,name = 'Growth in Sales',mode = "markers",marker = list(color = 'rgb(0, 153, 255)') )%>%
+      add_trace(y = ~b2b, name = 'B2B',type="scatter",mode="line") %>%
+      # add_trace(y = ~b2c, name = 'B2c Values',type="scatter",mode="line") %>%
+      layout(xaxis = x, yaxis = y)
+    return(daygv)
   })
   ###################################################################CurrentYear Dashboard for sales end############################################################
   ####################################################CurrentMonth Inventory#############################################################
@@ -762,6 +934,201 @@ server <- function(input, output) {
     
   })
   
+     
+    
+  # })
+  ######################Gauge chart
   
+  value = reactive({
+    input$update
+    # round(runif(1,0,RMVal$Revenue[3]),1)
+    round(runif(50, min =0 , max =100),2)
+    # min=0 max=100 n=23
+    # RMVal$Revenue[3]
+  })
+  
+  # example use of the automatically generated render function
+  output$gauge1 <- renderC3Gauge({ 
+    # C3Gauge widget
+    
+    C3Gauge(RMVal$Revenue[3])
+  })
+  r1=RMVal$Revenue[4]
+  r2=round(r1,1)
+  renderGauge(div_id = "test",rate = RMVal$Revenue[4], gauge_name = "Revenue",show.tools = TRUE,
+              animation = TRUE,
+              running_in_shiny = TRUE)
+ 
+ ####Predictions 
+  output$revenue<-renderPlotly({
+    
+    month <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+               'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+    
+    
+    quarterRevenues<-c(177305.1500,156696.6500,167589.9700,
+                       161294.24,175739.46,190184.69,
+                       205526.02,220761.76,235997.50,
+                       227371.41,208482.62,189593.83)
+    LowerLimit<-c(0,0,0,
+                  101319.770,116706.017,119813.433,
+                  143911.48,157583.78,158676.15,
+                  138624.5448,127634.9472,104348.9918)
+    UpperLimit<-c(0,0,0,
+                  238789.2,245967.2,265424.1,
+                  284751.8,290014.6,307857.3,
+                  316567.9,290000.7,275729.9)
+    
+    
+    data <- data.frame(month,quarterRevenues,LowerLimit,UpperLimit)
+    
+    data$month <- factor(data$month, levels = data[["month"]])
+    
+    p <- plot_ly(data, x = ~month, y =~quarterRevenues, name = 'Revenue', type = 'scatter', mode = 'lines',
+                 marker = list(color = 'rgb(205, 12, 24)')  ) %>%
+      # add_trace(y = ~quarterRevenues, name = ' Revenue', line = list(color ='rgb(205, 12, 24)' , width = 4,dash = 'dash')) %>%
+      # add_trace(y = ~UpperLimit, name = ' upper limit', line = list(color ='rgb( 0, 114, 187 )' , width = 4)) %>%
+      
+      
+      layout(title = "Prediction of Revenue",
+             xaxis = list(title = "Months"),
+             yaxis = list (title = "Revenues"),
+             barmode = 'relative')
+    
+    
+    return(p)
+    
+  })   
+  
+  output$visitors<-renderPlotly({
+    # #
+    
+    month <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+               'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+    
+    
+    quarterVisitors<-c(55371,59321,49380,
+                       38318.2,40783.6,43249.0,
+                       45035.84,49172.54,53309.24,
+                       69588.11,62947.05,56305.98)
+    LowerLimit<-c(0,0,0,
+                  33306.01,37050.95,39602.31,
+                  25629.402,29496.699,30488.904,
+                  14005.040,15439.092,5650.064)
+    
+    UpperLimit<-c(0,0,0,
+                  44618.59,46935.80,50446.58,
+                  65701.10,67460.50,72095.00,
+                  120376.17,108385.40,107617.70)
+    
+    
+    data <- data.frame(month,quarterVisitors,LowerLimit,UpperLimit)
+    
+    data$month <- factor(data$month, levels = data[["month"]])
+    
+    # 
+    # p <- plot_ly(data, x = ~month, y = ~LowerLimit, type = 'bar', name = 'LowerLimit',
+    #              color = 'rgb( 255, 76, 59 )') %>%
+    #      
+    #    add_trace(y = ~quarterVisitors, name = 'Visitors',marker = list(color = 'rgb( 255, 76, 59 )')) %>%
+    #             
+    #    add_trace(y = ~UpperLimit, name = 'Upper Limit',marker = list(color = 'rgb( 255, 208, 52 )')) %>%
+    #    #add_trace(y = ~UpperLimit, name = 'UpperLimit') %>%
+    #    layout(title = 'Number of visitors',
+    #           xaxis = list(title = 'Month'),
+    #           yaxis = list(title = 'Number of visitors'),
+    #           barmode = 'relative'
+    #           )
+    # 
+    p <- plot_ly(data, x = ~month, y = ~quarterVisitors,  type = 'bar', name = 'Visitors',color = 'rgb( 255, 76, 59 )') %>%
+      layout(title = 'Number of visitors ',
+             xaxis = list(title = 'Month'),
+             yaxis = list(title = 'Number of visitors'),
+             barmode = 'relative')
+    
+    return(p)
+    
+    
+    
+  })
+  
+  
+  #############Revenue in Q1
+  output$Revenue_in_q1 <- renderValueBox({
+    valueBox(
+      paste(round(TotalRevenueinQ1,2)), "Total Revenue in Q1", icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
+      color = "fuchsia"
+    )
+    
+  })
+  
+  #############Revenue in Q2
+  output$Revenue_in_q2 <- renderValueBox({
+    valueBox(
+      paste(round(TotalRevenueinQ2,2)), "Total Revenue in Q2", icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
+      color = "purple"
+    )
+    
+  })
+  
+  #############Revenue in Q3
+  output$Revenue_in_q3 <- renderValueBox({
+    valueBox(
+      paste(round(TotalRevenueinQ3,2)), "Total Revenue in Q3", icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
+      color = "orange"
+    )
+    
+  })
+  
+  #############Revenue in Q4
+  output$Revenue_in_q4 <- renderValueBox({
+    valueBox(
+      paste(round(TotalRevenueinQ4,2)), "Total Revenue in Q4", icon = icon("glyphicon glyphicon-usd",lib="glyphicon"),
+      color = "black"
+    )
+    
+  })
+  
+  
+  
+  #############Visitors in Q1
+  output$Number_of_visitors_in_q1 <- renderValueBox({
+    valueBox(
+      paste(round(totalNumberofVisitorsinQ1,2),"K"), "Total Number of Visitors in Q1", icon = icon("glyphicon glyphicon-user",lib="glyphicon"),
+      color = "red"
+    )
+    
+  })
+  
+  ############Visitors in Q2
+  output$Number_of_visitors_in_q2 <- renderValueBox({
+    valueBox(
+      paste(round(totalNumberofVisitorsinQ2,2),"K"), "Total Number of Visitors in Q2", icon = icon("fa fa-user-circle"),
+      color = "teal"
+    )
+    
+  })
+  
+  #############Visitors in Q3
+  output$Number_of_visitors_in_q3 <- renderValueBox({
+    valueBox(
+      paste(round(totalNumberofVisitorsinQ3,2),"K"), "Total Number of Visitors in Q3", icon = icon("fa fa-user"),
+      color = "navy"
+    )
+    
+  })
+  
+  #############Visitors in Q4
+  output$Number_of_visitors_in_q4 <- renderValueBox({
+    valueBox(
+      paste(round(totalNumberofVisitorsinQ4,2),"K"), "Total Number of Visitors in Q4", icon = icon("fa fa-user-md"),
+      color = "yellow"
+    )
+    
+  })
+  
+  
+  
+ 
   
 }
