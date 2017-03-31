@@ -18,7 +18,91 @@ library(ECharts2Shiny)
 
 
 server <- function(input, output) {
+  # output$outputId<-renderPlotly({
+  #   base_plot <- plot_ly(
+  #     type = "pie",
+  #     values = c(RMVal$Revenue[4], RMVal$Revenue[1], RMVal$Revenue[2], RMVal$Revenue[3]),
+  #     # labels = c("-", "0", "20", "40", "60", "80", "100"),
+  #     labels = c( RMVal$Revenue[1], RMVal$Revenue[2], RMVal$Revenue[3], RMVal$Revenue[4]),
+  #     rotation = 108,
+  #     direction = "anticlockwise",
+  #     hole = 0.4,
+  #     textinfo = "label",
+  #     textposition = "outside",
+  #     hoverinfo = "none",
+  #     domain = list(x = c(0, 0.48), y = c(0, 1)),
+  #     marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)')),
+  #     showlegend = FALSE
+  #   )
+  #   b_plot <- add_trace(
+  #      base_plot,
+  #     type = "pie",
+  #     values = c(RMVal$Revenue[4],RMVal$Revenue[1], RMVal$Revenue[2], RMVal$Revenue[3],RMVal$Revenue[4]),
+  #     labels = c("CurrentYearSales", "FirstYear", "SecondYear", "ThirdYear", "FinalYear"),
+  #     # values = c(RMVal$Revenue[4]),
+  #     # labels = c("CurrentYearSales"),
+  #      rotation = 133,
+  #     direction = "anticlockwise",
+  #     hole = 0.3,
+  #     textinfo = "label",
+  #     textposition = "inside",
+  #     hoverinfo = TRUE,
+  #     domain = list(x = c(0, 0.48), y = c(0, 1)),
+  #     marker = list(colors = c('rgb(255, 255, 255)', 'rgb(232,226,202)', 'rgb(226,210,172)', 'rgb(223,189,139)', 'rgb(223,162,103)', 'rgb(226,126,64)')),
+  #     showlegend= FALSE
+  #   )
+  #   a <- list(
+  #     showticklabels = FALSE,
+  #     autotick = FALSE,
+  #     showgrid = FALSE,
+  #     zeroline = FALSE)
+  # 
+  #   b <- list(
+  #     xref = 'paper',
+  #     yref = 'paper',
+  #     x = 0.23,
+  #     y = 0.45,
+  #     showarrow = FALSE,
+  #     text = RMVal$Revenue[4])
+  # 
+  #   base_chart <- layout(
+  #     b_plot,
+  #     shapes = list(
+  #       list(
+  #         type = 'path',
+  #         path = 'M 0.235 0.5 L 0.24 0.62 L 0.245 0.5 Z',
+  #         xref = 'paper',
+  #         yref = 'paper',
+  #         fillcolor = 'rgba(44, 160, 101, 0.5)'
+  #       )
+  #     ),
+  #     xaxis = a,
+  #     yaxis = a,
+  #     annotations = b
+  #   )
+  #   
+  # })
+  ######################Gauge chart###############
   
+  value = reactive({
+    input$update
+    # round(runif(1,0,RMVal$Revenue[3]),1)
+    round(runif(50, min =0 , max =100),2)
+    # min=0 max=100 n=23
+    # RMVal$Revenue[3]
+  })
+  
+  # example use of the automatically generated render function
+  output$gauge1 <- renderC3Gauge({ 
+    # C3Gauge widget
+    
+    C3Gauge(RMVal$Revenue[3])
+  })
+  r1=RMVal$Revenue[4]
+  r2=round(r1,1)
+  renderGauge(div_id = "test",rate = RMVal$Revenue[4], gauge_name = "Revenue",show.tools = TRUE,
+              animation = TRUE,
+              running_in_shiny = TRUE)
   ###############################################################################Month Dashboard for sales Start#################################################### 
   ##revenue generated for a month
   output$mrevenue <- renderValueBox({
@@ -431,15 +515,40 @@ server <- function(input, output) {
     )
   })
   ##plot for yearly sales analysis
-  output$Yearly_sales_graph <- renderGvis({
+  output$Yearly_sales_graph <- renderPlotly({
     # ysales<- select(ysalesval,Month,Sales)
-        Month<-c("Jan","Feb","Mar")
+    Month<-c("Jan","Feb","Mar")
     Sales<-ysalesval$Sales
     ysd<-data.frame(Month,Sales)
     # ysalechart<-gvisColumnChart(ysd,xvar="Month",yvar="Sales",options=list(colors="['#1ABC9C']"))
-    ysalechart<-gvisPieChart(ysd,options = list(colors="['51A39D','B7695C','CDBB79']",height="300px"))
-    return(ysalechart)
+    # ysalechart<-gvisPieChart(ysd,options = list(colors="['51A39D','B7695C','CDBB79']",height="300px"))
+    # return(ysalechart)
+    # 
+    # 
+    # library(plotly)
     
+    
+    p<-plot_ly(ysd,labels = Month, values = Sales) %>%
+      add_pie(hole = 0.6) %>%
+      layout( showlegend = F,
+             xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+             yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+    p
+    
+    
+    
+    # # Get Manufacturer
+    # mtcars$manuf <- sapply(strsplit(rownames(mtcars), " "), "[[", 1)
+    # 
+    # p <- mtcars %>%
+    #   group_by(manuf) %>%
+    #   summarize(count = n()) %>%
+    #   plot_ly(labels = ~manuf, values = ~count) %>%
+    #   add_pie(hole = 0.6) %>%
+    #   layout(title = "Donut charts using Plotly",  showlegend = F,
+    #          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+    #          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+    # 
     
   })
   ##plot for yearly wise sales by lcoation
@@ -751,7 +860,7 @@ server <- function(input, output) {
   
   #############plot for Trends in the today and yesterday#############
   
-  output$tb2<-renderTable(row2016 ,options = list(lengthChange=TRUE,class = 'cell-border stripe',height="1000px"))
+  # output$tb2<-renderTable(row2016 ,options = list(lengthChange=TRUE,class = 'cell-border stripe',height="1000px"))
   output$tb2<-renderGvis({
     
     trends<-select(row2016,AvgperCustomer,Sales,QtyOrdered)
@@ -759,10 +868,10 @@ server <- function(input, output) {
     row2016$month <- NULL
     row2016$day <- NULL
     row2016$year <- NULL
-    rownames<-c("Yesterday","Today","+/- in Percentage")
+    Trends<-c("Yesterday","Today","+/- in Percentage")
     # rownames[2]<-"Today"
     # rownames[3]<-"+/- in Percentage"
-    tdata<-data.frame(rownames,row2016)
+    tdata<-data.frame(Trends,row2016)
     
     trendsoutput<-gvisTable(tdata,options=list(width="100%",height="230px"))
     return(trendsoutput)
@@ -937,27 +1046,7 @@ server <- function(input, output) {
      
     
   # })
-  ######################Gauge chart
   
-  value = reactive({
-    input$update
-    # round(runif(1,0,RMVal$Revenue[3]),1)
-    round(runif(50, min =0 , max =100),2)
-    # min=0 max=100 n=23
-    # RMVal$Revenue[3]
-  })
-  
-  # example use of the automatically generated render function
-  output$gauge1 <- renderC3Gauge({ 
-    # C3Gauge widget
-    
-    C3Gauge(RMVal$Revenue[3])
-  })
-  r1=RMVal$Revenue[4]
-  r2=round(r1,1)
-  renderGauge(div_id = "test",rate = RMVal$Revenue[4], gauge_name = "Revenue",show.tools = TRUE,
-              animation = TRUE,
-              running_in_shiny = TRUE)
  
  ####Predictions 
   output$revenue<-renderPlotly({

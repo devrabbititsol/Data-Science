@@ -1126,15 +1126,6 @@ TotalRevenueinQ2<-sum(PredictedRevenueinq2)
 TotalRevenueinQ3<-sum(PredictedRevenueinq3)
 TotalRevenueinQ4<-sum(PredictedRevenueinq4)
 
-
-
-
-
-
-
-
-
-----------------------------------------------------------------------------------------------
   ##########number of visitors in q1##############
 
 visitorsq1<-c(55371,59321,49380)
