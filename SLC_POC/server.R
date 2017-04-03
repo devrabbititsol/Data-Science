@@ -190,9 +190,6 @@ server <- function(input, output) {
         Time<-strftime(z, format="%I.%M %p")
         todaysales<-cbind(Time,tdsales)
          tdsalechart<-gvisAreaChart(todaysales,xvar="Time",yvar="Sales",options=list(height="200px"))
-        # tdsalechart<-plot_ly(x=c(Time),y=c(tdaysales$Sales),type = "scatter" ,
-        #                      mode = "lines",xvar="Time",yvar="Sales",options=list(height="200px"))
-        # x=c(Time),y=c(tdsales)
         return(tdsalechart)
         
       })
@@ -219,9 +216,6 @@ server <- function(input, output) {
      Msales<-daywisesales$sales
      msaleval<-cbind(msales,Msales)
     msalechart<-gvisColumnChart(msales,xvar="day",yvar="sales",options =list(seriesType="bars",colors="['66CCFF']",height="300px"))
-    # msalechart<-plot_ly(x=c(daywisesales$sales),y=c(daywisesales$day),type='bar',color="['66CCFF']")
-    # options =list(seriesType="bars",colors="['66CCFF']",height="300px")xvar="day",yvar="sales"
-   
     return(msalechart)
     
   })
@@ -265,24 +259,9 @@ server <- function(input, output) {
   output$Month_sales_graph_everyYear <- renderGvis({
     # marchrevenue<- select(RevenueMarchVal,RMinc,Revenue,Year)
     marchrevenue<- select(RMVal,Revenue,Year)
-    # setNames(, c("Year","Revenue","RMinc.annotation"))
-    # growthinsales.annotation<-(RMVal$RMinc)
-    # marchchart<-gvisColumnChart(RMVal,xvar = "Year",yvar = c("Revenue","RMinc.annotation"),options=list(colors="['#F1C40F']"))
-    # 
-    # return(marchchart)
+    
     if(input$probins!=1)
     {
-      
-      # Prevenue<-(RMVal$Revenue[4]+(RMVal$Revenue[4]*input$probins/100))
-      # minc1=(((Prevenue-RMVal$Revenue[4])/((RMVal$Revenue[4])))*100)
-      # mic.annotation<-c(RMinc.annotation[1],RMinc.annotation[2],RMinc.annotation[3],paste(round(minc1516+minc1,1),"%"))
-      # # print(Prevenue)
-      # rrevenue<-c(RMVal$Revenue[1],RMVal$Revenue[2],RMVal$Revenue[3],Prevenue)
-      # year<-c(RMVal$Year[1],RMVal$Year[2],RMVal$Year[3],RMVal$Year[4])
-      # # inc.annotation<-paste(((Prevenue-Revenue[4])/Revenue[4])*100,"%")
-      # rbind<-data.frame(rrevenue,year,mic.annotation)
-      # pRsalechart<-gvisColumnChart(rbind,xvar = "year",yvar = c("rrevenue","mic.annotation"),options=list(colors="['#F1C40F']"))
-      
       Prevenue<-((RMVal$Revenue[4]*input$probins/100))
       minc1=((((RMVal$Revenue[4]+Prevenue)-RMVal$Revenue[4])/((RMVal$Revenue[4])))*100)
       # mic.annotation<-c(RMinc.annotation[1],RMinc.annotation[2],RMinc.annotation[3],RMinc.annotation[4])
@@ -491,13 +470,7 @@ server <- function(input, output) {
       color = "maroon"
     )
   })
-  # ###Q1return
-  # output$Q1return <- renderValueBox({
-  #   valueBox(
-  #     paste(round(repeatedcustomersin201516,2),"%"), "Growth in Returning Visitors Q1", icon = icon("thumbs-up", lib = "glyphicon"),
-  #     color = "orange"
-  #   )
-  # })
+  
   ###Q1orderpick
   output$Q1orderpick <- renderValueBox({
     orderratein201516<-((q1order[1]-q1order[2])/q1order[2])*100
@@ -520,35 +493,12 @@ server <- function(input, output) {
     Month<-c("Jan","Feb","Mar")
     Sales<-ysalesval$Sales
     ysd<-data.frame(Month,Sales)
-    # ysalechart<-gvisColumnChart(ysd,xvar="Month",yvar="Sales",options=list(colors="['#1ABC9C']"))
-    # ysalechart<-gvisPieChart(ysd,options = list(colors="['51A39D','B7695C','CDBB79']",height="300px"))
-    # return(ysalechart)
-    # 
-    # 
-    # library(plotly)
-    
-    
     p<-plot_ly(ysd,labels = Month, values = Sales) %>%
       add_pie(hole = 0.6) %>%
       layout( showlegend = F,
              xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
              yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
     p
-    
-    
-    
-    # # Get Manufacturer
-    # mtcars$manuf <- sapply(strsplit(rownames(mtcars), " "), "[[", 1)
-    # 
-    # p <- mtcars %>%
-    #   group_by(manuf) %>%
-    #   summarize(count = n()) %>%
-    #   plot_ly(labels = ~manuf, values = ~count) %>%
-    #   add_pie(hole = 0.6) %>%
-    #   layout(title = "Donut charts using Plotly",  showlegend = F,
-    #          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-    #          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-    # 
     
   })
   ##plot for yearly wise sales by lcoation
@@ -622,15 +572,6 @@ server <- function(input, output) {
     
   })
   ###############finding the number of visitors in all years ##################
-  # output$web_traffic<- renderGvis({
-  #   #visitors1<- select(yearwebtraffic,year,visitors,visitors1.annotation)
-  #   # gf<-select(yearwebtraffic)
-  #   visitors1.annotation<-c("0%","252%","18%","41%","-71%")
-  #   visitorsgrowthorfall<-data.frame(yearwebtraffic,visitors1.annotation)
-  #   visitorschart<-gvisColumnChart(visitorsgrowthorfall,xvar = "year",yvar = c("visitors","visitors1.annotation"),option=list(height="300px",colors="['3399CC']"))
-  #   return(visitorschart)
-  # 
-  # })
   output$web_traffic<- renderPlotly({
     # visitors1<- select(yearwebtraffic,year,visitors,visitors1.annotation)
     # gf<-select(yearwebtraffic)
@@ -1115,20 +1056,6 @@ server <- function(input, output) {
     
     data$month <- factor(data$month, levels = data[["month"]])
     
-    # 
-    # p <- plot_ly(data, x = ~month, y = ~LowerLimit, type = 'bar', name = 'LowerLimit',
-    #              color = 'rgb( 255, 76, 59 )') %>%
-    #      
-    #    add_trace(y = ~quarterVisitors, name = 'Visitors',marker = list(color = 'rgb( 255, 76, 59 )')) %>%
-    #             
-    #    add_trace(y = ~UpperLimit, name = 'Upper Limit',marker = list(color = 'rgb( 255, 208, 52 )')) %>%
-    #    #add_trace(y = ~UpperLimit, name = 'UpperLimit') %>%
-    #    layout(title = 'Number of visitors',
-    #           xaxis = list(title = 'Month'),
-    #           yaxis = list(title = 'Number of visitors'),
-    #           barmode = 'relative'
-    #           )
-    # 
     p <- plot_ly(data, x = ~month, y = ~quarterVisitors,  type = 'bar', name = 'Visitors',color = 'rgb( 255, 76, 59 )') %>%
       layout(title = 'Number of visitors ',
              xaxis = list(title = 'Month'),

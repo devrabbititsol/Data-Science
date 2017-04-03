@@ -162,9 +162,7 @@ percentofmonthsdata=fetch(monthdata,n=-1)
 
 febdata=percentofmonthsdata$sale[1]
 marchdata=percentofmonthsdata$sale[2]
-# differencegrowth=marchdata-febdata
-# print(difference)
-# mincreaseper=(difference/febdata)*100
+
 ###########increase % per year#####
 ydata=dbSendQuery(mydb,'select month(sales_flat_order.created_at) as month,sum(sales_flat_order.grand_total) as sale from sales_flat_order where 
                   year(sales_flat_order.created_at)>=2015  group by year(sales_flat_order.created_at);')
@@ -175,15 +173,6 @@ ypdata=fetch(ydata,n=-1)
 data15=ypdata$sale[1]
 data16=ypdata$sale[2]
 differencey=data16-data15
-# yincreaseper=(differencey/febdata)*100
-# ##Bounce rate for a month
-# 
-# brate=dbSendQuery(mydb,'select count(*) from log_visitor where last_visit_at=first_visit_at and Month(last_visit_at)=3 and year(last_visit_at)=2016')
-# br=fetch(brate,n=-1)
-# brate1=dbSendQuery(mydb,'select count(*) from log_visitor where  Month(last_visit_at)=3 and year(last_visit_at)=2016 ')
-# br1=fetch(brate1,n=-1)
-# bouncerate=br/br1*100
-
 
 ##Revenue of a perticular month in all years
 
@@ -1011,7 +1000,6 @@ yavginvent2015=(yInvent2015$AvgInventory)/3
 quartercomparisionof201516=((yavginvent2016-yavginvent2015)/yavginvent2015)*100
 
 ################################Prediction######################################
-###############Revenue in quarter2(2013-2015) analysis########################
 ###############Revenue in quarter 1###############
 
 Revenueinq1<-c(177305.1500,156696.6500,167589.9700)
@@ -1019,6 +1007,7 @@ Month<-c("Jan","Feb","March")
 q1dataforRevenue<-data.frame(Revenueinq1,Month)
 
 
+###############Revenue in quarter2(2013-2015) analysis########################
 trendsq2=dbSendQuery(mydb,"select sum(grand_total) as Revenue ,Month(created_at) as Month,Year(created_at) as Year 
                      from sales_flat_order 
                      where (Month(created_at) >=4 and Month(created_at)<=6) 
@@ -1034,20 +1023,15 @@ lminq2<-lm(Revenue~Month+Year,traindatainq2)
 
 predictioninq2<-predict(lminq2,testdatainq2)
 
-p2<-predict(lminq2)
+newdata<-data.frame(Year=c(2016),Month=c(4:6))
+p2<-predict(lminq2,newdata)
 
-p2<-predict(lminq2,interval="confidence")
-clowerlimit<-c(130613.20,149583.37,146447.67)
-cupperlimit<-c(209495.79,213089.89,238789.86)
 
-p2<-predict(lminq2,interval="prediction")
-plowerlimit<-c(101319.770,116706.017,119813.433)
-pupperlimit<-c(238789.2,245967.2,265424.1)
 
-PredictedRevenueinq2<-c(170054.50,181336.63,192618.77)
+PredictedRevenueinq2<-c(223652,238919,254186)
 Month<-c("April","May","June")
 
-q2dataforRevenue<-data.frame(PredictedRevenueinq2,Month,plowerlimit,pupperlimit)
+q2dataforRevenue<-data.frame(PredictedRevenueinq2,Month)
 
 
 ###############Revenue in quarter3(2013-2015) analysis########################
@@ -1066,23 +1050,13 @@ lminq3<-lm(Revenue~Month+Year,traindatainq3)
 
 predictioninq3<-predict(lminq3,testdatainq3)
 
-p3<-predict(lminq3)
+newdata2<-data.frame(Year=c(2016),Month=c(7:9))
+p3<-predict(lminq3,newdata2)
 
-p3<-predict(lminq3,interval="confidence")
-clowerlimit<-c(173923.21,191267.30,185963.48)
-cupperlimit<-c(254740.0,256331.0,280570.0)
-
-p3<-predict(lminq3,interval="prediction")
-plowerlimit<-c(143911.48,157583.78,158676.15)
-pupperlimit<-c(284751.8,290014.6,307857.3)
-
-
-
-
-PredictedRevenueinq3<-c(214331.63,223799.17,233266.72)
+PredictedRevenueinq3<-c(271401.3 ,288000.2,304599.1)
 Month<-c("July","August","September")
 
-q3dataforRevenue<-data.frame(PredictedRevenueinq3,Month,plowerlimit,pupperlimit)
+q3dataforRevenue<-data.frame(PredictedRevenueinq3,Month)
 
 
 ###############Revenue in quarter4(2013-2015) analysis########################
@@ -1101,23 +1075,15 @@ lminq4<-lm(Revenue~Month+Year,traindatainq4)
 
 predictioninq4<-predict(lminq3,testdatainq4)
 
-p4<-predict(lminq4)
-
-p4<-predict(lminq4,interval="confidence")
-clowerlimit<-c(173732.273,169118.619,141787.799)
-cupperlimit<- c(281460.1,248517.0,238291.1)
-
-p4<-predict(lminq4,interval="prediction")
-plowerlimit<-c(138624.5448,127634.9472,104348.9918)
-pupperlimit<- c(316567.9,290000.7,275729.9)
+newdata3<-data.frame(Year=c(2016),Month=c(10:12))
+p4<-predict(lminq4,newdata3)
 
 
-PredictedRevenueinq4<-c(227596.21,208817.83,190039.46)
+
+PredictedRevenueinq4<-c(303619.9,281593.8 ,259567.8)
 Month<-c("October","November","December")
 
-q4dataforRevenue<-data.frame(PredictedRevenueinq4,Month,plowerlimit,pupperlimit)
-
-
+q4dataforRevenue<-data.frame(PredictedRevenueinq4,Month)
 
 ###############Total revenues in all quarters(sum)##########
 
@@ -1125,6 +1091,7 @@ TotalRevenueinQ1<-sum(Revenueinq1)
 TotalRevenueinQ2<-sum(PredictedRevenueinq2)
 TotalRevenueinQ3<-sum(PredictedRevenueinq3)
 TotalRevenueinQ4<-sum(PredictedRevenueinq4)
+
 
   ##########number of visitors in q1##############
 
@@ -1153,21 +1120,13 @@ vislminq2<-lm(visitors~month+year,visitorstraindataq2)
 
 vispredictioninq2<-predict(vislminq2,visitorstestdataq2)
 
-p2<-predict(vislminq2)
-
-p2<-predict(vislminq2,interval="confidence")
-clowerlimit<-c(35301.33,39577.45,41736.79)
-cupperlimit<-c(42623.28,44409.29,48312.09)
+newdataV1<-data.frame(year=c(2016),month=c(4:6))
+p2<-predict(vislminq2,newdataV1)
 
 
-p2<-predict(vislminq2,interval="prediction")
-plowerlimit<-c(33306.01,37050.95,39602.31)
-pupperlimit<-c(44618.59,46935.80,50446.58)
-
-
-PreictedVisitorsinq2<-c(38962.30,41993.37,45024.44)
+PreictedVisitorsinq2<-c(46626.97,49271.78,51916.59)
 Month<-c("April","May","June")
-q2dataforVisitors<-data.frame(PreictedVisitorsinq2,Month,plowerlimit,pupperlimit)
+q2dataforVisitors<-data.frame(PreictedVisitorsinq2,Month)
 
 
 ###########number of visitors in q3(2013-15)#####################
@@ -1190,25 +1149,13 @@ vislminq3<-lm(visitors~month+year,visitorstraindataq3)
 
 vispredictioninq3<-predict(vislminq3,visitorstestdataq3)
 
-p3<-predict(vislminq3)
+newdataV3<-data.frame(year=c(2016),month=c(7:9))
+p3<-predict(vislminq3,newdataV3)
 
 
-p3<-predict(vislminq3,interval="confidence")
-clowerlimit<-c(34383.21,39196.27,38697.67)
-cupperlimit<-c(56947.29,57760.93,63886.23)
-
-
-
-p3<-predict(vislminq3,interval="prediction")
-plowerlimit<-c(25629.402,29496.699,30488.904)
-pupperlimit<-c(65701.10,67460.50,72095.00)
-
-
-
-
-PreictedVisitorsinq3<-c(45665.25,48478.60,51291.95)
+PreictedVisitorsinq3<-c(54978.67,58169.67,61360.67)
 Month<-c("July","August","September")
-q3dataforVisitors<-data.frame(PreictedVisitorsinq3,Month,plowerlimit,pupperlimit)
+q3dataforVisitors<-data.frame(PreictedVisitorsinq3,Month)
 
 
 ###########number of visitors in q4(2013-15)#####################
@@ -1232,22 +1179,13 @@ vislminq4<-lm(visitors~month+year,visitorstraindataq4)
 
 vispredictioninq4<-predict(vislminq4,visitorstestdataq4)
 
-p4<-predict(vislminq4)
-
-p4<-predict(vislminq4,interval = "confidence")
-clowerlimit<-c(32766.809,39195.568,25720.402)
-cupperlimit<-c(101614.40,84628.92,87547.37)
+newdataV4<-data.frame(year=c(2016),month=c(10:12))
+p4<-predict(vislminq4,newdataV4)
 
 
-
-p4<-predict(vislminq4,interval="prediction")
-plowerlimit<-c(14005.040,15439.092,5650.064)
-pupperlimit<-c(120376.17,108385.40,107617.70)
-
-
-PreictedVisitorsinq4<-c(67190.60,61912.24,56633.88)
+PreictedVisitorsinq4<-c(74081.98 ,78146.90,82211.82)
 Month<-c("October","November","December")
-q4dataforVisitors<-data.frame(PreictedVisitorsinq4,Month,plowerlimit,pupperlimit)
+q4dataforVisitors<-data.frame(PreictedVisitorsinq4,Month)
 
 
 ###############Total number of visitors in all quarters(sum)##########
@@ -1256,6 +1194,7 @@ totalNumberofVisitorsinQ1<-(sum(visitorsq1)/1000)
 totalNumberofVisitorsinQ2<-(sum(PreictedVisitorsinq2)/1000)
 totalNumberofVisitorsinQ3<-(sum(PreictedVisitorsinq3)/1000)
 totalNumberofVisitorsinQ4<-(sum(PreictedVisitorsinq4)/1000)
+
 ##BenchMarking of Ecomerce Ration
 ypVisits=dbSendQuery(mydb,"select count(*)  as Visitor,month(log_visitor.first_visit_at) as Month from log_visitor where year(log_visitor.first_visit_at)>=2015 group by month(log_visitor.first_visit_at);")
 ypVisitsval=fetch(ypVisits,n=-1)
