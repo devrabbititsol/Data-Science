@@ -1,34 +1,72 @@
 ---
-title: " RealEstate_Poc"
+title: " Real Estate"
 output: 
   flexdashboard::flex_dashboard:
+
    orientation: rows
+   
    
 ---
 
+
+
+<style type="text/css">
+
+
+.chart-title {  /* chart_title  */
+   font-size: 20px;
+   display:        inline;
+   font-family: Verdana;
+  font-style: bold;
+ 
+   }
+  
+ .nav-tabs-custom > .nav-tabs > li > a {
+  border-top-color: white;
+  border-right-color: white;
+  border-left-color: blue;
+   font-size: 20px;
+    font-family: Verdana;
+    font-style: bold;
+  
+ }
+ .pager li > a,
+.pager li > span {
+  display: inline-block;
+  padding: 5px 14px;
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 0;
+  order-top-color: white;
+  border-right-color: white;
+  border-left-color: blue;
+}
+.pagination {
+  display: inline-block;
+  padding-left: 0;
+  margin: 21px 0;
+  border-radius: 10;
+}
+ 
+</style>
+
+
+
 ```{r}
-library(ggplot2)
-library(plotly)
-library(plyr)
+
 library(flexdashboard)
 library(knitr)
-library(d3heatmap)
-library(highcharter)
-library(purrr)
-library(dplyr)
-library(plyr)
-library(treemap)
 library(viridisLite)
-library(maps)
-library(ggplot2)
-library(dygraphs)
-library(data.table)
-library(DT)
-library(rbokeh)
-library(rhandsontable)
+library(highcharter)
+library(plotly)
+library(plyr)
+library(RMySQL)
+library(DBI)
+library(sqldf)
+library(gsubfn)
+library(proto)
 library(rsconnect)
-library(shiny)
-library(shinystan)
+library(stringr)
 ```
 
 ---
@@ -40,33 +78,14 @@ row 1
 
 ### Home Value
 ```{r}
-library(plotly)
-  library(ggplot2)
-library(flexdashboard)
-library(sqldf)
-library(gsubfn)
-library(proto)
-db <- dbConnect(SQLite(), dbname='Test1.sqlite')
+
+  db <- dbConnect(SQLite(), dbname='Test1.sqlite')
 hCurMonth<-dbReadTable(db, 'current-month-summary')
 
 hCurMonVal<-hCurMonth$Zhvi
 valueBox(hCurMonVal,
          icon = "fa fa-dollar",
          color = ifelse(hCurMonVal > 10, "warning", "primary"))
-```
-
-### Percent Fall from Peak
-```{r}
-library(flexdashboard)
-library(sqldf)
-library(gsubfn)
-library(proto)
-db <- dbConnect(SQLite(), dbname='Test1.sqlite')
-hCurMonth<-dbReadTable(db, 'current-month-summary') 
-hCurPerFall<-hCurMonth$PctFallFromPeak
-hCurPerFall<-round((hCurPerFall*100),2)
-gauge(hCurPerFall, min = -10, max = 10, symbol = "%",
-      gaugeSectors(success = c(0, 10), warning = c(-3, 0), danger = c(-10, -3)))
 ```
 
 ### Current Month Growth
@@ -79,18 +98,18 @@ gauge(hCurMonGro, min = 0, max = 4, symbol = "%",
 ))
 ```
 
-### Current Qurter Growth
+### Current Quarter Growth
 ```{r}
-library(flexdashboard)
+
 hQuGro<-hCurMonth$QoQ
 hQuGro<-round(hQuGro*100,2)
-gauge(hQuGro, min = 0, max = 5, symbol = "%",
+gauge(hQuGro, min = 0, max = 7, symbol = "%",
       gaugeSectors(success = c(4, 5), warning = c(2, 3), danger = c(1, 2)))
 ```
 
 ### Current Year Growth
 ```{r}
-library(flexdashboard)
+
 hYeVal<-hCurMonth$YoY
 hYeGrowth<-round(hYeVal*100,2)
 gauge(hYeGrowth, min = 0, max = 10, symbol = "%",
@@ -100,7 +119,7 @@ gauge(hYeGrowth, min = 0, max = 10, symbol = "%",
 
 ### Peak Home Value
 ```{r}
-library(flexdashboard)
+
 hCurPekVal<-hCurMonth$PeakZHVI
 valueBox(hCurPekVal,
          icon = "fa fa-long-arrow-up",
@@ -110,16 +129,10 @@ valueBox(hCurPekVal,
 
 ROW
 --------------------------
-### Peak Month
-```{r}
-library(flexdashboard)
-hCurPekMon<-hCurMonth$PeakMonth
-valueBox(hCurPekMon,icon = "fa fa-arrow-circle-o-up",color = "blue")
-```
 
 ### Top Metro
 ```{r}
-library(flexdashboard)
+
 #hCurrMonMet<-read.csv("metroCurrMon.csv")
 hCurrMonMet<-dbReadTable(db, 'metro_current_month')
 hTopMetro<-hCurrMonMet$RegionName[1]
@@ -129,7 +142,7 @@ valueBox(hTopMetro,icon = "fa fa-hand-o-left",paste0("Top Metro:$  ",hTopMetVal,
 
 ###Top County
 ```{r}
-library(flexdashboard)
+
 #hCurMonCou<-read.csv("countycurmnth.csv")
 hCurMonCou<-dbReadTable(db,'county-current-month')
 hCurMonCouTop<-max(hCurMonCou$Zhvi)
@@ -142,398 +155,57 @@ valueBox(hTopCounty,icon = "fa-pencil", paste0("Top County:$  ",hCurMonCouTop,"K
 
 ###Top City
 ```{r}
-library(flexdashboard)
+
 #hCurMonCity<-read.csv("citycurmnth.csv")
 hCurMonCity<-dbReadTable(db,'city-current-month')
 hTopCityValue<-max(hCurMonCity$Zhvi)
 # hCurMonCity$Zhvi<-sort(CityCM$Zhvi)
 hCurMonCityVal<-hTopCityValue/1000
 hCurMonTopCity<-hCurMonCity$RegionName[1]
-valueBox(hCurMonTopCity,icon = "fa fa-hand-o-left", paste0("Top City:$   ",hTopCityValue,"K"),
-         color=ifelse(hCurMonCityVal == hCurMonVal, "warnings","danger"))
-```
-
-### Peak Quarter
-```{r}
-hCurrMonPeakQu<-hCurMonth$PeakQuarter
-valueBox(hCurrMonPeakQu,icon = "fa fa-caret-square-o-up",color = "blue")
+valueBox(hCurMonTopCity,icon = "fa fa-hand-o-left", paste0("Top City:$   ",hTopCityValue,"K"),color="blue"
+         )
 ```
 
 row 
 ----------
-### Home Values for Counties
+###  Counties Home Values
 ```{r}
 library(highcharter)
 #hCurMonCounty <- read.csv("county_cuurentmnth_HVandPHV.csv")
 #data(countycurrmnth)
 hCurMonCounty<-dbReadTable(db,'county_currentmnth_HVandPHV')
 hc <- highchart() %>% 
-  hc_xAxis(categories = hCurMonCounty$RegionName) %>% 
+   hc_yAxis(
+    title = list(text = "Home Values")
+    
+  ) %>% 
+  
+  hc_xAxis(categories = hCurMonCounty$RegionName,
+           title = list(text = "Region Names")) %>% 
     hc_add_series(name = "Home_Value", data = hCurMonCounty$Zhvi) %>% 
    hc_add_series(name = "Peak_Home_Value", data = hCurMonCounty$PeakZHVI)
   hc
 ```
 
-### Home Values for Metros
-```{r }
-#hCurrMonMetro<-read.csv("metro_single1.csv")
-hCurrMonMetro<-dbReadTable(db,'metro-single1')
-hCurMonRegion<-hCurrMonMetro$RegionName
-hCurrMonAvg_2017<-round(hCurrMonMetro$AHV_2017)
- plot_ly(hCurrMonMetro,x=hCurMonRegion,y=hCurrMonAvg_2017,mode="markers",color = as.factor(hCurrMonAvg_2017))
 
-```
-
-Single Family Residences {data-navmenu="House Prices"}
-===================================== 
-row
---------------------------
-### Current Year Top County in Growth
-```{r}
-#CCM<-read.csv("countycurmnth.csv")
-CCM<-dbReadTable(db,'county-current-month')
-topyoy<-round(max(CCM$YoY)*100,2)
-gauge(topyoy, min = 0, max = 50, symbol="%",label = paste0("Siskiyou "),
-      gaugeSectors(success = c(30, 50), warning = c(20, 30), danger = c(0, 20)
-))
-```
-
-### Current Quarter Top County in Growth
-```{r}
-topqoq<-round(max(CCM$QoQ)*100,2)
-gauge(topqoq, min = 0, max = 10, symbol="%",label = paste("TopQGrowth:Marin"),gaugeSectors(
-  success = c(6, 10), warning = c(3, 6), danger = c(0, 3)
-))
-```
-
-### Current Month Top County in Growth
-```{r}
-topmom<-round(max(CCM$MoM)*100,2)
-gauge(topmom, min = 0, max = 5, symbol="%",label = paste("TopGrowth:Mariposa"),gaugeSectors(
-  success = c(4, 5), warning = c(2, 4), danger = c(0, 2)
-))
-```
-
-
-Row {.tabset .tabset-fade}
--------------------------------------
-
-### Average Home Values for Cities  
+### Metros Home Values
 ```{r}
 library(highcharter)
-library(highr)
-#book<-read.csv("citywise_HV_allyears_single.csv")
-book<-dbReadTable(db,'City-wise-HV-allyears-single')
+hCurrMonMetro<-dbReadTable(db,'metro-single1')
+
 
 hc <- highchart() %>% 
-  hc_xAxis(categories =book$RegionName) %>% 
-  hc_add_series(name = "AHV_2010", data = book$AHV_2010) %>% 
-  hc_add_series(name = "AHV_2011", data = book$AHV_2011) %>% 
-   hc_add_series(name = "AHV_2012", data = book$AHV_2012) %>% 
-   hc_add_series(name = "AHV_2013", data = book$AHV_2013) %>% 
-   hc_add_series(name = "AHV_2014", data = book$AHV_2014) %>% 
-   hc_add_series(name = "AHV_2015", data = book$AHV_2015) %>% 
-   hc_add_series(name = "AHV_2016", data = book$AHV_2016)  
-   
-   hc
-```
-
-### Average Home Values for Counties
-```{r}
-library(d3heatmap)
-library(RColorBrewer)
-library(flexdashboard)
-library(sqldf)
-library(gsubfn)
-library(proto)
-#db <- dbConnect(SQLite(), dbname='Test1.sqlite')
-countyallyearsheat <- read.csv("Countywiseallyearsheat.csv",row.names=1)
-#countyallyearsheat<-dbReadTable(db,'year-sheet')
-
-
-d3heatmap(countyallyearsheat, scale = "column",width=2000)
-
-```
-
-
-### Home Values of Metros For Current Year
-```{r}
-#curyr<-read.csv("metrocurrentyr.csv")
-curyr<-dbReadTable(db,'metro-current-year')
-colnames(curyr)<-c("RegionName","Jan","Feb","March","April","May","June","July","August","Sep","Oct","Nov","Dec")
-DT::datatable(curyr, options = list(
-  pageLength = 20
-))
- 
-```
-
-### Growth  of Home values  for Metros
-```{r}
-#metroHVSFR<-read.csv("metroHVSFR.csv",row.names = 1)
-metroHVSFR<-dbReadTable(db,'metro-HVSFR')
-plot_ly(metroHVSFR,y=metroHVSFR$RegionName) %>%
-  add_lines(x = metroHVSFR$PerGrowth.fall2013, name = "Growth_2013" ) %>%
-  add_bars(x = metroHVSFR$PerGrowth.fall2014, name = "Growth_2014", visible = T) %>%
-  add_markers(x = metroHVSFR$PerGrowth.fall2015, name = "Growth_2015", visible = T) %>%
-  add_bars(x = metroHVSFR$PerGrowth.fall2016, name = "Growth_2016", visible = T)  
-
-```
-
-1 BH's {data-navmenu="House Prices"}
-===================================== 
-ROW {.tabset .tabset-fade}
----------------------------
-###  Home Values for  Counties 
-```{r}
-#county_1BH<-read.csv("countywise_1BH.csv")
-county_1BH<-dbReadTable(db,'county_wise_1BH')
-Region<-county_1BH$RegionName
-Home_Values<-county_1BH$Avr_coHV_2012
-av_2013<-county_1BH$Avg_coHV_2013
-av_2014<-county_1BH$Avg_coHV_2014
-av_2015<-county_1BH$Avg_coHV_2015
-av_2016<-county_1BH$Avg_coHV_2016
-plot_ly(county_1BH,x=~Region) %>%
-  add_bars(y = ~Home_Values, name = "AHV_2012" ) %>%
-  add_bars(y = ~av_2013, name = "AHV_2013", visible = T) %>%
-  add_bars(y = ~av_2014, name = "AHV_2014", visible = T) %>%
-  add_bars(y = ~av_2015, name = "AHV_2015", visible = T) %>%
-  add_bars(y = ~av_2016, name = "AHV_2016", visible = T) 
-
-```
-
-
-
-ROW {.tabset .tabset-fade}
----------------------------
-### Home Values for Metros 
-```{r}
-library(htmltools)
-library(htmlwidgets)
-library(metricsgraphics)
-library(RColorBrewer)
-library(plotly)
-#MA1BH<-read.csv("metrowise1BH.csv")
-MA1BH<-dbReadTable(db,'metro-wise-1Bh')
-
-
-Regionname<-MA1BH$RegionName
-HomeValues<-MA1BH$Avg_meHV_2012
-Avg2013<-MA1BH$Avg_meHV_2013
-Avg2014<-MA1BH$Avg_meHV_2014
-Avg2015<-MA1BH$Avg_meHV_2015
-Avg2016<-MA1BH$Avg_meHV_2016
-plot_ly(MA1BH,x=~Regionname) %>%
-  add_lines(y = ~HomeValues, name = "AHV_2012" ) %>%
-  add_lines(y= ~Avg2013, name = "AHV_2013", visible = T) %>%
-  add_lines(y = ~Avg2014, name = "AHV_2014", visible = T) %>%
-  add_lines(y = ~Avg2015, name = "AHV_2015", visible = T) %>%
-  add_lines(y = ~Avg2016, name = "AHV_2016", visible = T) 
-
-```
-
-### Growth of Home values  for Metros
-```{r}
-Region<-MA1BH$RegionName
-Growth_Values<-MA1BH$PerGrowth_2013
-PerGrowth_2014<-MA1BH$PerGrowth_2014
-PerGrowth_2015<-MA1BH$PerGrowth_2015
-PerGrowth_2016<-MA1BH$PerGrowth_2016
-plot_ly(MA1BH,x=~Region) %>%
-  add_bars(y = ~Growth_Values, name = "Growth_2013" ) %>%
-  add_bars(y = ~PerGrowth_2014, name = "Growth_2014") %>%
-  add_bars(y = ~PerGrowth_2015, name = "Growth_2015") %>%
-  add_bars(y = ~PerGrowth_2016, name = "Growth_2016") 
+  hc_chart(type = "column") %>%
+   hc_yAxis(
+    title = list(text = "Home Values")
+    
+  ) %>% 
   
-
-```
-
-ROW {.tabset .tabset-fade}
----------------------------
-### Home  Values for cities
-```{r}
-#citywise1BH<-read.csv("citywise1BH.csv")
-citywise1BH<-dbReadTable(db,'city-wise-1BH')
-Region<-citywise1BH$RegionName
-HomeValues<-citywise1BH$Avg_ciHV_2012
-Ciav_2013<-citywise1BH$Avg_ciHV_2013
-Ciav_2014<-citywise1BH$Avg_ciHV_2014
-Ciav_2015<-citywise1BH$Avg_ciHV_2015
-Ciav_2016<-citywise1BH$Avg_ciHV_2016
-Ciav_2017<-citywise1BH$X2017.01
-
-plot_ly(citywise1BH,x=~Region) %>%
-  add_markers(y = ~HomeValues, name = "AHV_2012" ) %>%
-  add_markers(y = ~Ciav_2013, name = "AHV_2013", visible = T) %>%
-  add_markers(y = ~Ciav_2014, name = "AHV_2014", visible = T) %>%
-  add_markers(y = ~Ciav_2015, name = "AHV_2015", visible = T) %>%
-  add_markers(y = ~Ciav_2016, name = "AHV_2016", visible = T) %>%
-  add_markers(y = ~Ciav_2017, name = "AHV_2017", visible = T) 
-
-
-```
-
-### Growth of Home values  for Cities
-```{r}
-Region<-as.list(citywise1BH$RegionName)
-PerGrowth_2013<-as.list(citywise1BH$PerGrowth_2013)
-PerGrowth_2014<-as.list(citywise1BH$PerGrowth_2014)
-PerGrowth_2015<-as.list(citywise1BH$PerGrowth_2015)
-PerGrowth_2016<-as.list(citywise1BH$PerGrowth_2016)
-
-
-plot_ly(citywise1BH,x=~Region) %>%
-  add_lines(y = ~PerGrowth_2013,name = "2012" ) %>%
-  add_markers(y = ~PerGrowth_2014, name = "2013", visible = T) %>%
-  add_markers(y = ~PerGrowth_2015, name = "2014", visible = T) %>%
-  add_markers(y = ~PerGrowth_2016, name = "2015", visible = T)
-
-
-
-```
-
-2 BH's {data-navmenu="House Prices"}
-=====================================
-Row {.tabset .tabset-fade}
--------------------------------------
-###  Home Values for Counties
-```{r}
-
-#county_2bh<-read.csv("countywise2BH.csv")
-county_2bh<-dbReadTable(db,'county-wise-2BH')
-
-
-plot_ly(county_2bh,
-             type = "area",        # all "scatter" attributes: https://plot.ly/r/reference/#scatter
-             x = ~RegionName,               # more about scatter's "x": /r/reference/#scatter-x
-             y = ~HV2012,            # more about scatter's "y": /r/reference/#scatter-y
-             name = "AHV_2012",
-            
-             marker = list(           # marker is a named list, valid keys: /r/reference/#scatter-marker
-               color="purple"        # more about marker's "color" attribute: /r/reference/#scatter-marker-color
-             )) %>%
-
-  add_bars(x = ~RegionName,                                         
-            y = ~HV2013,
-            type="Box",
-            name="AHV_2013",
-            mode = 'markers', 
-           
-            line = list(                                       # line is a named list, valid keys: /r/reference/#scatter-line
-              color = "blue"                              # line's "color": /r/reference/#scatter-line-color
-                                               # line's "dash" property: /r/reference/#scatter-line-dash
-            )
-  ) %>%
-  add_lines(x = ~RegionName,                                         # scatter's "x": /r/reference/#scatter-x
-            y = ~HV2014,
-            name="AHV_2014",
-            mode = 'markers', 
-         
-            line = list(                                       # line is a named list, valid keys: /r/reference/#scatter-line
-              color = "red",                               # line's "color": /r/reference/#scatter-line-color
-              dash = "dashed"                                  # line's "dash" property: /r/reference/#scatter-line-dash
-            )
-  ) %>%
-add_lines(x = ~RegionName,                                         # scatter's "x": /r/reference/#scatter-x
-            y = ~HV2015,
-            name="AHV_2015",
-            mode = 'bars',
-           
-            line = list(                                       # line is a named list, valid keys: /r/reference/#scatter-line
-              color = "green"                               # line's "color": /r/reference/#scatter-line-color
-                                              # line's "dash" property: /r/reference/#scatter-line-dash
-            )
-  ) %>%
-add_lines(x = ~RegionName,                                         # scatter's "x": /r/reference/#scatter-x
-            y = ~HV2016,
-            name="AHV_2016",
-            mode = 'bars', 
-         
-            line = list(                                       # line is a named list, valid keys: /r/reference/#scatter-line
-              color = "pink" ,
-              dash = "dashed"    # line's "color": /r/reference/#scatter-line-color
-                                               # line's "dash" property: /r/reference/#scatter-line-dash
-            )
-  ) %>%
-
-
-  layout(                        # all of layout's properties: /r/reference/#layout
-         title = " Home Values for Counties", # layout's title: /r/reference/#layout-title
-         xaxis = list(           # layout's xaxis is a named list. List of valid keys: /r/reference/#layout-xaxis
-            title = "Region",      # xaxis's title: /r/reference/#layout-xaxis-title
-            showgrid = T),       # xaxis's showgrid: /r/reference/#layout-xaxis-showgrid
-         yaxis = list(           # layout's yaxis is a named list. List of valid keys: /r/reference/#layout-yaxis
-            title = "Home Value")    # yaxis's title: /r/reference/#layout-yaxis-title
+  hc_xAxis(categories = hCurrMonMetro$RegionName,
+           title = list(text = "Region Names")) %>% 
+    hc_add_series(name = "Home_Value", data = hCurrMonMetro$AHV_2017) 
   
- 
-          
- )
-
-
-```
-
-### Growth of Home values  for Counties
-```{r}
-#county_2bh<-read.csv("countywise2BH.csv")
-county_2bh<-dbReadTable(db,'county-wise-2BH')
-hc <- highchart() %>% 
-  hc_xAxis(categories = county_2bh$RegionName) %>%
-  hc_add_series(name = "AHV_2013", data = county_2bh$PctGrowth_2013) %>% 
-  hc_add_series(name = "AHV_2014", data = county_2bh$PctGrowth_2014) %>% 
-  hc_add_series(name = "AHV_2015", data = county_2bh$PctGrowth_2015) %>% 
-  hc_add_series(name = "AHV_2016", data = county_2bh$PctGrowth_2016)
-hc
-
-```
-
-###  Home Values for Cities
-```{r}
-#df <- read.csv("citywise2bh.csv")
-df<-dbReadTable(db,'city-wise-2BH')
-highchart() %>%
-  hc_chart(type = "bubble") %>%
-  hc_xAxis(categories=df$RegionName) %>%
-  hc_add_series(name = "AHV_2012", data =df$Avg_city_2BH_2012) %>%
-  hc_add_series(name = "AHV_2013", data = df$Avg_city_2bh_2013) %>%
-  hc_add_series(name = "AHV_2014",data = df$Avg_city_2014) %>%
-  hc_add_series(name = "AHV_2015",data = df$Avg_city_2015) %>%
-  hc_add_series(name = "AHV_2016",data = df$Avg_city_2016)
-```
-
-### Growth of Home values  for Cities
-```{r}
-#city2BH<-read.csv("citywise2bh.csv")
-city2BH<-dbReadTable(db,'city-wise-2BH')
-region1<-as.list(city2BH$RegionName)
-Growth_Values<-as.list(city2BH$PctGrowth_2013)
-cityGP2<-as.list(city2BH$PctGrowth_2014)
-cityGP3<-as.list(city2BH$PctGrowth_2015)
-cityGP4<-as.list(city2BH$PctGrowth_2016)
-plot_ly(city2BH, x = ~region1) %>%
-  add_polygons(y=~Growth_Values, name = "AHV_2013") %>%
-  add_bars(y=~PctGrowth_2014, name = "AHV_2014", visible = T) %>%
-  add_lines(y=~PctGrowth_2015, name = "AHV_2015", visible = T) %>%
-  add_paths(y=~PctGrowth_2016, name = "AHV_2016", visible = T)
-
-``` 
-
-column {.tabset .tabset-fade}
-------------------------------
-### Homes Values for Metros
-```{r}
-#metro_2bh<-read.csv("metro_wise_2bh.csv")
-metro_2bh<-dbReadTable(db,'metro-wise-2BH')
-p1 <- plot_ly(metro_2bh, x = ~RegionName, y = ~Avg_met_2013) %>%
-  add_bars(name = ~"AHV_2013")
-p2 <- plot_ly(metro_2bh, x = ~RegionName, y = ~Avg_met_2014) %>%
-  add_lines(name = ~"AHV_2014")
- p3 <- plot_ly(metro_2bh, x = ~RegionName, y = ~Avg_met_2015) %>%
-   add_lines(name = ~"AHV_2015")
- p4 <- plot_ly(metro_2bh, x = ~RegionName, y = ~Avg_met_2016) %>%
-   add_bars(name = ~"AHV_2016")
-p <- subplot(p1, p2,p3,p4,nrows=2,margin = 0.05)
-p
-
+  hc
 ```
 
 
@@ -543,7 +215,7 @@ ROW
 ---------------------------------------
 ###  Rental Value
 ```{r}
-#rCurMonth <- read.csv("currmonthstate_zri.csv")
+
 rCurMonth<-dbReadTable(db,'current-month-state-zri')
 rCurMonVal<-rCurMonth$Zri
 valueBox(rCurMonVal,icon = "fa-dollar", color = ifelse(rCurMonVal > 10, "warning", "primary"))
@@ -577,10 +249,6 @@ gauge(rcurMonYeVal, min = 0, max = 10, symbol = "%",
 
 ROW
 --------------------------
-### Peak Month
-```{r}
-valueBox("2016-07",icon = "fa fa-arrow-circle-o-up",color = "danger")
-```
 
 ### Top Metro
 ```{r}
@@ -588,7 +256,7 @@ valueBox("2016-07",icon = "fa fa-arrow-circle-o-up",color = "danger")
 rCurMonMetro<-dbReadTable(db,'metro_current-zri')
 rCurMonTopMetro<-rCurMonMetro$RegionName[1]
 rCurMonTopMetVal<-rCurMonMetro$Zri[1]
-valueBox(rCurMonTopMetro,icon = "fa fa-hand-o-left",paste0("Top Metro:$   ",rCurMonTopMetVal),color = "blue")
+valueBox(rCurMonTopMetro,icon = "fa fa-hand-o-left",paste0("Top Metro:$   ",rCurMonTopMetVal),color = "purple")
 
 ```
 
@@ -610,62 +278,343 @@ rCurMonTopCity<-rCurMonCity$RegionName[1]
 valueBox(rCurMonTopCity,icon = "fa fa-hand-o-left", paste0("Top City:$   ",rCurMonTopCityVal),color="blue")
 ```
 
-### Peak Quarter
-```{r}
-valueBox("2016-Q3",icon = "fa fa-caret-square-o-up",color = "danger")
-```
-
 Row 
 -------------------------------------
-### Rental Values for Cities
+### Cities Rental Values
 ```{r}
 #rCurMonCitySF<-read.csv("cityrentalSFR.csv")
 rCurMonCitySF<-dbReadTable(db,'city-rental-SFR')
-# set.seed(100)
-plot_ly(rCurMonCitySF, x = ~rCurMonCitySF$RegionName, y = ~rCurMonCitySF$Avg2016, color = ~rCurMonCitySF$RegionName,
-         text = ~paste("Region: ", rCurMonCitySF$RegionName))%>%
-   layout(xaxis = list(title ="Regions"),
-         yaxis = list(title ="RentalValues"))
 
+highchart() %>%
+ hc_chart(type = "area") %>%
+  
+  hc_xAxis(categories=rCurMonCitySF$RegionName,title = list(text = "Region Names")) %>%
+   hc_yAxis(
+    title = list(text = "Rental Values")
+    
+  ) %>% 
+ hc_add_theme(hc_theme_sandsignika())%>%
+  hc_add_series(name = "2012", data =rCurMonCitySF$Avg2012) %>%
+ 
+  hc_add_series(name = "2013", data = rCurMonCitySF$Avg2013) %>%
+  hc_add_series(name = "2014",data = rCurMonCitySF$Avg2014) %>%
+  hc_add_series(name = "2015",data = rCurMonCitySF$Avg2015) %>%
+  hc_add_series(name = "2016",data = rCurMonCitySF$Avg2016)
 ```
 
-### Rental Values for Metros
+### Metros Rental Values
 ```{r}
-#rCurMonMet <- read.csv("metrocurr_zri.csv")
+
 rCurMonMet<-dbReadTable(db,'metro_current-zri')
-Rental_Values<-rCurMonMet$Zri
-plot_ly(rCurMonMet,x=rCurMonMet$RegionName,y=rCurMonMet$Zri,color = as.factor(rCurMonMet$RegionName),type = "scatter")
+
+ highchart() %>%
+ hc_chart(type = "area") %>%
+  
+  hc_xAxis(categories=rCurMonMet$RegionName,title = list(text = "Region Names")) %>%
+   hc_yAxis(
+    title = list(text = "Rental Values")
+    
+  ) %>% 
+ hc_add_theme(hc_theme_sandsignika())%>%
+  hc_add_series(name = "Rental Values", data =rCurMonMet$Zri)
+ 
+
 
 ```
+
+
+Single Family Residences {data-navmenu="House Prices"}
+===================================== 
+row
+--------------------------
+### Current Year Top County in Growth
+```{r}
+CCM<-dbReadTable(db,'county-current-month')
+topyoy<-round(max(CCM$YoY)*100,2)
+gauge(topyoy, min = 0, max = 50, symbol="%",label = paste0("Siskiyou "),
+      gaugeSectors(success = c(30, 50), warning = c(20, 30), danger = c(0, 20)
+))
+```
+
+### Current Quarter Top County in Growth
+```{r}
+topqoq<-round(max(CCM$QoQ)*100,2)
+gauge(topqoq, min = 0, max = 10, symbol="%",label = paste("TopQGrowth:Marin"),gaugeSectors(
+  success = c(6, 10), warning = c(3, 6), danger = c(0, 3)
+))
+```
+
+### Current Month Top County in Growth
+```{r}
+topmom<-round(max(CCM$MoM)*100,2)
+gauge(topmom, min = 0, max = 5, symbol="%",label = paste("TopGrowth:Mariposa"),gaugeSectors(
+  success = c(4, 5), warning = c(2, 4), danger = c(0, 2)
+))
+```
+
+
+Row {.tabset .tabset-fade}
+-------------------------------------
+###  Cities Home Values 
+
+```{r}
+
+#book<-read.csv("citywise_HV_allyears_single.csv")
+book<-dbReadTable(db,'City-wise-HV-allyears-single')
+
+hc <- highchart() %>% 
+  hc_xAxis(categories =book$RegionName,
+ title = list(text = "Region Names"))%>% 
+  hc_yAxis(
+    title = list(text = "Home Values")
+    
+  ) %>% 
+  hc_subtitle(text = "Average Home Values") %>% 
+  
+   hc_add_series(name = "2012", data = book$AHV_2012) %>% 
+   hc_add_series(name = "2013", data = book$AHV_2013) %>% 
+   hc_add_series(name = "2014", data = book$AHV_2014) %>% 
+   hc_add_series(name = "2015", data = book$AHV_2015) %>% 
+   hc_add_series(name = "2016", data = book$AHV_2016)  
+   
+   hc
+```
+
+### Average Home Values for Counties
+
+```{r}
+#countyallyearsheat <- read.csv("Countywiseallyearsheat.csv",row.names=1)
+countyallyearsheat<-dbReadTable(db,'county_wise-allyear-sheat')
+
+m <- list(
+  l = 50,
+  r = 50,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+y <- list(
+  title = "Home  Values"
+ 
+)
+x <- list(
+  title = "Region Names"
+ 
+)
+RegionNames<-as.list(countyallyearsheat$RegionName)
+y2012<-as.list(countyallyearsheat$y2012)
+y2013<-as.list(countyallyearsheat$y2013)
+y2014<-as.list(countyallyearsheat$y2014)
+y2015<-as.list(countyallyearsheat$y2015)
+y2016<-as.list(countyallyearsheat$y2016)
+plot_ly(countyallyearsheat
+        , x = ~RegionNames) %>%
+   add_paths(y=~y2012, name = "2012", visible = T) %>%
+  add_paths(y=~y2013, name = "2013") %>%
+  add_paths(y=~y2014, name = "2014", visible = T) %>%
+  add_paths(y=~y2015, name = "2015", visible = T) %>%
+     add_paths(y=~y2016, name = "2016", visible = T) %>%
+  layout(autosize = F, width = "1000px", height = "1000px", margin = m,x_axis=x,yaxis=y,title="Average Home Values")
+
+
+```
+
+
+1 BH's {data-navmenu="House Prices"}
+===================================== 
+
+ROW {.tabset .tabset-fade}
+---------------------------
+
+###   Counties Home Values 
+```{r}
+#county_1BH<-read.csv("countywise_1BH.csv")
+county_1BH<-dbReadTable(db,'county_wise_1BH')
+
+highchart() %>%
+ hc_chart(type="column") %>%
+  
+  hc_xAxis(categories=county_1BH$RegionName,
+            title = list(text = "Region Names")) %>%
+   hc_yAxis(
+    title = list(text = "Home Values")
+    
+  ) %>%
+  hc_subtitle(text = "Average Home Values") %>% 
+hc_add_series(name = "2012", data =county_1BH$Avr_coHV_2012,type = "column",color="red") %>%
+  hc_add_series(name = "2013", data = county_1BH$Avg_coHV_2013,type = "column",color="blue") %>%
+  hc_add_series(name = "2014",data = county_1BH$Avg_coHV_2014,type = "column",color="yellow") %>%
+  hc_add_series(name = "2015",data = county_1BH$Avg_coHV_2015,type = "column",color="navy") %>%
+  hc_add_series(name = "2016",data = county_1BH$Avg_coHV_2016,type = "column",color="green")
+
+```
+
+### Growth of Counties
+```{r}
+library(highcharter)
+# MA1BH<-read.csv("metrowise1BH.csv")
+MA1BH<-dbReadTable(db,'metro-wise-1Bh')
+
+hc<-highchart() %>%
+ hc_chart(type="column") %>%
+ hc_xAxis(categories=MA1BH$RegionName.,
+           title = list(text = "Region Names")) %>%
+         
+   hc_yAxis(
+    title = list(text = "Home Values")
+    
+  ) %>% 
+  hc_add_theme(hc_theme_gridlight()) %>%
+  hc_subtitle(text = " Growth Values ") %>% 
+  hc_add_series(name = "2012", data =MA1BH$PerGrowth_2013,type = "line",color="red") %>%
+  hc_add_series(name = "2014",data = MA1BH$PerGrowth_2014,type = "line",color="yellow") %>%
+  hc_add_series(name = "2015",data = MA1BH$PerGrowth_2015,type = "line",color="navy") %>%
+  hc_add_series(name = "2016",data = MA1BH$PerGrowth_2016,type = "line",color="green")
+hc
+
+```
+
+
+ROW {.tabset .tabset-fade}
+---------------------------
+###  Cities Home Values
+```{r}
+#citywise1BH<-read.csv("citywise1BH.csv")
+citywise1BH<-dbReadTable(db,'city-wise-1BH')
+
+
+
+hc <- highchart() %>% 
+  hc_yAxis(
+    title = list(text = "Home Values")
+    
+  ) %>% 
+  hc_xAxis(categories = citywise1BH$RegionName,
+           title = list(text = "Region Names")) %>% 
+  hc_add_series(name = "2012", data = citywise1BH$Avg_ciHV_2012,color="purple") %>% 
+  hc_subtitle(text = "Average Home Values") %>% 
+  hc_add_series(name = "2013", data = citywise1BH$Avg_ciHV_2013,color="green") %>% 
+   hc_add_series(name = "2014", data = citywise1BH$Avg_ciHV_2014,color="yellow") %>% 
+   hc_add_series(name = "2015", data = citywise1BH$Avg_ciHV_2015,color="blue") %>% 
+   hc_add_series(name = "2016", data = citywise1BH$Avg_ciHV_2016,color="olive") 
+  # hc_chart(type = "column",
+  #          options3d = list(enabled = TRUE, beta = 15, alpha = 15))
+
+  
+
+hc
+```
+
+
+2 BH's {data-navmenu="House Prices"}
+=====================================
+Row {.tabset .tabset-fade}
+-------------------------------------
+###  Counties Home Values 
+```{r}
+
+#county_2bh<-read.csv("countywise2BH.csv")
+county_2bh<-dbReadTable(db,'county-wise-2BH')
+
+highchart() %>%
+ hc_chart(type="column") %>%
+  hc_chart(type = "column",
+           options3d = list(enabled = TRUE, beta = 5, alpha = 5)) %>%
+
+  hc_xAxis(categories=county_2bh$RegionName,
+            title = list(text = "Region Names")) %>%
+   hc_yAxis(
+    title = list(text = "Home Values")
+    
+  ) %>% 
+hc_add_series(name = "2012", data =county_2bh$HV2012,type = "column",color="red") %>%
+  hc_add_theme(hc_theme_538()) %>%
+  hc_subtitle(text = "Average Home Values") %>% 
+  hc_add_series(name = "2013", data = county_2bh$HV2013,type = "column",color="blue") %>%
+  hc_add_series(name = "2014",data = county_2bh$HV2014,type = "column",color="yellow") %>%
+  hc_add_series(name = "2015",data = county_2bh$HV2015,type = "column",color="navy") %>%
+  hc_add_series(name = "2016",data = county_2bh$HV2016,type = "column",color="green")
+
+
+```
+
+
+column {.tabset .tabset-fade}
+------------------------------
+
+###  Counties Growth values
+```{r}
+#county_2bh<-read.csv("countywise2BH.csv")
+county_2bh<-dbReadTable(db,'county-wise-2BH')
+hc <- highchart() %>% 
+  hc_xAxis(categories = county_2bh$RegionName,title = list(text = "Region Names")) %>%
+  hc_yAxis(
+    title = list(text = "Home Values")
+    
+  ) %>% 
+hc_subtitle(text = "Average Growth Values") %>% 
+  hc_add_series(name = "2013", data = county_2bh$PctGrowth_2013) %>% 
+  hc_add_series(name = "2014", data = county_2bh$PctGrowth_2014) %>% 
+  hc_add_series(name = "2015", data = county_2bh$PctGrowth_2015) %>% 
+  hc_add_series(name = "2016", data = county_2bh$PctGrowth_2016)
+hc
+
+```
+
+### Metros Homes Values 
+```{r}
+
+df<-dbReadTable(db,'city-wise-2BH')
+highchart() %>%
+  hc_chart(type = "bubble") %>%
+  hc_xAxis(categories=df$RegionName,title = list(text = "Region Names")) %>%
+  hc_yAxis(
+    title = list(text = "Home Values")
+    
+  ) %>% 
+  hc_subtitle(text = "Average Home Values") %>% 
+  hc_add_series(name = "2012", data =df$Avg_city_2BH_2012) %>%
+  hc_add_series(name = "2013", data = df$Avg_city_2bh_2013) %>%
+  hc_add_series(name = "2014",data = df$Avg_city_2014) %>%
+  hc_add_series(name = "2015",data = df$Avg_city_2015) %>%
+  hc_add_series(name = "2016",data = df$Avg_city_2016)
+```
+
+
+
 
 Single Family {data-navmenu="Rental Prices"}
 ===================================== 
 ROW 
 ------------------------------
-### Rental Values for Metros
-```{r}
-library(flexdashboard)
-library(rbokeh)
-#ren_Met_Sfr<-read.csv("Metro_Rent_SFR.csv")
-ren_Met_Sfr<-dbReadTable(db,'Metro-Rental-SFR')
-"RV_2012"<-ren_Met_Sfr$Avg_Met_SFR_2012
-"RV_2013"<-ren_Met_Sfr$Avg_Met_SFR_2013
-"RV_2014"<-ren_Met_Sfr$Avg_Met_SFR_2014
-"RV_2015"<-ren_Met_Sfr$Avg_Met_SFR_2015
-"RV_2016"<-ren_Met_Sfr$Avg_Met_SFR_2016
+###  Metros Rental Values 
 
-gmap(lat = 36.5, lng = -119.462, zoom = 7,height = 2000,width = 2000) %>%
-  ly_points(log, lat, data = ren_Met_Sfr, alpha = 0.8, col = "red",
-    hover = c(RegionName, `RV_2012`,`RV_2013`,`RV_2014`,`RV_2015`,`RV_2016`))
+```{r}
+
+ ren_Met_Sfr<-dbReadTable(db,'Metro-Rental-SFR')
+
+highchart() %>%
+  hc_chart(type = "bubble") %>%
+  hc_yAxis(
+    title = list(text = "Rental Values")
+    
+  ) %>% 
+  hc_xAxis(categories=ren_Met_Sfr$RegionName,title = list(text = "Region Names")) %>%
+  hc_subtitle(text = "Average Rental Values") %>% 
+  hc_add_series(name = "2012", data =ren_Met_Sfr$Avg_Met_SFR_2012) %>%
+  hc_add_series(name = "2013", data = ren_Met_Sfr$Avg_Met_SFR_2013) %>%
+  hc_add_series(name = "2014",data = ren_Met_Sfr$Avg_Met_SFR_2014) %>%
+  hc_add_series(name = "2015",data = ren_Met_Sfr$Avg_Met_SFR_2015) %>%
+  hc_add_series(name = "2016",data = ren_Met_Sfr$Avg_Met_SFR_2016)
 ```
 
 
 
-### Rental Values for Counties
+### Counties Rental Values 
 ```{r}
 
-#CRSFR<-read.csv("CountyZRISFR.csv",row.names = 1)
 CRSFR<-dbReadTable(db, 'county_ZRISFR')
+
 plot_ly(CRSFR, labels = CRSFR$RegionName, values = CRSFR$Avg2016, type = "pie",name = "Avg2012", showlegend = T) %>%
   layout(title = "Rental Values For Single Home Residency(2016)",xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 ```
@@ -674,68 +623,8 @@ plot_ly(CRSFR, labels = CRSFR$RegionName, values = CRSFR$Avg2016, type = "pie",n
 =====================================
 Row {.tabset .tabset-fade}
 -------------------------------------
-###  Rental Values for Cities  
-```{r }
-#map('state', region = c('california'), xlim=c(-130,-90), ylim=c(30,60), fill=TRUE, col="gray95")
-#rental_1BH<-read.csv("rental_1BH.csv")
-rental_1BH<-dbReadTable(db, 'rental-1BH')
-Rental_Values<-rental_1BH$RV_2012
-plot_ly(rental_1BH, x = ~RegionName, y = ~Rental_Values) %>%
-  add_lines(x = ~RegionName,                                        
-            y = ~Rental_Values,
-            name="RV_2012",
-            mode = 'bars',
-           
-            line = list(                                      
-              color = "green"                             
-                                            
-            )
-  ) %>%
-  
-  add_lines(x = ~RegionName,                                         
-            y = ~RV_2013,
-            name="RV_2013",
-            mode = 'bars',
-           
-            line = list(                                      
-              color = "green"                          
-                                              
-            )
-  ) %>%
-  add_lines(x = ~RegionName,                                        
-            y = ~RV_2014,
-            name="RV_2014",
-            mode = 'bars',
-           
-            line = list(                                       
-              color = "yellow"                               
-                                            
-            )
-  ) %>%
-  add_lines(x = ~RegionName,                                        
-            y = ~RV_2015,
-            name="RV_2015",
-            mode = 'bars',
-           
-            line = list(                                       
-              color = "red"                           
-                                             
-            )
-  ) %>%
-  add_lines(x = ~RegionName,                                         
-            y = ~RV_2016,
-            name="RV_2016",
-            mode = 'bars',
-           
-            line = list(                           
-              color = "black"                             
-                                           
-            )
-  ) 
 
-```
-
-### Current Year Rental Growth for Counties
+### Counties Rental Growth 
 ```{r}
 #county<-read.csv("rental_coun_1bh.csv")
 county<-dbReadTable(db,'rental-county-1BH')
@@ -745,27 +634,108 @@ Growth_2013<-as.list(county$per_13)
 Growth_2014<-as.list(county$per_14)
 Growth_2015<-as.list(county$per_15)
 Growth_2016<-as.list(county$per_16)
-hc <- highchart() %>% 
-  hc_xAxis(categories =county$RegionName) %>% 
-  hc_add_series(name = "Growth_2012", data = county$per_12) %>% 
-  hc_add_series(name = "Growth_2013", data = county$per_13) %>% 
-   hc_add_series(name = "Growth_2014", data = county$per_14) %>% 
-   hc_add_series(name = "Growth_2015", data = county$per_15) %>% 
-   hc_add_series(name = "Growth_2016", data = county$per_16) 
+hc<-highchart() %>%
+ hc_chart(type="column") %>%
+  hc_xAxis(categories =county$RegionName,title = list(text = "Region Names")) %>%
+  hc_yAxis(
+    title = list(text = "Rental Values")
+    
+  ) %>% 
+  hc_subtitle(text = "Average Growth Values") %>% 
+
+  hc_add_theme(hc_theme_darkunica())%>%
+  hc_add_series(name = "2012", data = county$per_12) %>% 
+  hc_add_series(name = "2013", data = county$per_13) %>% 
+   hc_add_series(name = "2014", data = county$per_14) %>% 
+   hc_add_series(name = "2015", data = county$per_15) %>% 
+   hc_add_series(name = "2016", data = county$per_16) 
 hc
 ```
 
+
+###  Cities Rental Values
+```{r }
+
+rental_1BH<-dbReadTable(db, 'rental-1BH')
+Rental_Values<-rental_1BH$RV_2012
+m <- list(
+  l = 50,
+  r = 50,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+y <- list(
+  title = "Rental Values"
+ 
+)
+x <- list(
+  title = "Region Names"
+ 
+)
+plot_ly(rental_1BH, x = ~RegionName, y = ~Rental_Values) %>%
+  add_bars(x = ~RegionName,                                        
+            y = ~Rental_Values,
+            name="2012",
+            mode = 'bars',
+           
+            line = list(                                      
+              color = "green"                             
+                                            
+            )
+  ) %>%
+  
+  add_bars(x = ~RegionName,                                         
+            y = ~RV_2013,
+            name="2013",
+            mode = 'bars',
+           
+            line = list(                                      
+              color = "green"                          
+                                              
+            )
+  ) %>%
+  add_bars(x = ~RegionName,                                        
+            y = ~RV_2014,
+            name="2014",
+            mode = 'bars',
+           
+            line = list(                                       
+              color = "yellow"                               
+                                            
+            )
+  ) %>%
+  add_bars(x = ~RegionName,                                        
+            y = ~RV_2015,
+            name="2015",
+            mode = 'bars',
+           
+            line = list(                                       
+              color = "red"                           
+                                             
+            )
+  ) %>%
+  add_bars(x = ~RegionName,                                         
+            y = ~RV_2016,
+            name="2016",
+            mode = 'bars',
+           
+            line = list(                           
+              color = "black"                             
+                                           
+            )
+  ) %>%
+  layout(autosize = F, width = "400px", height = "200px", margin = m,x_axis=x,yaxis=y,title="Average Rental Values")
+
+```
+
+
+
 Row {.tabset .tabset-fade}
 -------------------------------------
-###  Rental Values for Counties
+### Counties Rental Values 
 ```{r}
-#Rentalcounty1BH<-read.csv("Rental_county_1_BH.csv")
-library(flexdashboard)
-library(sqldf)
-library(gsubfn)
-library(dplyr)
-library(proto)
-library(plotly)
+
  db <- dbConnect(SQLite(), dbname='Test1.sqlite')
 Rentalcounty1BH<-dbReadTable(db,'Rental')
 
@@ -774,7 +744,7 @@ region<-Rentalcounty1BH$RegionName
 Ren1BH16<-Rentalcounty1BH$Rental_16
 p<-plot_ly(Rentalcounty1BH,labels = ~region, values = ~Ren1BH16) %>%
   add_pie(hole = 0.6) %>%
-  layout(title = "County wise Rental Values for 1BH 2016",  showlegend = T,
+  layout( showlegend = T,
          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 p
@@ -784,9 +754,8 @@ Top5 Rental and Home Values
 =====================================
 row {.tabset .tabset-fade}
 ----------------
-### Top And Least  Metros
+### Top and Least 5 Metros Home Values
 ```{r}
-#MTLHV<-read.csv("metrotoplowhomevalues.csv")
 MTLHV<-dbReadTable(db,'metro-top-low-homevalues')
 MTHV<-data.frame(MTLHV[c(1:5),c(1,4,12)])
 colnames(MTHV)<-c("RegionName","Zhvi","PeakZHVI")
@@ -805,75 +774,11 @@ p
 
 ```
 
-### Top And Least 5 Counties
+
+###  Top and Least Metros Rental Values 
 ```{r}
-#CTLHV<-read.csv("countytopnlowhomevalues.csv")
-CTLHV<-dbReadTable(db,'county-top-nlow-homevalues')
-CTHV<-data.frame(CTLHV[c(1:5),c(1:3)])
-colnames(CTHV)<-c("RegionName","Zhvi","PeakZHVI")
-CLHV<-data.frame(CTLHV[c(6:10),c(1:3)])
-colnames(CLHV)<-c("RegionName","Zhvi","PeakZHVI")
-p <- plot_ly() %>%
-  add_pie(data = CTHV, labels = CTHV$RegionName, values = CTHV$Zhvi,hole = 0.6,
-          name = "Top5Counties", domain = list(x = c(0, 0.4), y = c(0.4, 1))) %>%
-  add_pie(data =CLHV , labels = CLHV$RegionName, values = CLHV$Zhvi,
-          name = "Least5Counties", domain = list(x = c(0.6, 1), y = c(0.4, 1))) %>%
-
-  layout(title = "Top and Least Counties", showlegend = T,
-         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-p
-```
-
-### Top and Least 5 Cities
-```{r}
-#CityTLHV<-read.csv("citytopnlowHV.csv")
-CityTLHV<-dbReadTable(db,'city-top-nlowHV')
-CityTHV<-data.frame(CityTLHV[c(1:5),c(1:3)])
-colnames(CityTHV)<-c("RegionName","Zhvi","PeakZHVI")
-CityLHV<-data.frame(CityTLHV[c(6:10),c(1:3)])
-colnames(CityLHV)<-c("RegionName","Zhvi","PeakZHVI")
-p <- plot_ly() %>%
-  add_pie(data = CityTHV, labels = CityTHV$RegionName, values = CityTHV$Zhvi,hole = 0.6,
-          name = "Top5Cities", domain = list(x = c(0, 0.4), y = c(0.4, 1))) %>%
-  add_pie(data =CityLHV , labels = CityLHV$RegionName, values = CityLHV$Zhvi,
-          name = "Least5Cities", domain = list(x = c(0.6, 1), y = c(0.4, 1))) %>%
-
-  layout(title = "Top and Least Cities", showlegend = T,
-         xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-p
-```
-
-row {.tabset .tabset-fade}
--------------------
-###  Renatal Values for Cities
-```{r}
-
-#top5cityrental<-read.csv("rental_city_top.csv")
-top5cityrental<-dbReadTable(db,'renatl-city-top')
-DT::datatable(top5cityrental, options = list(
-  pageLength = 20
-))
-  
-
-```
-
-###Least Renatal Values for Cities
-```{r}
-#least5cityrental<-read.csv("rental_city_least.csv")
-least5cityrental<-dbReadTable(db,'reantal-city-least')
-DT::datatable(least5cityrental, options = list(
-  pageLength = 20
-))
-```
-
-###  Top and Least  Rental Values for Metros
-```{r}
-#top5metrorental<-read.csv("rental_metro_top.csv")
 top5metrorental<- dbReadTable(db,'rental-metro-top')
 
-#least5metrorental<-read.csv("rental_metro_least.csv")
 least5metrorental<- dbReadTable(db,'rental-metro-least')
 
 
@@ -883,7 +788,7 @@ p <- plot_ly() %>%
   add_pie(data =least5metrorental , labels = least5metrorental$RegionName, values = least5metrorental$Zri,
           name = "Least5Metros", domain = list(x = c(0.6, 1), y = c(0.4, 1))) %>%
   
-  layout(title = "Top and Least Counties", showlegend = T,
+  layout(title = "Top and Least Metros", showlegend = T,
          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
 p
@@ -891,127 +796,12 @@ p
 
 Metro {data-navmenu="Forecasting"}
 ===================================== 
-row 
+ROW 
 ----------
-### Home Values for "Sanfransisco"(Metro) 
-```{r}
-library(highcharter)
-library(plotly)
-#metro_sanfrans <- read.csv("predict.csv")
-metro_sanfrans<-dbReadTable(db,'predict')
-#data(countycurrmnth)
-hc <- highchart() %>%
-  hc_xAxis(categories =metro_sanfrans$Month ) %>%
-
-   hc_add_series(name = "Home_Value", data =metro_sanfrans$HomeValue)
-  hc
-
-# san_metro_months<-metro_sanfrans$Month
-# san_metro_values<-round(metro_sanfrans$HomeValue)
-#  plot_ly(metro_sanfrans,x=san_metro_months,y=san_metro_values,mode="markers",color = as.factor(san_metro_values))
-```
-
-row 
-----------
-### Home Values for LosAngels(Metro)
-```{r}
-library(highcharter)
-library(plotly)
-#metro_losangle<- read.csv("predicteddataforlosangels.csv")
-metro_losangle<-dbReadTable(db, 'LosAngels-Predicted-Values') 
-
- month <- c('January', 'February', 'March', 'April', 'May', 'June', 'July',
-               'August', 'September', 'October', 'November', 'December')
- 
-  metro_losangle<-cbind(metro_losangle,month)  
-
-  metro_losangle$month <- factor(metro_losangle$month, levels = metro_losangle[["month"]])
-# los_metro_months<-metro_losangle$Months
-# los_metro_values<-round(metro_losangle$Home_Values)
-#  plot_ly(metro_losangle,x=los_metro_months,y=los_metro_values,mode="markers",color = as.factor(los_metro_values))
- p <- plot_ly(metro_losangle, x = ~month, y = ~Home_Values,type="box",mode="markers", name = 'Home_Values',color = "yellow") %>%
-             
-
-             layout(title = 'Los_Angles Home_Values ',
-                   xaxis = list(title = 'Months'),
-                   yaxis = list(title = 'Home Values'),
-                   linemode = 'relative')
-    
-              p
-    
-```
-ROW
----------
-
-### Metro Wise Home Values for "Napa" 
-```{r}
-library(sqldf)
-#napapredict<-read.csv("Napapredict.csv")
-
-napapredict<-dbReadTable(db,'Napa-predict')
-
-p <- plot_ly() %>%
-  add_pie(data = napapredict, labels = napapredict$Months, values = napapredict$HomeValues,hole = 0.6,
-          name = "NapaHomeValues", domain = list(x = c(0, 0.4), y = c(0.4, 1))) %>%
-  
-
-  layout(title = "Napa Home Values", showlegend = T,
-         xaxis = list(showgrid = TRUE, zeroline = FALSE, showticklabels = FALSE),
-         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-p
-```
-
-### Metro Wise Home Values for "SanJose"
-```{r}
-#sanjose<-read.csv("sanjosepre.csv",row.names = 1)
-sanjose<-dbReadTable(db, 'SanJose') 
-sanjose1 <- sample(1:nrow(sanjose),size = 0.8*nrow(sanjose))
-
-trainSJ <- sanjose[sanjose1,] 
-
-testSJ <- sanjose[-sanjose1,]
-
-
-sjlm<-lm(HomeValues~Year+Month,trainSJ)
-
-testing<-predict(sjlm,testSJ)
-
-sjpre<-predict(sjlm)
-
-newdata<-data.frame(Year=c(2017),Month=c(1:12))
-
-sjpre1<-predict(sjlm,newdata=newdata)
-
-#predsjvalues<-write.csv(sjpre1,"sjpredvalues.csv")
-predsjvalues<-dbReadTable(db,'SanJose-Predicted-Values')
-#sjpredvalues<-read.csv("sjpredvalues.csv")
-sjpredvalues<-dbReadTable(db,'SanJose-Predicted-Values')
-month <- c('January', 'February', 'March', 'April', 'May', 'June', 'July',
-               'August', 'September', 'October', 'November', 'December')
- 
-  sjpredvalues<-cbind(sjpredvalues,month) 
-  
-
-  sjpredvalues$month <- factor(sjpredvalues$month, levels = sjpredvalues[["month"]])
-
-#colnames(sjpredvalues)<-c("Month","HomeValues","month")
-
-plot_ly(sjpredvalues, x = ~sjpredvalues$month, y = ~sjpredvalues$HomeValues, color = ~sjpredvalues$month,
-         text = ~paste("Month: ", sjpredvalues$month))%>%
-   layout(title = "SanJose HomeValues(2017)",
-         xaxis = list(title ="Months"),
-         yaxis = list(title ="HomeValues"))
-
-```
-
-
-
-###Metro Wise Home Values for "SantaCruz"
+### Home Values Santa Cruz
 
 ```{r}
-library(plotly)
 
-#SantaCruz<-read.csv("SantaCruzDataFrom2010-2016.csv")
 SantaCruz<-dbReadTable(db, 'SantaCruz') 
 
 Cruz <- sample(1:nrow(SantaCruz),size = 0.8*nrow(SantaCruz)) 
@@ -1032,12 +822,10 @@ newdata2<-data.frame(Year=c(2017),Months=c(1,2,3,4,5,6,7,8,9,10,11,12))
 
 SantaCruzPredictedValues <- predict(metroCruz,newdata2)
 
-#predictedCruz<-write.csv(SantaCruzPredictedValues,"SantaCruzPredictedValues.csv")
 predictedCruz<-dbReadTable(db, 'SantaCruz-Predicted-Values') 
-#pc<-read.csv("SantaCruzPredictedValues.csv")
 pc<-dbReadTable(db,'SantaCruz-Predicted-Values')
-month <- c('January', 'February', 'March', 'April', 'May', 'June', 'July',
-               'August', 'September', 'October', 'November', 'December')
+month <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+               'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
  
   pc<-cbind(pc,month) 
   
@@ -1047,9 +835,9 @@ month <- c('January', 'February', 'March', 'April', 'May', 'June', 'July',
  p <- plot_ly(pc, x = ~month, y = ~pc$HomeValues, name = ' HomeValues', type = 'scatter', mode = 'lines',
          marker = list(color = 'rgb(153, 0, 102 )')  ) %>%
 
- layout(title = "Santa Cruz Home Values",
+ layout(
                                     xaxis = list(title = "Months"),
-                                   yaxis = list (title = "Home Values"),
+                                   yaxis = list (title = "Home Values "),
                                    barmode = 'relative')
                           
 p
@@ -1058,15 +846,136 @@ p
 
 ```
 
+<!-- ### Home Values San Francisco  -->
+<!-- ```{r} -->
+
+<!-- metro_sanfrans<-dbReadTable(db,'predict') -->
+<!-- hc <- highchart() %>% -->
+
+<!--   hc_yAxis( -->
+<!--     title = list(text = "Home Values") -->
+
+<!--   ) %>%  -->
+
+
+<!--    hc_add_series(name = "Home Values", data =metro_sanfrans$HomeValue) -->
+<!--   hc -->
+
+
+<!-- ``` -->
+
+
+### Home Values Los Angeles
+```{r}
+
+metro_losangle<-dbReadTable(db, 'LosAngels-Predicted-Values') 
+
+ month <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+               'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+ 
+ 
+  metro_losangle<-cbind(metro_losangle,month)  
+
+  metro_losangle$month <- factor(metro_losangle$month, levels = metro_losangle[["month"]])
+  m <- list(
+  l = 50,
+  r = 50,
+  b = 100,
+  t = 100,
+  pad = 4
+)
+  y <- list(
+  title = "Home Values"
+ 
+)
+x <- list(
+  title = "Region Names"
+ 
+)
+
+ p <- plot_ly(metro_losangle, x = ~month, y = ~Home_Values,type="box",mode="markers", name = 'Home Values',color = "yellow") %>%
+             
+
+             layout(
+                   xaxis = list(title = 'Months'),
+                   yaxis = list(title = 'Home Values'),
+                   linemode = 'relative',x_axis=x,yaxis=y)
+    
+              p
+    
+```
+
+ROW 
+---------
+###  Home Values  Napa 
+```{r}
+
+
+napapredict<-dbReadTable(db,'Napa-predict')
+
+p <- plot_ly() %>%
+  add_pie(data = napapredict, labels = napapredict$Months, values = napapredict$HomeValues,hole = 0.6,
+          name = "Napa Home Values", domain = list(x = c(0, 0.4), y = c(0.4, 1))) %>%
+  layout( showlegend = T,
+         xaxis = list(showgrid = TRUE, zeroline = FALSE, showticklabels = FALSE),
+         yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+p
+```
+
+###  Home Values San Jose
+```{r}
+sanjose<-dbReadTable(db, 'SanJose') 
+sanjose1 <- sample(1:nrow(sanjose),size = 0.8*nrow(sanjose))
+
+trainSJ <- sanjose[sanjose1,] 
+
+testSJ <- sanjose[-sanjose1,]
+
+
+sjlm<-lm(HomeValues~Year+Month,trainSJ)
+
+testing<-predict(sjlm,testSJ)
+
+sjpre<-predict(sjlm)
+
+newdata<-data.frame(Year=c(2017),Month=c(1:12))
+
+sjpre1<-predict(sjlm,newdata=newdata)
+y <- list(
+  title = "Home Values 2017"
+ 
+)
+
+predsjvalues<-dbReadTable(db,'SanJose-Predicted-Values')
+sjpredvalues<-dbReadTable(db,'SanJose-Predicted-Values')
+month <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+               'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+ 
+  sjpredvalues<-cbind(sjpredvalues,month) 
+  
+
+  sjpredvalues$month <- factor(sjpredvalues$month, levels = sjpredvalues[["month"]])
+
+
+plot_ly(sjpredvalues, x = ~sjpredvalues$month, y = ~sjpredvalues$HomeValues, color = ~sjpredvalues$month,
+         text = ~paste("Month: ", sjpredvalues$month))%>%
+   layout(
+        
+         yaxis = list(title ="Home Values"))
+
+```
+
+
+
+
 
 County {data-navmenu="Forecasting"}
 ===================================== 
 row
 -------------------
-### Home Values for "Santaclara"(County)
+### Home Values Santa Clara
 ```{r}
-library(highcharter)
-#santaclara<-read.csv("santaclarapredco4.csv",row.names = 1)
+
 santaclara<- dbReadTable(db,'SantaClaraData')
 
 santaclarasample <- sample(1:nrow(santaclara),size = 0.8*nrow(santaclara))
@@ -1078,54 +987,48 @@ scpre<-predict(sclm)
 
 newdatasc<-data.frame(Year=c(2017),Month=c(1:12))
 scpre1<-predict(sclm,newdata=newdatasc)
-
-#predscvalues<-write.csv(scpre1,"scpredvalues.csv")
 predscvalues<-dbReadTable(db,'SantaClara-Predicted-Values')
 
-#scpredvalues<-read.csv("scpredvalues.csv")
    scpredvalues<-dbReadTable(db,'SantaClara-Predicted-Values')
 
-month <- c('January', 'February', 'March', 'April', 'May', 'June', 'July',
-               'August', 'September', 'October', 'November', 'December')
+month <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+               'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+ 
 scpredvalues<-cbind(scpredvalues,month) 
 scpredvalues$month <- factor(scpredvalues$month, levels = scpredvalues[["month"]])
 colnames(scpredvalues)<-c("x","HomeValues","month")
-plot_ly(scpredvalues, x = ~scpredvalues$month, y = ~scpredvalues$HomeValues, #color = ~scpredvalues$month,
+plot_ly(scpredvalues, x = ~scpredvalues$month, y = ~scpredvalues$HomeValues, 
         type = 'scatter', mode = 'lines',marker = list(color = ~scpredvalues$month)
         ,text = ~paste("Month: ", scpredvalues$month))%>%
-        layout(title = "SantaClara HomeValues(2017)",
+        layout(
          xaxis = list(title ="Months"),
-         yaxis = list(title ="HomeValues"))
+         yaxis = list(title ="Home Values"))
       
  
 ```
 
 
-### Home Values for "Sanmateo"(County)
+### Home Values Sanmateo
 ```{r}
-#sanmateo<-read.csv("sanmateopred.csv",row.names = 1)
 sanmateo<-dbReadTable(db,'SanMateo-Data')
 sanmateosample <- sample(1:nrow(sanmateo),size = 0.8*nrow(sanmateo)) 
 trainsanmateo <- sanmateo[sanmateosample,] 
-
 testsanmateo <- sanmateo [-sanmateosample,]
 sanmateomodel<-lm(HomeValues~Year+Month,trainsanmateo)
 sanmateopred<-predict(sanmateomodel,testsanmateo)
-
 newdataSM<-data.frame(Year=c(2017),Month=c(1,2,3,4,5,6,7,8,9,10,11,12))
 sanmateopredictedvalues <- predict(sanmateomodel,newdataSM)
-#sanmateopredictedvaluescsv<-write.csv(sanmateopredictedvalues,"sanmateopredictedvalues.csv")
 sanmateopredictedvaluescsv<-dbReadTable(db,'SanMateo-predicted-values')
-#SMpredvalues<-read.csv("sanmateopredictedvalues.csv")
 SMpredvalues<-dbReadTable(db,'SanMateo-predicted-values')
-month <- c('January', 'February', 'March', 'April', 'May', 'June', 'July',
-               'August', 'September', 'October', 'November', 'December')
+month <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+               'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+ 
  SMpredvalues<-cbind(SMpredvalues,month) 
 SMpredvalues$month <- factor(SMpredvalues$month, levels = SMpredvalues[["month"]])
 colnames(SMpredvalues)<-c("Month","HomeValues","month")
  p <- plot_ly(SMpredvalues, x = ~month, y = ~SMpredvalues$HomeValues, name = ' HomeValues', type ='scatter',
     mode="lines", marker = list(color = 'rgb( 147, 34, 141  )')  ) %>%
-     layout(title = "San Mateo Home Values",
+     layout(
            xaxis = list(title = "Months"),
           yaxis = list (title = "Home Values"),
           barmode = 'relative')
@@ -1138,9 +1041,8 @@ colnames(SMpredvalues)<-c("Month","HomeValues","month")
 row
 ----------
 
-### Home Values for "Marin"(County)
+### Home Values Marin
 ```{r}
-#marin<-read.csv("marinprediction.csv",row.names = 1)
 marin<-dbReadTable(db,'Marin-data')
  
 marinsample <- sample(1:nrow(marin),size = 0.8*nrow(marin)) 
@@ -1152,55 +1054,47 @@ marinpred<-predict(marinmodel,testmarin)
 
 newdatamarin<-data.frame(Year=c(2017),Month=c(1,2,3,4,5,6,7,8,9,10,11,12))
 marinpredictedvalues <- predict(marinmodel,newdatamarin)
-#marinpredictedvaluescsv<-write.csv(marinpredictedvalues,"marinpredictedvalues.csv")
 marinpredictedvaluescsv<- dbReadTable(db,'Marin-predicted-values')
- 
-#marinpredvalues<-read.csv("marinpredictedvalues.csv")
  marinpredvalues<-dbReadTable(db,'Marin-predicted-values')
  
-month <- c('January', 'February', 'March', 'April', 'May', 'June', 'July',
-               'August', 'September', 'October', 'November', 'December')
+month <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+               'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+ 
 marinpredvalues<-cbind(marinpredvalues,month) 
 marinpredvalues$month <- factor(marinpredvalues$month, levels = marinpredvalues[["month"]])
 colnames(marinpredvalues)<-c("Month","HomeValues","month")
 highchart() %>%
   hc_chart(type = "line") %>%
   hc_xAxis(categories=marinpredvalues$month) %>%
-  hc_add_series(name = "HomeValue", data =marinpredvalues$HomeValues,color = "#B71C1C") 
+  hc_add_series(name = "Home Values", data =marinpredvalues$HomeValues,color = "#B71C1C") 
 
 ```
 
 
-### Home Values for "Alameda"(County)
+### Home Values Alabama
 
 
 ```{r}
-library(highcharter)
-#alameda<-read.csv("AlamedaDataFrom2012-2016.csv",row.names = 1)
-
 alameda<-dbReadTable(db,'AlamedaData')
- 
-alamedasample <- sample(1:nrow(alameda),size = 0.8*nrow(alameda)) 
+ alamedasample <- sample(1:nrow(alameda),size = 0.8*nrow(alameda)) 
 trainalameda <- alameda[alamedasample,] 
-#alamedatraindata<-write.csv(trainalameda,"alamedatraindata.csv")
 testalameda  <- alameda [-alamedasample,]
 alamedamodel<-lm(HomeValues~Year+Month,trainalameda)
 alamedapred<-predict(alamedamodel,testalameda)
 
 newdataalameda<-data.frame(Year=c(2017),Month=c(1,2,3,4,5,6,7,8,9,10,11,12))
 alamedapredictedvalues <- predict(alamedamodel,newdataalameda)
-#alameda2017valuescsv<-write.csv(alamedapredictedvalues,"alameda2017values.csv")
-#alameda2017predvalues<-read.csv("alameda2017values.csv")
 alameda2017predvalues<- dbReadTable(db,'Alameda-Predicted-Values')
  
-month <- c('January', 'February', 'March', 'April', 'May', 'June', 'July',
-               'August', 'September', 'October', 'November', 'December')
+month <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+               'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+ 
 alameda2017predvalues<-cbind(alameda2017predvalues,month) 
 alameda2017predvalues$month <- factor(alameda2017predvalues$month, levels = alameda2017predvalues[["month"]])
 colnames(alameda2017predvalues)<-c("x","HomeValues","month")
 
      highchart() %>% 
-  hc_title(text = "Prediction for Alameda") %>%
+ 
    
   hc_xAxis(categories = alameda2017predvalues$month) %>% 
   
@@ -1212,33 +1106,30 @@ colnames(alameda2017predvalues)<-c("x","HomeValues","month")
 ```
 
 
-### Home Values for "SanFransisco"(County)
+### Home Values San Francisco
 ```{r}
 library(highcharter)
-#sanfrancisco<-read.csv("SanFranciscoDataFrom2012-2016.csv",row.names = 1)
 sanfrancisco<-dbReadTable(db,'SanFransiscoData')
 sanfranciscosample <- sample(1:nrow(sanfrancisco),size = 0.8*nrow(sanfrancisco)) 
 trainsanfrancisco <- sanfrancisco[sanfranciscosample,] 
-#sanfranciscotraindata<-write.csv(trainsanfrancisco,"sanfranciscotraindata.csv")
 testsanfrancisco  <- sanfrancisco [-sanfranciscosample,]
 sanfranciscomodel<-lm(HomeValues~Year+Month,trainsanfrancisco)
 sanfranciscopred<-predict(sanfranciscomodel,testsanfrancisco)
 
 newdatasanfrancisco<-data.frame(Year=c(2017),Month=c(1,2,3,4,5,6,7,8,9,10,11,12))
 sanfranciscopredictedvalues <- predict(sanfranciscomodel,newdatasanfrancisco)
-#sanfrancisco2017valuescsv<-write.csv(sanfranciscopredictedvalues,"sanfrancisco2017values.csv")
-#sanfrancisco2017predvalues<-read.csv("sanfrancisco2017values.csv")
 sanfrancisco2017predvalues<- dbReadTable(db,'Sanfransisco-Predicted-Values')
  
-month <- c('January', 'February', 'March', 'April', 'May', 'June', 'July',
-               'August', 'September', 'October', 'November', 'December')
+month <- c('Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul',
+               'Aug', 'Sep', 'Oct', 'Nov', 'Dec')
+ 
 sanfrancisco2017predvalues<-cbind(sanfrancisco2017predvalues,month) 
 sanfrancisco2017predvalues$month <- factor(sanfrancisco2017predvalues$month, levels = sanfrancisco2017predvalues[["month"]])
 colnames(sanfrancisco2017predvalues)<-c("x","HomeValues","month")
 
 highchart(width = 400, height = 400) %>% 
-  hc_title(text = "Prediction Values") %>%
-  hc_subtitle(text = "SanFrancisco") %>% 
+  
+  
   hc_chart(type = "pie", options3d = list(enabled = TRUE, alpha = 70, beta = 0)) %>% 
   hc_plotOptions(pie = list(depth = 70)) %>% 
   hc_add_series_labels_values(sanfrancisco2017predvalues$month, sanfrancisco2017predvalues$HomeValues) %>% 
