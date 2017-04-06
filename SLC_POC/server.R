@@ -2,14 +2,14 @@
 library(shinydashboard)
 library(shiny)
 library(googleVis)
+library(httr)
+library(purrr)
 library(dplyr)
-library(lubridate)
 library(DT)
 library(readr)
 library(ggplot2)
+library(lubridate)
 library(highcharter)
-library(httr)
-library(purrr)
 library(C3)
 library(plotly)
 library(broom)
@@ -18,70 +18,7 @@ library(ECharts2Shiny)
 
 
 server <- function(input, output) {
-  # output$outputId<-renderPlotly({
-  #   base_plot <- plot_ly(
-  #     type = "pie",
-  #     values = c(RMVal$Revenue[4], RMVal$Revenue[1], RMVal$Revenue[2], RMVal$Revenue[3]),
-  #     # labels = c("-", "0", "20", "40", "60", "80", "100"),
-  #     labels = c( RMVal$Revenue[1], RMVal$Revenue[2], RMVal$Revenue[3], RMVal$Revenue[4]),
-  #     rotation = 108,
-  #     direction = "anticlockwise",
-  #     hole = 0.4,
-  #     textinfo = "label",
-  #     textposition = "outside",
-  #     hoverinfo = "none",
-  #     domain = list(x = c(0, 0.48), y = c(0, 1)),
-  #     marker = list(colors = c('rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)', 'rgb(255, 255, 255)')),
-  #     showlegend = FALSE
-  #   )
-  #   b_plot <- add_trace(
-  #      base_plot,
-  #     type = "pie",
-  #     values = c(RMVal$Revenue[4],RMVal$Revenue[1], RMVal$Revenue[2], RMVal$Revenue[3],RMVal$Revenue[4]),
-  #     labels = c("CurrentYearSales", "FirstYear", "SecondYear", "ThirdYear", "FinalYear"),
-  #     # values = c(RMVal$Revenue[4]),
-  #     # labels = c("CurrentYearSales"),
-  #      rotation = 133,
-  #     direction = "anticlockwise",
-  #     hole = 0.3,
-  #     textinfo = "label",
-  #     textposition = "inside",
-  #     hoverinfo = TRUE,
-  #     domain = list(x = c(0, 0.48), y = c(0, 1)),
-  #     marker = list(colors = c('rgb(255, 255, 255)', 'rgb(232,226,202)', 'rgb(226,210,172)', 'rgb(223,189,139)', 'rgb(223,162,103)', 'rgb(226,126,64)')),
-  #     showlegend= FALSE
-  #   )
-  #   a <- list(
-  #     showticklabels = FALSE,
-  #     autotick = FALSE,
-  #     showgrid = FALSE,
-  #     zeroline = FALSE)
-  # 
-  #   b <- list(
-  #     xref = 'paper',
-  #     yref = 'paper',
-  #     x = 0.23,
-  #     y = 0.45,
-  #     showarrow = FALSE,
-  #     text = RMVal$Revenue[4])
-  # 
-  #   base_chart <- layout(
-  #     b_plot,
-  #     shapes = list(
-  #       list(
-  #         type = 'path',
-  #         path = 'M 0.235 0.5 L 0.24 0.62 L 0.245 0.5 Z',
-  #         xref = 'paper',
-  #         yref = 'paper',
-  #         fillcolor = 'rgba(44, 160, 101, 0.5)'
-  #       )
-  #     ),
-  #     xaxis = a,
-  #     yaxis = a,
-  #     annotations = b
-  #   )
-  #   
-  # })
+  
   ######################Gauge chart###############
   
   value = reactive({
@@ -93,9 +30,9 @@ server <- function(input, output) {
   })
   
   # example use of the automatically generated render function
-  output$gauge1 <- renderC3Gauge({ 
+  output$gauge1 <- renderC3Gauge({
     # C3Gauge widget
-    
+
     C3Gauge(RMVal$Revenue[3])
   })
   r1=RMVal$Revenue[4]
@@ -140,11 +77,11 @@ server <- function(input, output) {
   })
   
   #################Increase in Sales Percentage
-  differencegrowth=marchdata-febdata
-  mincreaseper=(differencegrowth/febdata)
+  
+  mincreaseper=((percentofmonthsdata[3]-percentofmonthsdata[2])/percentofmonthsdata[2])*100
   output$salesComparision <- renderValueBox({
     valueBox(
-      paste(round(mincreaseper*100,2),"%"), "Growth in sales", icon = icon("glyphicon glyphicon-open",lib="glyphicon"),
+      paste(round(mincreaseper,2),"%"), "Growth in sales", icon = icon("glyphicon glyphicon-open",lib="glyphicon"),
       color = "red"
     )
     
@@ -240,7 +177,7 @@ server <- function(input, output) {
   })
   ###Difference in sales per month
   output$Rev_curr<- renderGvis({
-    revqty<- select(msalebrand16mar,Brand,CurrentMonthSales,LastMonthSales,SalesGrowth)
+    revqty<- select(msalebrand16mar,Brand,Revenue,LastMonthSales,SalesGrowth)
     revqtychart<-gvisTable(revqty,options=list(height="300px"))
     return(revqtychart)
     
@@ -345,7 +282,7 @@ server <- function(input, output) {
   ###########topbrand for current month#########
   output$mtopbrand <- renderValueBox({
     valueBox(
-      value=tags$p("NextLevelApparel",style = "font-size: 75%;"),"Top Brand ",
+      value=tags$p("NextLevelApparel",style = "font-size: 100%;"),"Top Brand ",
       color = "maroon"
     )
     
@@ -380,7 +317,8 @@ server <- function(input, output) {
   ##########################################################################Year Dashbaord for Sales Start########################################################
   
   #################Increase in Sales Percentage per year
-  yincreaseper=(differencey/data15)*100
+  #yincreaseper=(differencey/data15)*100
+  yincreaseper<-((ypdata$sales[2]-ypdata$sales[1])/ypdata$sales[1])*100
   output$ysalesComparision <- renderValueBox({
     valueBox(
       paste(round(yincreaseper,2),"%"), "Growth in sales", icon = icon("glyphicon glyphicon-sort",lib="glyphicon"),
@@ -491,7 +429,7 @@ server <- function(input, output) {
   output$Yearly_sales_graph <- renderPlotly({
     # ysales<- select(ysalesval,Month,Sales)
     Month<-c("Jan","Feb","Mar")
-    Sales<-ysalesval$Sales
+    Sales<-ysalesval$sales
     ysd<-data.frame(Month,Sales)
     p<-plot_ly(ysd,labels = Month, values = Sales) %>%
       add_pie(hole = 0.6) %>%
@@ -511,24 +449,21 @@ server <- function(input, output) {
     
   })
   ########################Brand wise Revenue in the current year(2016)####################
-  
   output$year_wise_Brand_Revenue<- renderGvis({
     YBrandRevenue1<- select(YBrandRevenue,Brand,Revenue)
-    
     YBrandRevenuechart<-gvisPieChart(YBrandRevenue1,options=list(height="300px"))
     return(YBrandRevenuechart)
-    
-  })
-  ##plot for revenue genrted in all the years
+    })
+  ########plot for revenue genrted in all the years
   output$year_wise_revenue<- renderGvis({
     # yRsales<- select(yRevenue,Year,Revenue,yminc.annotation)
     if(input$yprobins!=1){
-      Psales<-((ypincval$Revenue[5]*input$yprobins/100))
-      minc1=((((ypincval$Revenue[5]+Psales)-ypincval$Revenue[5])/((ypincval$Revenue[5])))*100)
+      Psales<-((yRevenue$Revenue[5]*input$yprobins/100))
+      minc1=((((yRevenue$Revenue[5]+Psales)-yRevenue$Revenue[5])/((yRevenue$Revenue[5])))*100)
       ProRevenue<-c(0,0,0,0,Psales)
       mic.annotation<-c(paste(0,"%"),paste(0,"%"),paste(0,"%"),paste(0,"%"),paste(round(minc1,1),"%"))
-      ActRevenue<-c(ypincval$Revenue[1],ypincval$Revenue[2],ypincval$Revenue[3],ypincval$Revenue[4],ypincval$Revenue[5])
-      year<-c(ypincval$Year[1],ypincval$Year[2],ypincval$Year[3],ypincval$Year[4],ypincval$Year[5])
+      ActRevenue<-c(yRevenue$Revenue[1],yRevenue$Revenue[2],yRevenue$Revenue[3],yRevenue$Revenue[4],yRevenue$Revenue[5])
+      year<-c(yRevenue$Year[1],yRevenue$Year[2],yRevenue$Year[3],yRevenue$Year[4],yRevenue$Year[5])
       rbind<-data.frame(ActRevenue,ProRevenue,year,yminc.annotation,mic.annotation)
       yRsalechart<-gvisColumnChart(rbind,xvar = "year",yvar = c("ActRevenue","yminc.annotation","ProRevenue","mic.annotation"),options=list(isStacked=TRUE,colors="['#008000','3A5F0B']"))
       return(yRsalechart) 
@@ -610,7 +545,7 @@ server <- function(input, output) {
   })
   ###Difference in sales
   output$ySalesdiff<- renderGvis({
-    yrevqty<- select(ybrandsale,Brand,CurrentYear,LastYear,GrowthinSales)
+    yrevqty<- select(ybrandsale,Brand,CurrentYearRevenue,LastYearRevenue,GrowthinSales)
     yrevqtychart<-gvisTable(yrevqty)
     return(yrevqtychart)
     
@@ -761,8 +696,8 @@ server <- function(input, output) {
   ######
   ##plot for sales and Pricing in a month
   output$msalespricing<- renderGvis({
-    munitssoldandship<- select(msupplychainval,Day,UnitsOrdered,UnitsShipped)
-    Day<-msupplychainval$Day
+    munitssoldandship<- select(msupplychainval,day,UnitsOrdered,UnitsShipped,sales)
+    Day<-msupplychainval$day
     UnitsSold<-msupplychainval$UnitsOrdered
     UnitsShipped<-msupplychainval$UnitsShipped
     Sales<-msupplychainval$sales
@@ -793,7 +728,7 @@ server <- function(input, output) {
   
   ##Difference in Qty Per month
   output$Qty_curr<- renderGvis({
-    revqty<- select(msalebrand16mar,Brand,CurrentmonthQty,LastmonthQty,QuantityGrowth)
+    revqty<- select(msalebrand16mar,Brand,Qty,LastmonthQty,QuantityGrowth)
     revqtychart<-gvisTable(revqty,options=list(height="230px"))
     return(revqtychart)
     
@@ -842,14 +777,7 @@ server <- function(input, output) {
   
   
   
-  ##################top customer by items ordered for current month##############
-  outputTopcustomer<- renderValueBox({
-    valueBox(
-      paste(topcustomercurrentmonthbyitem), "Top customer ",icon = icon("glyphicon glyphicon-heart",lib="glyphicon"), 
-      color = "orange"
-    )
-    
-  })
+ 
   
   ###############################################Quantity CurrentMonth Dashboard end############################################################
   #########################################Quantity currentYear Dashboard end############################################################
@@ -888,12 +816,12 @@ server <- function(input, output) {
   })
   
   
-  ##plot for Qty sold by lcoation in a year
+  ##plot for Qty sold by lcoation in current year(2016)
   output$YQty_Sold_loc<- renderGvis({
     # ilsales<- select(InventsalesbyRegion,Revenue,Location)
-    yInventorysalesbyRegion <- yIsalesbyRegion
-    yilsales <- na.omit(yInventorysalesbyRegion)
-    yilgeostate <- gvisGeoChart(yilsales,"Location","QuantityOrdered",options=list(region="US",displayMode="regions",resolution="provinces",width="600px",height="400px",colors="['#5B2C6F']"))
+    yInventorysalesbyRegion <-select(yIsalesbyRegion,Location,qty)
+    #yilsales <- na.omit(yInventorysalesbyRegion)
+    yilgeostate <- gvisGeoChart(yInventorysalesbyRegion,"Location","qty",options=list(region="US",displayMode="regions",resolution="provinces",width="600px",height="400px",colors="['#5B2C6F']"))
     return(yilgeostate)
     
   })
@@ -1142,7 +1070,49 @@ server <- function(input, output) {
     )
     
   })
+  ############Visits by month and sales graph############
+  output$visits_sales <- renderPlotly({
+    p <- plot_ly() %>%
+      add_bars(MVisitsSales,x = ~MVisitsSales$Month, y = ~MVisitsSales$Sales,name="sales",marker=list(marker = list(color = 'rgb(144,103,167)'))) %>%
+      add_lines(x = ~MVisitsSales$Month,y = ~MVisitsSales$Visits, name = "Visits",marker = list(color = 'rgb(111, 54, 98)'), yaxis = "y2") %>%
+      layout(
+        yaxis2 = list( tickfont = list(color = "red"),overlaying = "y",side = "right",title = "Visits") , yaxis =list(title="Sales") ,
+        xaxis = list(title="Months")
+      )
+    
+  })
   
+  
+  ############Visits for 2015 by montly graph############
+  output$visits_sales2015 <- renderPlotly({
+    p <- plot_ly() %>%
+      add_bars(MVisitsSales2015,x = ~MVisitsSales2015$Month2015, y = ~MVisitsSales2015$Sales2015,name="Sales",marker = list(color = 'rgb(128,133,133)')) %>%
+      add_lines(x = ~MVisitsSales2015$Month2015,y = ~MVisitsSales2015$Visits2015, name = "visits",marker = list(color = 'rgb(205, 12, 24)'), yaxis = "y2") %>%
+      layout(
+        yaxis2 =  list( tickfont = list(color = "red"),overlaying = "y",side = "right",title = "Visits")  ,yaxis=list(title="Sales"), 
+        xaxis = list(title="Months")
+      )
+    
+  })
+  # ###############Year Wise Visits_Growth#################
+  # output$visits_Growth<- renderPlotly({
+  #   Visits<-c("0%","252%","18%","41%","-71%")
+  #   Years<-yearwebtraffic$year
+  #   visitorsgrowthorfall<-data.frame(Years,Visits)
+  #   p<-plot_ly(visitorsgrowthorfall,x=Years)%>%
+  #     add_bars(y=Visits)
+  #     # layout(t)
+  #   
+  # })
+  output$visits_Growth<- renderGvis({
+    #Visits<-c("0%","252%","18%","41%","-71%")
+    Years<-yearwebtraffic$year
+    Visits<-c(0,252,18,41,-71)
+    visitorsgrowthorfall<-data.frame(Years,Visits)
+    
+    Gvisitorschart <-gvisColumnChart(visitorsgrowthorfall,options=list(height="300px",colors="['FF5733','CCCC99']"))
+    return(Gvisitorschart) 
+  })
   
   
  

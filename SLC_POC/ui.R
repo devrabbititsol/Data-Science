@@ -11,7 +11,7 @@ library(highcharter)
 library(plotly)
 library(C3)
 library(ECharts2Shiny)
-
+library(png)
 ui <- dashboardPage(skin=c("red"),
                     
                     dashboardHeader(title ="SLC Activewear "),
@@ -81,44 +81,7 @@ ui <- dashboardPage(skin=c("red"),
                                        valueBoxOutput("mtopbrand",width = 3),
                                        valueBoxOutput("topcustomerforcurrentmonth",width = 3),
                                        valueBoxOutput("comparisionofvisitors",width = 3),
-                                       valueBoxOutput("month",width = 3),
-                                       box(
-                                         
-                                       tabsetPanel(tabPanel("PreviousYear",
-                                         # actionButton("update","update gauge"),
-                                       
-                                       # example use of the automatically generated output function
-                                       C3GaugeOutput("gauge1",height="200px" )
-                                                    
-                                       )
-                                      
-                                       ),
-                                       
-                                       width = 6,
-                                       height="300px",
-                                       status="success",
-                                       collapsible = TRUE
-                                       ),
-                                       box(
-                                         
-                                         tabsetPanel( tabPanel("CurrentYear",
-                                                               loadEChartsLibrary(),
-                                                               
-                                                               tags$div(id="test", style="height:300px;"),
-                                                               deliverChart(div_id = "test")
-                                                               # tabPanel("gauge_1",plotOutput("G"))
-                                         )
-                                         ),
-                                         width = 6,
-                                         height="300px",
-                                         status="primary",
-                                         collapsible = TRUE
-                                       )
-                                       # ,
-                                       # box(
-                                       # plotlyOutput("outputId", height = "300px"),
-                                       # title="Revenue Analysis"
-                                       # )
+                                       valueBoxOutput("month",width = 3)
                                        )
 
                               
@@ -145,7 +108,9 @@ ui <- dashboardPage(skin=c("red"),
                                       # tabPanel("Year",htmlOutput("Yearly_sales_graph")),
                                       tabPanel("Year",plotlyOutput("Yearly_sales_graph",height="300px")),
                                       tabPanel("Location",htmlOutput("sales_Location_graph_Year")),
-                                      tabPanel("Brand ",htmlOutput("year_wise_Brand_Revenue"))
+                                      tabPanel("Brand ",htmlOutput("year_wise_Brand_Revenue")),
+                                      tabPanel("Product",htmlOutput("topproducts")),
+                                      tabPanel("Location",htmlOutput("topproductsinlocwise"))
                                       # tabPanel("Total Sales BY Location",htmlOutput("sales_Location_Total_Year"))
                                     ),
                                     title=strong("Sales Analysis of Current Year"),
@@ -153,17 +118,17 @@ ui <- dashboardPage(skin=c("red"),
                                     collapsible = TRUE,
                                     # background = "olive",
                                     # solidHeader = TRUE,
-                                    height="400px",
+                                    height="450px",
                                     width=6
                                   ),
                                   box(
                                     tabsetPanel(
                                       tabPanel("Sales of a Year",htmlOutput("year_wise_revenue"),sliderInput("yprobins", "Increase in percentage",min= 1, max=100, value=1)),
-                                      tabPanel("Customer",highchartOutput("year_cust",height="300px")),
+                                      tabPanel("Customer",highchartOutput("year_cust",height="350px")),
                                       # tabPanel("Traffic",htmlOutput("web_traffic")
                                                
                                       tabPanel("Traffic",plotlyOutput("web_traffic",height="300px") ),
-                                      tabPanel("Brand Sales",htmlOutput("ySalesdiff"))         
+                                      tabPanel("Brand Sales",htmlOutput("ySalesdiff")) 
                                       
                                      
                                       # tabPanel("Customers",htmlOutput("cust_graph"))
@@ -173,37 +138,38 @@ ui <- dashboardPage(skin=c("red"),
                                     status="info",
                                     collapsible = TRUE,
                                     # solidHeader = TRUE,
-                                    height="400px",
+                                    height="450px",
                                     width=6
                                     
                                   ),
                                   box(
                                     tabsetPanel(
-                                      tabPanel("Product",htmlOutput("topproducts")),
-                                      tabPanel("Location",htmlOutput("topproductsinlocwise"))
-                                      # tabPanel("Brand Sales",htmlOutput("ySalesdiff"))
+                                      
+                                      tabPanel("Growth",htmlOutput("visits_Growth")),
+                                      tabPanel("Currentyear",plotlyOutput("visits_sales",height = "300px")),
+                                      tabPanel("PreiousYear",plotlyOutput("visits_sales2015",height = "300px"))
                                     ),
-                                    title=strong("Top 10 Best Products "),
+                                    title=strong("Customer Insights"),
                                     status="primary",
                                     collapsible = TRUE,
                                     # solidHeader = TRUE,
-                                    height = "360px",
+                                    height = "400px",
                                     width=6
                                   ),
                                   box(
                                     
                                     tabsetPanel(
-                                      tabPanel("CurrentYear",plotlyOutput("Avg_day",height = "250px")),
-                                      tabPanel("PreviousYear",plotlyOutput("month_avg",height = "250px")),
-                                      tabPanel("Eratio",plotlyOutput("er_year",height = "250px")),
-                                      tabPanel("SalesGrowth",plotlyOutput("sp_year",height = "250px"))
+                                      tabPanel("CurrentYear",plotlyOutput("Avg_day",height = "300px")),
+                                      tabPanel("PreviousYear",plotlyOutput("month_avg",height = "300px")),
+                                      tabPanel("Eratio",plotlyOutput("er_year",height = "300px")),
+                                      tabPanel("SalesGrowth",plotlyOutput("sp_year",height = "300px"))
                                                 
                                     ),
                                     title=strong("BenchMarking Analysis"),
                                     status="danger",
                                     collapsible = TRUE,
                                     # solidHeader = TRUE,
-                                    height="360px",
+                                    height="400px",
                                     width=6
                                   )
                                   
@@ -378,8 +344,9 @@ ui <- dashboardPage(skin=c("red"),
                                   valueBoxOutput("Number_of_visitors_in_q3",width=3),
                                   valueBoxOutput("Number_of_visitors_in_q4",width=3)
                                   
-                                  
-                                  
+                                )
+                                ,fluidRow(
+                                  img(src="SLC_Logo_charcoal.png",height="350px",width="1326px")
                                 )
                                 
                                 )
