@@ -19,7 +19,8 @@ ui <- dashboardPage(skin=c("red"),
                     dashboardSidebar(sidebarMenu(
                       menuItem("Dashboard",icon = icon("dashboard",lib="glyphicon"),menuSubItem("Current Month",tabName = "currentmonth"),menuSubItem("Current Year",tabName = "currentyear")),
                       menuItem("Inventory Analysis",menuSubItem("Current Month",tabName="currentmonthim"),menuSubItem("Current Year",tabName="currentyearim"),icon = icon("glyphicon glyphicon-home",lib="glyphicon")),
-                      menuItem("Forecasting",tabName = "forecasting",icon = icon("glyphicon glyphicon-fast-forward",lib="glyphicon"),badgeLabel = "Prediction", badgeColor = "green")
+                      menuItem("Forecasting",tabName = "forecasting",icon = icon("glyphicon glyphicon-fast-forward",lib="glyphicon"),badgeLabel = "Prediction", badgeColor = "green"),
+                      img(src="slcimage.jpg",width="200px",style="padding-top:350px;padding-left:40px")
                       
                     )),
                     dashboardBody(
@@ -345,9 +346,9 @@ ui <- dashboardPage(skin=c("red"),
                                   valueBoxOutput("Number_of_visitors_in_q4",width=3)
                                   
                                 )
-                                ,fluidRow(
-                                  img(src="SLC_Logo_charcoal.png",height="350px",width="1326px")
-                                )
+                                # ,fluidRow(
+                                #   img(src="SLC_Logo_charcoal.png",height="350px",width="1326px")
+                                # )
                                 
                                 )
 
