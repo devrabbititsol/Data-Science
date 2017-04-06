@@ -52,8 +52,8 @@ ui <- dashboardPage(skin=c("purple"),
                           
                     fluidRow( box(
                       tabsetPanel(
-                        tabPanel("Day Sales",htmlOutput("day_sales_mon")),
-                        tabPanel("Day wise Total Sales",htmlOutput("days_sales"))
+                        tabPanel("Day ",htmlOutput("day_sales_mon")),
+                        tabPanel("Sunday To Saturday in Month",htmlOutput("days_sales"))
                         
                       ),
                       title="Revenue Analysis",
@@ -66,10 +66,10 @@ ui <- dashboardPage(skin=c("purple"),
                       
                       box(tabsetPanel(
                         
-                        tabPanel("Week",highchartOutput("week_sales_charts",height="300px"))
+                        tabPanel("Weekend Revenue",highchartOutput("week_sales_charts",height="300px"))
                         
                       ),
-                      title="Week Analysis",
+                      title="Analysis of Revenue in a Month",
                       status="info",
                       height = "400px",
                       collapsible = TRUE,
@@ -81,7 +81,7 @@ ui <- dashboardPage(skin=c("purple"),
                     
                     fluidRow( box(
                       tabsetPanel(
-                        tabPanel("credit card",highchartOutput("credit_card_sales",height = "300px"))
+                        tabPanel("Credit Card Vs Cash",highchartOutput("credit_card_sales",height = "300px"))
                       ),
                       title="Payment Details",
                       status="success",
@@ -93,9 +93,9 @@ ui <- dashboardPage(skin=c("purple"),
                 
                     box(
                       tabsetPanel(
-                        tabPanel("Walk Dine Sales",htmlOutput("dine_walk"))
+                        tabPanel("Customer Analysis",htmlOutput("dine_walk"))
                       ),
-                      title="Walk Sales",
+                      title="Number Of Customers",
                       status="primary",
                       width = 6,
                       height="400px",
@@ -119,9 +119,9 @@ ui <- dashboardPage(skin=c("purple"),
                     fluidRow(
                       box( 
                         tabsetPanel(
-                          tabPanel("Item Sales",plotlyOutput("item_sales"))
+                          tabPanel("Category Analysis",plotlyOutput("item_sales"))
                         ),
-                        title="Categories Sales",
+                        title="Revenue Of Categories",
                         status="primary",
                         width = 12,
                         height="400px",
@@ -131,9 +131,9 @@ ui <- dashboardPage(skin=c("purple"),
                    # fluidRow(
                       box(
                         tabsetPanel(
-                          tabPanel("Item Quantity",plotlyOutput("item_qty"),height="400px")
+                          tabPanel("Category Analysis",plotlyOutput("item_qty"),height="400px")
                         ),
-                        title="Category Quantities",
+                        title="Quantity Of Categories",
                         status="info",
                         width = 12,
                         height="400px",

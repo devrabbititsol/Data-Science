@@ -1,10 +1,10 @@
-name: Restaurent_POC
+name: restaurent_poc
 title: Restaurent_POC
 account: dspoc
 server: shinyapps.io
 appId: 170144
-bundleId: 779150
+bundleId: 779191
 url: https://dspoc.shinyapps.io/Restaurent_POC/
-when: 1491473166.32211
+when: 1491477150.04964
 asMultiple: FALSE
 asStatic: FALSE

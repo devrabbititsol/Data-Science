@@ -2,6 +2,7 @@ library(shiny)
 library(shinydashboard)
 library(googleVis)
 library(plotly)
+library(highcharter)
 
 server <- function(input, output) {
   
@@ -294,7 +295,7 @@ server <- function(input, output) {
       
       p<-plot_ly(daydata, x = ~Category_Names,height="300px") %>%
         
-        add_lines(y=~Quantity, name = "item_QTY", visible = T,height="300px")%>%
+        add_lines(y=~Quantity, name = "item_QTY", visible = T,height="300px",marker=list(marker = list(color = 'rgb(147, 34, 141)')))%>%
       layout(autosize = F, width = 1200, height = 300, margin = m)
       return(p)
     }
