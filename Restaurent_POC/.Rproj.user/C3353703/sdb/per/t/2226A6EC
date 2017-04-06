@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "Category_Names,  QTY,  ITEM_DISCOUNT,  BILL_DISCOUNT,  AMOUNT,  TAX_AMT,  TOTAL,  GROSS_MARGIN\nAPPETIZERS,31,45,63.1,2768.9,538.58,3307.48,2768.9\nBEVERAGES,44,156.3,3.49,1424.73,269.59,1694.32,1424.73\nCLASSIC_PIZZA,17,0,0,2390,464.84,2854.84,2390\nSANDWIZZA,5,0,19.8,461.2,89.71,550.91,461.2\nDESSERTS,4,0,22.25,293.75,57.14,350.89,293.75\nEXOTIC_PIZZA,8,0,44,1886,366.83,2252.83,1886\nNVG_PIZZA,11,0,266.77,3773.23,733.87,4507.1,3773.23\nVEG_PIZZA,14,0,110,3230,628.28,3858.28,3230\nMEAL_DEAL,3,0,0,697,135.57,832.57,697\nMY_PIZZA,8,0,0,492,95.69,587.69,492\nSOUPS_N_SALADS,1,0,21,88,17.12,105.12,88\nSUPREM_PIZZA,6,267.5,0,1822.5,354.48,2176.98,1822.5\nTOPPING_ADD,55,0,20.06,834.58,162.31,996.89,834.58\n",
+    "created" : 1491284750660.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1394623599",
+    "id" : "2226A6EC",
+    "lastKnownWriteTime" : 1491283558,
+    "last_content_update" : 1491283558,
+    "path" : "C:/Users/Nagadurga/Desktop/Restaurent_POC/Jan30_sales.csv",
+    "project_path" : "Jan30_sales.csv",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "text"
+}

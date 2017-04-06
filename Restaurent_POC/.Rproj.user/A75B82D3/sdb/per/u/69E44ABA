@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "\nweekendTot <-  sum(sunTot,satTot)\nweekdaysTot <- sum(monTot,tueTot,wedTot,thuTot,friTot)\nnames<-c(\"weekendTot\",\"weekdaysTot\")\nnames=as.data.frame(names)\nweek2<-c(weekendTot,weekdaysTot)\nweek2=as.data.frame(week2)\nsalesdata1<-cbind.data.frame(names,week2)\nhighchart(width = 400, height = 400) %>% \n  hc_title(text = \"Weekend Vs Week Days\") %>%\n  \n  hc_chart(type = \"pie\", options3d = list(enabled = TRUE, alpha = 70, beta = 0)) %>% \n  hc_plotOptions(pie = list(depth = 70)) %>% \n  hc_add_series_labels_values(salesdata1$names, salesdata1$week2) %>% \n  hc_add_theme(hc_theme(\n    chart = list(\n      backgroundColor = NULL\n    \n    )\n  ))",
+    "created" : 1491461848988.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "1994898780",
+    "id" : "69E44ABA",
+    "lastKnownWriteTime" : 1491461379,
+    "last_content_update" : 1491462775174,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
