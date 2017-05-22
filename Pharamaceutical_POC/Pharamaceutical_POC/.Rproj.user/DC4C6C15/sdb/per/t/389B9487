@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : ",Total Services commissioned,Anticoagulant Monitoring Service,Care Home Service,Disease Specific Medicines Management Service,Gluten Free Food Supply Service,Home Delivery Service,Independent Prescribing Service,Language Access Service,MedicationReviewService,Medicines Assessment and Compliance Support Service,Minor Ailment Scheme,Needle and Syringe Exchange Service,On Demand Availability of Specialist Drugs Services,Out of Hours Service,PatientGroupDirectionService,Prescriber Support Service,Schools Service,Screening Service,Stop Smoking Service,Supervised Administration Service,Supplementary Prescribing Service\ntotalservices,\"5,996\",33,14,0,182,0,2,0,417,290,\"1,863\",29,380,391,\"1,890\",111,0,0,165,229,0\nNorth of England,875,0,4,0,65,0,0,0,124,120,280,0,127,27,17,111,0,0,0,0,0\n\"Cheshire, Warrington and Wirral Area Team\",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n\"Cumbria, Northumberland, Tyne and Wear Area Team\",335,0,0,0,65,0,0,0,124,0,0,0,23,12,0,111,0,0,0,0,0\n\"Durham, Darlington and Tees Area Team\",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\nGreater Manchester Area Team,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\nLancashire Area Team,23,0,0,0,0,0,0,0,0,0,23,0,0,0,0,0,0,0,0,0,0\nMerseyside Area Team,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\nNorth Yorkshire and Humber Area Team,320,0,0,0,0,0,0,0,0,115,165,0,25,15,0,0,0,0,0,0,0\nSouth Yorkshire and Bassetlaw Area Team,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\nWest Yorkshire Area Team,197,0,4,0,0,0,0,0,0,5,92,0,79,0,17,0,0,0,0,0,0\nMidlands and East of England,\"1,915\",0,10,0,117,0,0,0,293,4,589,29,174,79,226,0,0,0,165,229,0\n\"Arden, Herefordshire and Worcestershire Area Team\",138,0,0,0,0,0,0,0,0,0,138,0,0,0,0,0,0,0,0,0,0\nBirmingham and The Black Country Area Team,232,0,10,0,0,0,0,0,0,4,192,0,26,0,0,0,0,0,0,0,0\nDerbyshire and Nottinghamshire Area Team,363,0,0,0,0,0,0,0,0,0,155,0,146,62,0,0,0,0,0,0,0\nEast Anglia Area Team,245,0,0,0,0,0,0,0,0,0,0,0,2,17,226,0,0,0,0,0,0\nEssex Area Team,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\nHertfordshire and the South Midlands Area Team,117,0,0,0,117,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\nLeicestershire and Lincolnshire Area Team,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\nShropshire and Staffordshire Area Team,820,0,0,0,0,0,0,0,293,0,104,29,0,0,0,0,0,0,165,229,0\nLondon,\"2,419\",0,0,0,0,0,0,0,0,166,821,0,56,146,\"1,230\",0,0,0,0,0,0\nLondon Area Team,\"2,419\",0,0,0,0,0,0,0,0,166,821,0,56,146,\"1,230\",0,0,0,0,0,0\nSouth of England,787,33,0,0,0,0,2,0,0,0,173,0,23,139,417,0,0,0,0,0,0\n\"Bath, Gloucestershire, Swindon and Wiltshire Area Team\",84,0,0,0,0,0,2,0,0,0,0,0,0,82,0,0,0,0,0,0,0\n\"Bristol, North Somerset, Somerset and South Gloucestershire Area Team\",155,0,0,0,0,0,0,0,0,0,132,0,23,0,0,0,0,0,0,0,0\n\"Devon, Cornwall and Isles of Scilly Area Team\",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\nKent and Medway Area Team,74,33,0,0,0,0,0,0,0,0,41,0,0,0,0,0,0,0,0,0,0\nSurrey and Sussex Area Team,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\nThames Valley Area Team,263,0,0,0,0,0,0,0,0,0,0,0,0,18,245,0,0,0,0,0,0\nWessex Area Team,211,0,0,0,0,0,0,0,0,0,0,0,0,39,172,0,0,0,0,0,0\n",
+    "created" : 1494420301623.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3598105588",
+    "id" : "389B9487",
+    "lastKnownWriteTime" : 1493988217,
+    "last_content_update" : 1493988217,
+    "path" : "C:/Users/Rama Devi/Desktop/Pharamaceutical_POC/Totalservices.csv",
+    "project_path" : "Totalservices.csv",
+    "properties" : {
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "text"
+}

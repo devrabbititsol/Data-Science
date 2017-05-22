@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "England, ESPLPScontractors,otherLPcontractors,Total LPS contractors, ESPLPScontractors14,otherLPScontractors14,Total LPS contractors\nCheshire,1,1,2,1,6,1\nCumbria,9,0,9,3,5,0\nDurham,3,0,3,6,10,0\nGreater Manchester ,2,2,4,4,1,5\nLancashire ,3,1,4,5,2,2\nMerseyside ,0,2,2,6,5,6\nNorth Yorkshire ,1,1,2,2,1,1\nSouth Yorkshire ,1,0,1,1,4,1\nWest Yorkshire ,3,0,3,3,6,3\nArden,3,0,3,6,10,3\nBirmingham,2,1,3,3,1,4\nDerbyshire ,3,0,3,5,1,6\nEast Anglia ,3,0,3,4,0,0\nEssex ,2,0,2,2,8,2\nHertfordshire ,18,0,18,13,5,13\nLeicestershire ,5,0,5,5,7,5\nShropshire ,1,0,1,1,11,1\nLondon ,15,21,36,19,15,55\nBath,4,0,4,10,8,0\nBristol,2,0,2,2,5,2\nDevon,3,3,6,3,1,4\nKent ,3,0,3,3,8,3\nSurrey ,6,6,12,8,9,8\nThames Valley,4,0,4,4,5,4\nWessex,5,0,5,5,4,5\n",
+    "created" : 1494408032989.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "751574643",
+    "id" : "884437F3",
+    "lastKnownWriteTime" : 1494932940,
+    "last_content_update" : 1494932940,
+    "path" : "C:/Users/Rama Devi/Desktop/Pharamaceutical_POC/Esplsplspcontructors.csv",
+    "project_path" : "Esplsplspcontructors.csv",
+    "properties" : {
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "text"
+}

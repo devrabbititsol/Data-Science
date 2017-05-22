@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1494591444071.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "A5C6EACF",
+    "lastKnownWriteTime" : 7308604914264011873,
+    "last_content_update" : 1494591444071,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "D32B6FE6",
+        "caption" : "Esplspercentages1",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=Esplspercentages1&cache_key=D32B6FE6",
+        "displayedObservations" : "1",
+        "environment" : "",
+        "object" : "Esplspercentages1",
+        "preview" : "0",
+        "totalObservations" : "1",
+        "variables" : "2"
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

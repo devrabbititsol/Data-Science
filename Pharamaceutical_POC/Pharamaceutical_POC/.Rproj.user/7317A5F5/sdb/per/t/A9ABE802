@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "upArrow <-c('<i class=\"glyphicon glyphicon-arrow-up\" style=\"color:green;float: right;padding: 2px 15px 0px 0px;\"></i>')\ndownArrow<-c('<i class=\"glyphicon glyphicon-arrow-down\" style=\"color:#bc3f30;float: right;padding: 2px 15px 0px 0px;\"></i>')\nminus<-c('<i class=\"glyphicon glyphicon-minus\" style=\"float: right;padding: 2px 15px 0px 0px;\"></i>')\n\npharmaciesandavgdispences<-read.csv(\"2a.csv\",row.names = 1)\nmaxno.ofcommphar<-max(pharmaciesandavgdispences$Numberofcommunitypharmacies)\nytop<-max(pharmaciesandavgdispences$Year)\navgitems<-max(pharmaciesandavgdispences$Averagemonthlyitemsperpharmacy)\napplicationstatus14<-read.csv(\"6aDecisions.csv\",row.names = 1)\nlocationpharma<-read.csv(\"2b.csv\",row.names = 1)\nopenclose <- read.csv(file=\"opening.csv\")\nycontractors<-read.csv(\"4acontractors.csv\",row.names = 1)\nlcontractors<-read.csv(\"4blcontractors.csv\",row.names = 1)\n####rama####\n# a<-pharmaciesandavgdispences[8,2]\n# b<-pharmaciesandavgdispences[9,2]\n# c=(b-a)/100\n# pharmaciesandavgdispences<-data.frame(cbind(c))\n\n\n\nMurser<-read.csv(file=\"Murservices.csv\")\ntotalpharmacies<-read.csv(file=\"communitypharmacies.csv\")\nopenclose <- read.csv(file=\"opening.csv\")\ncontra<-read.csv(file=\"contractors1.csv\")\nEsplsplsp<-read.csv(file=\"Esplsplspcontructors.csv\")\nprescridata<-read.csv(file=\"prescriptiondata.csv\")\nMurser<-read.csv(file=\"Murservices.csv\")\ntotser<-read.csv(file=\"Totalservices.csv\")\nindvsmul<-read.csv(file=\"inpenvsmultipercent.csv\")\n\n\n\na<-as.numeric(as.character(contra$IndependentContractors))\na<-na.omit(a)\nIndependentFactors<-data.frame(cbind(a))\n\n\nb<-as.numeric(as.character(contra$MultipleContractors))\nb<-na.omit(b)\nmulplecontractors<-data.frame(cbind(b))\nc<-as.numeric(as.character(totalpharmacies$Number.of.community.pharmacies))\nc<-na.omit(c)\ntotalpharmacies<-data.frame(cbind(c))\n\nd<-as.numeric(as.character(totser$PatientGroupDirectionService))\nd<-na.omit(d)\npatientser<-data.frame(cbind(d))\n\n\n\n\n####rama############\nYno.ofphar<-read.csv(\"3aNo.ofPharmacies.csv\",row.names = 1,header=TRUE,colClasses=\"character\")\ncolnames(Yno.ofphar)<-c(\"Year\",\"Total\",\"0-2000\",\"2000-4000\",\"4000-6000\",\"6000-8000\",\"8000-10000\",\"10000+\")\ndiff1314<-read.csv(\"4bdiff.csv\",row.names = 1)\ndecision<-read.csv(\"5aDecisionsonapplications.csv\",row.names = 1)\npharmaitemsdispenced<-read.csv(\"3bno.ofprescriptionitemsdispensed.csv\",row.names = 1)\ncolnames(pharmaitemsdispenced)<-c(\"Year\",\"Total\",\"0-2000\",\"2000-4000\",\"4000-6000\",\"6000-8000\",\"8000-10000\",\"10000+\")\nPharmprovidingMurservice<-read.csv(\"11aMUR.csv\",row.names = 1)",
+    "created" : 1494325622046.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3307991711",
+    "id" : "A9ABE802",
+    "lastKnownWriteTime" : 1494322826,
+    "last_content_update" : 1494322826,
+    "path" : "C:/Users/ADMIN/Desktop/Pharamaceutical2/pharmaconnect.R",
+    "project_path" : "pharmaconnect.R",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
