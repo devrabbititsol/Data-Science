@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "\nlibrary(plotly)\n\nx <- c('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December')\ny1 <- c(20, 14, 25, 16, 18, 22, 19, 15, 12, 16, 14, 17)\ny2 <- c(19, 14, 22, 14, 16, 19, 15, 14, 10, 12, 12, 16)\ndata <- data.frame(x, y1, y2)\n\n#The default order will be alphabetized unless specified as below:\ndata$x <- factor(data$x, levels = data[[\"x\"]])\n\np <- plot_ly(data, x = ~x, y = ~y1, type = 'bar', name = 'Primary Product', marker = list(color = 'rgb(49,130,189)')) %>%\n  add_trace(y = ~y2, name = 'Secondary Product', marker = list(color = 'rgb(204,204,204)')) %>%\n  layout(xaxis = list(title = \"\", tickangle = -45),\n         yaxis = list(title = \"\"),\n         margin = list(b = 100),\n         barmode = 'group')\n\np\n\n\n\ntoken<-\"EAACEdEose0cBAJoulB89OlETRnRck96KN3d6B4HR0esSpZBkfOaYiY8JVLZA42xKqlS0SAy69OGJ98jDs2g433bJVXsmMRSnsFpSMxTxaovuHY0dpKWNpPknwDtvEwf4Cgum9hGsG9oLCOHQCe339MHY8ZAUKZBfnlm9T4uhnmThW7bjMgwud7AWwdPvfd0ZD\"\n\npage1<- getPage(\"ebay\", since = as.character(Sys.Date()-7), until = as.character(Sys.Date()), token, n = 100)\n\npage1$time <- as.POSIXct(page1$created_time,origin=\"Sys.Date()\")\n\nlastweeklikes<-data.frame(sum(page1$likes_count))\nlastweekcomments<-data.frame(sum(page1$comments_count))\nlastweekshares<-data.frame(sum(page1$shares_count))\nlastweekposts<-data.frame(count(page1$id))\nlastweekposts1<-data.frame(sum(lastweekposts$freq))\n\n\n\n\n\n\n",
+    "created" : 1495176524545.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "2388484717",
+    "id" : "A758D74",
+    "lastKnownWriteTime" : 6638343631027794529,
+    "last_content_update" : 1495184367556,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
